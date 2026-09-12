@@ -1,0 +1,1073 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f1e7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Pocket Malé</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Thaana:wght@400;600&display=swap">
+
+<style>
+:root{
+  --paper:#f6f1e7;
+  --paper-2:#ece3d1;
+  --card:#fdfaf3;
+  --ink:#1c1a16;
+  --ink-2:#4e4740;
+  --muted:#8a8073;
+  --rule:#ded3bd;
+  --lacquer:#b2361f;
+  --lacquer-deep:#8c2916;
+  --ochre:#c08417;
+  --lagoon:#0d6663;
+  --night:#10201f;
+  --night-ink:#ede6d6;
+  --night-muted:#95a39a;
+  --night-rule:#2b423a;
+  --scene-bg:#efe6d4;
+  --scene-2:#d9cdb4;
+  --sea:#e3ebe8;
+  --shadow:0 1px 2px rgba(28,26,22,.05), 0 10px 30px -18px rgba(28,26,22,.28);
+  --display:'Newsreader',Georgia,'Times New Roman',serif;
+  --sans:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --dv:'Noto Sans Thaana','MV Faseyha','A_Faruma','Faruma',sans-serif;
+  --tabbar:66px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141210; --paper-2:#1d1a15; --card:#1b1813;
+    --ink:#f1eade; --ink-2:#c3bbab; --muted:#8d8578; --rule:#2f2a22;
+    --lacquer:#df7a5f; --lacquer-deep:#e89476; --ochre:#e0a83c; --lagoon:#63bdb1;
+    --night:#0c1817; --night-ink:#ede6d6; --night-muted:#93a199; --night-rule:#26392f;
+    --scene-bg:#241f19; --scene-2:#342d23;
+  --sea:#111b1a;
+    --sea:#111b1a;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141210; --paper-2:#1d1a15; --card:#1b1813;
+  --ink:#f1eade; --ink-2:#c3bbab; --muted:#8d8578; --rule:#2f2a22;
+  --lacquer:#df7a5f; --lacquer-deep:#e89476; --ochre:#e0a83c; --lagoon:#63bdb1;
+  --night:#0c1817; --night-ink:#ede6d6; --night-muted:#93a199; --night-rule:#26392f;
+  --scene-bg:#241f19; --scene-2:#342d23;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:none;
+}
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.015em;margin:0;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lacquer);outline-offset:2px;border-radius:6px}
+
+.dv{font-family:var(--dv);direction:rtl;unicode-bidi:isolate;line-height:1.9}
+.rom{font-family:var(--mono);font-size:.78rem;color:var(--muted);letter-spacing:.01em}
+.eyebrow{font-family:var(--mono);font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------------- shell ---------------- */
+.app{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;gap:12px;
+  padding:12px 18px;min-height:56px;
+  background:color-mix(in srgb,var(--paper) 92%,transparent);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--rule);
+}
+.topbar .mark{font-family:var(--display);font-style:italic;font-size:1.08rem;white-space:nowrap}
+.topbar .mark span{font-family:var(--dv);font-style:normal;color:var(--lacquer);font-size:1.1rem;margin-left:6px}
+.topbar .ctx{margin-left:auto;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.back{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.85rem;color:var(--lacquer);padding:4px 0;margin-right:2px;
+}
+
+main{flex:1;padding:0 0 calc(var(--tabbar) + env(safe-area-inset-bottom, 0px) + 18px)}
+.view{display:none;padding:20px 18px 8px}
+.view.on{display:block}
+.view-head{margin-bottom:18px}
+.view-head h2{font-size:1.6rem;line-height:1.15;margin-top:6px}
+.view-head p{font-size:.9rem;color:var(--ink-2);margin-top:8px;max-width:56ch}
+
+/* ---------------- tabbar ---------------- */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  background:color-mix(in srgb,var(--paper) 95%,transparent);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--rule);
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+.tabbar button{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:10px 4px 9px;color:var(--muted);
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  border-top:2px solid transparent;margin-top:-1px;
+}
+.tabbar button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button[aria-selected="true"]{color:var(--lacquer);border-top-color:var(--lacquer)}
+.tabbar .badge{
+  position:absolute;transform:translate(13px,-6px);
+  background:var(--lacquer);color:var(--paper);
+  font-size:.55rem;line-height:1;padding:3px 5px;border-radius:999px;
+}
+
+/* ---------------- situation grid ---------------- */
+.sits{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sit{
+  background:var(--card);border:1px solid var(--rule);border-radius:10px;
+  overflow:hidden;text-align:left;display:flex;flex-direction:column;
+  transition:border-color .15s, transform .12s;
+}
+.sit:active{transform:scale(.985)}
+.sit:hover{border-color:var(--ink-2)}
+.sit .scene{display:block;width:100%;height:auto;background:var(--scene-bg)}
+.sit .lab{padding:11px 12px 13px;display:flex;flex-direction:column;gap:2px}
+.sit .lab .dv{font-size:1.36rem;color:var(--ink)}
+.sit .lab .en{font-size:.82rem;color:var(--ink-2)}
+
+/* ---------------- situation detail ---------------- */
+.note{
+  background:var(--paper-2);border-left:3px solid var(--ochre);
+  padding:13px 15px;border-radius:0 8px 8px 0;margin:18px 0 22px;
+}
+.note .eyebrow{color:var(--ochre)}
+.note p{font-size:.88rem;color:var(--ink-2);margin-top:6px}
+
+.turns{display:flex;flex-direction:column;gap:10px}
+.turn{
+  background:var(--card);border:1px solid var(--rule);
+  border-radius:12px;padding:13px 15px;max-width:88%;
+  display:flex;flex-direction:column;gap:3px;position:relative;
+}
+.turn.you{align-self:flex-start;border-bottom-left-radius:3px}
+.turn.them{align-self:flex-end;border-bottom-right-radius:3px;background:var(--paper-2)}
+.turn .who{font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.turn.them .who{color:var(--lagoon)}
+.turn .dv{font-size:1.56rem;color:var(--ink)}
+.turn.them .dv{color:var(--lagoon)}
+.turn .en{font-family:var(--display);font-style:italic;font-size:.95rem;color:var(--ink-2);margin-top:2px}
+.turn .acts{display:flex;gap:8px;margin-top:9px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.72rem;color:var(--ink-2);
+  border:1px solid var(--rule);border-radius:999px;padding:4px 10px;background:var(--paper);
+}
+.chip svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.chip[aria-pressed="true"]{color:var(--lacquer);border-color:var(--lacquer)}
+.chip[aria-pressed="true"] svg{fill:var(--lacquer);stroke:var(--lacquer)}
+.chip:hover{border-color:var(--ink-2)}
+
+.detail-hero{border-radius:10px;overflow:hidden;border:1px solid var(--rule);margin-bottom:16px}
+.detail-hero .scene{display:block;width:100%;height:auto;background:var(--scene-bg)}
+
+.sv-link{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  border:1px solid var(--rule);border-radius:10px;background:var(--card);
+  padding:12px 14px;margin-top:18px;text-decoration:none;
+}
+.sv-link:hover{border-color:var(--ink-2)}
+.sv-link .t{font-size:.86rem}
+.sv-link .s{font-size:.75rem;color:var(--muted)}
+.sv-link .arrow{margin-left:auto;color:var(--lacquer)}
+
+/* ---------------- walk / street view ---------------- */
+.seg{display:flex;gap:6px;background:var(--paper-2);padding:4px;border-radius:999px;margin-bottom:18px}
+.seg button{
+  flex:1;padding:8px 10px;border-radius:999px;font-size:.84rem;color:var(--ink-2);
+}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+
+/* ---------------- offline vector map ---------------- */
+.mapwrap{
+  border:1px solid var(--rule);border-radius:12px;overflow:hidden;
+  background:var(--card);margin-bottom:8px;
+}
+.map{display:block;width:100%;aspect-ratio:4/3;height:auto}
+.map .sea{fill:var(--sea)}
+.map .m-land{fill:var(--card);stroke:none}
+.map .m-coast{fill:none;stroke:var(--ink);stroke-width:1.5px;stroke-linejoin:round;stroke-linecap:round}
+.map .m-main{fill:none;stroke:var(--ink-2);stroke-width:1.2px;stroke-linecap:round;opacity:.75}
+.map .m-minor{fill:none;stroke:var(--muted);stroke-width:.8px;stroke-linecap:round;opacity:.8}
+.map .m-island{
+  fill:var(--muted);font-family:var(--mono);letter-spacing:.18em;
+  text-anchor:middle;dominant-baseline:middle;
+}
+.map .m-pin{cursor:pointer}
+.map .m-pin .halo{fill:var(--lacquer);opacity:.16}
+.map .m-pin .dot{fill:var(--lacquer);stroke:var(--card);stroke-width:1px;vector-effect:non-scaling-stroke}
+.map .m-pin text{fill:var(--ink);font-family:var(--sans);font-weight:500;paint-order:stroke;stroke:var(--sea);stroke-width:3px;vector-effect:non-scaling-stroke}
+.map .m-pin:hover .halo,.map .m-pin:focus-visible .halo{opacity:.3}
+.map .m-pin.on .halo{fill:var(--ochre);opacity:.42}
+.map .m-pin.on .dot{fill:var(--ochre)}
+.map .m-scale path{stroke:var(--ink-2);stroke-width:1px;fill:none}
+.map .m-scale text{fill:var(--muted);font-family:var(--mono)}
+.mapcap{
+  display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.07em;color:var(--muted);
+  margin:0 0 18px;padding:0 2px;line-height:1.7;
+}
+.mapcap a{color:var(--muted)}
+
+.spots{display:flex;flex-direction:column;gap:14px}
+.spot{background:var(--card);border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+.spot.on{border-color:var(--ochre);box-shadow:0 0 0 3px color-mix(in srgb,var(--ochre) 18%,transparent)}
+.spot .head{padding:13px 15px;display:flex;align-items:flex-start;gap:12px}
+.spot .head h3{font-size:1.05rem}
+.spot .head .rom{display:block;margin-top:3px}
+.spot .head .dv{font-size:1.26rem;color:var(--lacquer);margin-left:auto;white-space:nowrap}
+.spot .desc{padding:0 15px 13px;font-size:.85rem;color:var(--ink-2)}
+.spot .pano{
+  position:relative;background:var(--night);
+  aspect-ratio:16/10;border-top:1px solid var(--rule);
+}
+.spot .pano iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.pano-cta{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;color:var(--night-ink);text-align:center;padding:20px;
+}
+.pano-cta .big{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--ochre);color:var(--night);border-radius:999px;padding:9px 18px;
+  font-size:.85rem;font-weight:500;
+}
+.pano-cta .sub{font-family:var(--mono);font-size:.63rem;letter-spacing:.08em;color:var(--night-muted);max-width:38ch;line-height:1.7}
+.pano-cta a{color:var(--ochre)}
+.spot .foot{
+  padding:11px 15px;border-top:1px solid var(--rule);
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.63rem;letter-spacing:.06em;color:var(--muted);
+}
+.spot .foot a{color:var(--lacquer);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--lacquer) 40%,transparent)}
+
+.sv-disclaimer{
+  margin-top:20px;padding:13px 15px;border:1px dashed var(--rule);border-radius:10px;
+  font-size:.8rem;color:var(--muted);
+}
+
+/* ---------------- saved ---------------- */
+.empty{
+  border:1px dashed var(--rule);border-radius:12px;padding:34px 22px;text-align:center;
+}
+.empty .dv{font-size:2rem;color:var(--muted);display:block;margin-bottom:10px}
+.empty p{font-size:.88rem;color:var(--muted);max-width:34ch;margin:0 auto}
+.saved-list{display:flex;flex-direction:column;gap:10px}
+.saved-item{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:13px 15px}
+.saved-item .from{font-family:var(--mono);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.saved-item .dv{font-size:1.5rem}
+.saved-item .en{font-family:var(--display);font-style:italic;font-size:.92rem;color:var(--ink-2);margin-top:3px}
+
+/* ---------------- about ---------------- */
+.about section{padding:20px 0;border-top:1px solid var(--rule)}
+.about section:first-of-type{border-top:0;padding-top:0}
+.about h3{font-size:1.15rem;margin-bottom:8px}
+.about p{font-size:.9rem;color:var(--ink-2);margin-top:8px;max-width:60ch}
+.fn-row{display:grid;grid-template-columns:auto auto auto 1fr;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule)}
+.fn-row:first-of-type{border-top:1px solid var(--rule)}
+.fn-row .base{font-family:var(--dv);font-size:1.6rem;color:var(--muted)}
+.fn-row .op{font-family:var(--mono);font-size:.66rem;color:var(--ochre);white-space:nowrap}
+.fn-row .made{font-family:var(--dv);font-size:1.6rem;color:var(--ink)}
+.fn-row .say{font-family:var(--mono);font-size:.72rem;color:var(--muted);text-align:right}
+.fn-row .say b{color:var(--ink-2);font-weight:500}
+.warn{background:var(--paper-2);border-left:3px solid var(--lacquer);padding:13px 15px;border-radius:0 8px 8px 0;margin-top:14px}
+.warn p{font-size:.86rem;color:var(--ink-2);margin-top:6px}
+.warn .eyebrow{color:var(--lacquer)}
+
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(var(--tabbar) + env(safe-area-inset-bottom, 0px) + 16px);
+  background:var(--night);color:var(--night-ink);
+  font-size:.8rem;padding:9px 16px;border-radius:999px;z-index:60;
+  box-shadow:var(--shadow);max-width:86vw;text-align:center;
+}
+.toast[hidden]{display:none}
+
+/* ---------------- scene svg ---------------- */
+.scene .bg{fill:var(--scene-bg)}
+.scene .e{fill:var(--scene-2)}
+.scene .a{fill:var(--lacquer)}
+.scene .b{fill:var(--lagoon)}
+.scene .c{fill:var(--ochre)}
+.scene .d{fill:var(--ink)}
+.scene .ln{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.scene .lnm{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round}
+
+/* ---------------- desktop ---------------- */
+@media (min-width:760px){
+  :root{--tabbar:0px}
+  .app{flex-direction:row;min-height:100vh}
+  .tabbar{
+    position:sticky;top:0;left:auto;right:auto;bottom:auto;height:100vh;
+    display:flex;flex-direction:column;align-items:stretch;gap:2px;
+    width:206px;flex:0 0 206px;
+    border-top:0;border-right:1px solid var(--rule);
+    padding:76px 14px 20px;
+  }
+  .tabbar button{
+    flex-direction:row;justify-content:flex-start;gap:11px;
+    padding:9px 12px;border-top:0;border-radius:8px;margin-top:0;
+    font-size:.7rem;letter-spacing:.06em;
+  }
+  .tabbar button[aria-selected="true"]{background:var(--paper-2);border-top-color:transparent}
+  .tabbar .badge{position:static;transform:none;margin-left:auto}
+  .shellmain{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{padding:14px 32px}
+  main{padding-bottom:40px}
+  .view{padding:28px 32px;max-width:880px}
+  .view-head h2{font-size:2.1rem}
+  .sits{grid-template-columns:repeat(3,1fr);gap:16px}
+  .turn{max-width:74%}
+  .toast{bottom:26px;left:auto;right:26px;transform:none}
+  .brandblock{position:absolute;top:18px;left:26px;font-family:var(--display);font-style:italic;font-size:1.1rem}
+  .brandblock span{font-family:var(--dv);font-style:normal;color:var(--lacquer);font-size:.95rem;margin-left:5px}
+  .topbar .mark{display:none}
+  .topbar .back{margin-right:0}
+}
+@media (max-width:759px){.brandblock{display:none}}
+
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+
+<div class="app">
+  <nav class="tabbar" role="tablist" aria-label="Sections">
+    <div class="brandblock">Pocket Malé <span>ހަލޯ؟</span></div>
+    <button role="tab" data-tab="phrases" aria-selected="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>
+      Phrases
+    </button>
+    <button role="tab" data-tab="walk" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="7"/><path d="M12 3v14M5 10h14"/></svg>
+      Walk
+    </button>
+    <button role="tab" data-tab="saved" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.2A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.8C19 15.6 12 20 12 20z"/></svg>
+      Saved<span class="badge" id="savedBadge" hidden>0</span>
+    </button>
+    <button role="tab" data-tab="about" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      About
+    </button>
+  </nav>
+
+  <div class="shellmain">
+    <header class="topbar">
+      <button class="back" id="backBtn" hidden>← Situations</button>
+      <div class="mark">Pocket Malé <span>ހަލޯ؟</span></div>
+      <div class="ctx" id="ctx">Malé · Dhivehi</div>
+    </header>
+
+    <main>
+      <section class="view on" id="view-phrases"></section>
+      <section class="view" id="view-walk"></section>
+      <section class="view" id="view-saved"></section>
+      <section class="view" id="view-about"></section>
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ============================================================
+   Pocket Malé — situation phrasebook for Malé, Maldives
+   Street View panorama IDs below were resolved against Google
+   Maps on 2026-09-12. Malé has no dense Street View car
+   coverage; these are user-contributed photospheres (2e10),
+   which is why each spot pins a specific pano ID rather than
+   letting a lat/lng snap to whatever is nearest.
+   ============================================================ */
+
+/* ---------- scene art ---------- */
+function frame(inner){
+  return '<svg class="scene" viewBox="0 0 320 190" role="img" preserveAspectRatio="xMidYMid slice">'
+    + '<rect class="bg" x="0" y="0" width="320" height="190"/>' + inner + '</svg>';
+}
+const SCENES = {
+  teashop: frame(`
+    <rect class="e" x="0" y="132" width="320" height="58"/>
+    <rect class="a" x="18" y="18" width="284" height="20"/>
+    <rect class="c" x="18" y="18" width="40" height="20"/><rect class="c" x="98" y="18" width="40" height="20"/>
+    <rect class="c" x="178" y="18" width="40" height="20"/><rect class="c" x="258" y="18" width="40" height="20"/>
+    <path class="ln" d="M18 38q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0q10 12 20 0"/>
+    <rect class="d" x="52" y="96" width="216" height="7" rx="2"/>
+    <rect class="ln" x="66" y="103" width="188" height="30"/>
+    <rect class="c" x="78" y="112" width="42" height="13" rx="2"/>
+    <rect class="c" x="136" y="112" width="42" height="13" rx="2"/>
+    <rect class="c" x="194" y="112" width="42" height="13" rx="2"/>
+    <path class="ln" d="M150 88q-7-9 0-17q7-8 0-16"/>
+    <path class="ln" d="M170 88q-7-9 0-17q7-8 0-16"/>
+    <circle class="c" cx="256" cy="62" r="7"/><path class="lnm" d="M256 38v17"/>`),
+
+  market: frame(`
+    <rect class="e" x="0" y="126" width="320" height="64"/>
+    <rect class="b" x="28" y="104" width="264" height="30" rx="8"/>
+    <ellipse class="d" cx="94" cy="112" rx="32" ry="10"/>
+    <path class="d" d="M62 112l-16-9v18z"/>
+    <ellipse class="a" cx="168" cy="116" rx="30" ry="9"/>
+    <path class="a" d="M138 116l-15-8v16z"/>
+    <ellipse class="d" cx="238" cy="112" rx="27" ry="8"/>
+    <path class="d" d="M211 112l-14-7v14z"/>
+    <circle class="bg" cx="112" cy="109" r="2.6"/><circle class="bg" cx="186" cy="113" r="2.4"/>
+    <path class="lnm" d="M240 16v46"/>
+    <path class="ln" d="M216 62h48l-24 22z"/>
+    <path class="ln" d="M228 86h24"/>
+    <rect class="c" x="44" y="40" width="130" height="9" rx="3"/>
+    <path class="lnm" d="M56 49v40M162 49v36"/>`),
+
+  ferry: frame(`
+    <circle class="c" cx="262" cy="44" r="17"/>
+    <rect class="b" x="0" y="122" width="320" height="68"/>
+    <path class="d" d="M58 122h182l-22 30H80z"/>
+    <rect class="d" x="104" y="86" width="96" height="36" rx="3"/>
+    <rect class="bg" x="116" y="96" width="20" height="15"/>
+    <rect class="bg" x="144" y="96" width="20" height="15"/>
+    <rect class="bg" x="172" y="96" width="20" height="15"/>
+    <path class="ln" d="M152 86V58"/><path class="a" d="M152 58h34v16h-34z"/>
+    <path class="lnm" d="M12 140h44M266 148h42M20 164h56M244 168h58"/>
+    <rect class="d" x="272" y="104" width="7" height="26"/><rect class="d" x="292" y="110" width="7" height="20"/>
+    <rect class="d" x="252" y="112" width="7" height="18"/>`),
+
+  taxi: frame(`
+    <rect class="e" x="0" y="128" width="320" height="62"/>
+    <path class="d" d="M58 128v-26l24-26h80l30 26h34a14 14 0 0 1 14 14v12z"/>
+    <path class="bg" d="M92 100l14-16h48v16z"/>
+    <path class="bg" d="M166 100V84h18l18 16z"/>
+    <rect class="c" x="118" y="58" width="52" height="17" rx="4"/>
+    <circle class="d" cx="104" cy="128" r="19"/><circle class="bg" cx="104" cy="128" r="7"/>
+    <circle class="d" cx="206" cy="128" r="19"/><circle class="bg" cx="206" cy="128" r="7"/>
+    <path class="lnm" d="M0 160h40M66 160h40M132 160h40M198 160h40M264 160h40" stroke-width="3"/>
+    <rect class="a" x="236" y="98" width="14" height="8" rx="2"/>`),
+
+  pharmacy: frame(`
+    <rect class="e" x="0" y="140" width="320" height="50"/>
+    <rect class="ln" x="32" y="24" width="256" height="98"/>
+    <path class="lnm" d="M32 58h256M32 90h256"/>
+    <rect class="a" x="44" y="32" width="24" height="20" rx="2"/>
+    <rect class="c" x="76" y="32" width="24" height="20" rx="2"/>
+    <rect class="b" x="108" y="32" width="24" height="20" rx="2"/>
+    <rect class="c" x="44" y="64" width="24" height="20" rx="2"/>
+    <rect class="a" x="76" y="64" width="24" height="20" rx="2"/>
+    <rect class="b" x="140" y="64" width="24" height="20" rx="2"/>
+    <rect class="c" x="172" y="96" width="24" height="20" rx="2"/>
+    <rect class="a" x="204" y="96" width="24" height="20" rx="2"/>
+    <rect class="b" x="236" y="32" width="24" height="20" rx="2"/>
+    <rect class="d" x="24" y="126" width="272" height="8" rx="2"/>
+    <path class="a" d="M226 56h16v14h14v16h-14v14h-16V86h-14V70h14z"/>`),
+
+  landlord: frame(`
+    <rect class="e" x="0" y="150" width="320" height="40"/>
+    <rect class="d" x="42" y="14" width="236" height="136"/>
+    <rect class="bg" x="60" y="30" width="34" height="26"/><rect class="bg" x="106" y="30" width="34" height="26"/>
+    <rect class="bg" x="180" y="30" width="34" height="26"/><rect class="bg" x="226" y="30" width="34" height="26"/>
+    <rect class="bg" x="60" y="70" width="34" height="26"/><rect class="bg" x="106" y="70" width="34" height="26"/>
+    <rect class="bg" x="180" y="70" width="34" height="26"/><rect class="bg" x="226" y="70" width="34" height="26"/>
+    <rect class="bg" x="60" y="110" width="34" height="26"/><rect class="bg" x="226" y="110" width="34" height="26"/>
+    <rect class="c" x="152" y="108" width="36" height="42"/>
+    <rect class="e" x="96" y="58" width="16" height="11"/><rect class="e" x="216" y="98" width="16" height="11"/>
+    <rect class="e" x="142" y="58" width="16" height="11"/>
+    <path class="lnm" d="M106 100h74"/>
+    <rect class="a" x="112" y="100" width="13" height="19" rx="2"/>
+    <rect class="b" x="134" y="100" width="13" height="22" rx="2"/>
+    <rect class="c" x="156" y="100" width="13" height="17" rx="2"/>`),
+
+  shop: frame(`
+    <rect class="e" x="0" y="146" width="320" height="44"/>
+    <rect class="a" x="30" y="16" width="260" height="16"/>
+    <rect class="ln" x="44" y="32" width="232" height="114"/>
+    <path class="lnm" d="M44 44h232M44 56h232M44 68h232"/>
+    <rect class="d" x="60" y="82" width="90" height="8" rx="2"/>
+    <rect class="c" x="66" y="92" width="18" height="20" rx="2"/>
+    <rect class="b" x="90" y="92" width="18" height="20" rx="2"/>
+    <rect class="a" x="114" y="92" width="18" height="20" rx="2"/>
+    <rect class="d" x="60" y="114" width="90" height="8" rx="2"/>
+    <rect class="c" x="66" y="124" width="18" height="18" rx="2"/>
+    <rect class="a" x="90" y="124" width="18" height="18" rx="2"/>
+    <rect class="ln" x="184" y="86" width="72" height="56" rx="4"/>
+    <rect class="b" x="196" y="98" width="48" height="18" rx="2"/>
+    <circle class="d" cx="204" cy="128" r="4"/><circle class="d" cx="220" cy="128" r="4"/><circle class="d" cx="236" cy="128" r="4"/>`),
+
+  clinic: frame(`
+    <rect class="e" x="0" y="142" width="320" height="48"/>
+    <rect class="d" x="96" y="18" width="128" height="54" rx="5"/>
+    <rect class="c" x="112" y="32" width="22" height="26" rx="2"/>
+    <rect class="c" x="142" y="32" width="22" height="26" rx="2"/>
+    <rect class="a" x="180" y="32" width="26" height="26" rx="2"/>
+    <rect class="ln" x="34" y="104" width="60" height="38" rx="4"/>
+    <rect class="ln" x="106" y="104" width="60" height="38" rx="4"/>
+    <rect class="ln" x="178" y="104" width="60" height="38" rx="4"/>
+    <path class="lnm" d="M34 122h60M106 122h60M178 122h60"/>
+    <rect class="b" x="258" y="76" width="42" height="66" rx="3"/>
+    <circle class="c" cx="266" cy="110" r="3"/>
+    <path class="lnm" d="M96 90h128"/>`)
+};
+
+/* ---------- situations ---------- */
+const SITUATIONS = [
+  {
+    id:'teashop', dv:'ސައި ހޮޓާ', rom:'sai hotaa', en:'Tea shop', spot:'majeedhee',
+    note:'Short eats (ހެދިކާ) are priced per piece, usually MVR 3–8, and you help yourself from the tray with tongs, then tell them what you took. "Sai" on its own means black tea. Most shops pull the shutter halfway for about fifteen minutes at each prayer time.',
+    turns:[
+      {s:'you', dv:'ހެދިކާ ހުރިތަ؟', rom:'hedhikaa hurritha?', en:"Have you got any short eats?"},
+      {s:'them', dv:'ގުޅަ، ބަޖިޔާ، ބިސް ކީމިޔާ ހުރި', rom:'gulha, bajiyaa, bis keemiyaa huri', en:'Gulha, bajiya, egg keemiya.'},
+      {s:'you', dv:'ދެ ގުޅަ އަދި ކަޅު ސައި', rom:'dhe gulha adhi kalhu sai', en:'Two gulha and a black tea.'},
+      {s:'them', dv:'ގެންދަނީތަ؟', rom:'gendhaneetha?', en:'Taking it away?'},
+      {s:'you', dv:'ނޫން، މިތާ ކާނީ', rom:'noon, mithaa kaanee', en:"No, I'll eat here."},
+      {s:'you', dv:'ބިލް ދެއްވަބަލަ', rom:'bill dhevvabala', en:'The bill, please.'}
+    ]
+  },
+  {
+    id:'market', dv:'މާރުކޭޓް', rom:'maarukeyt', en:'Local Market', spot:'market',
+    note:'Fish is sold by the kilo at the fish market; fruit and veg next door go by the pile, not by weight. Cash only, and the price softens a little if you buy more than one. Ask them to cut and clean it for you — they will, at no extra charge.',
+    turns:[
+      {s:'you', dv:'މީގެ އަގަކީ ކޮބާ؟', rom:'meege agakee kobaa?', en:"What's the price of this?"},
+      {s:'them', dv:'ކިލޯއެއް ފަންސާސް ރުފިޔާ', rom:'kiloeh fansaas rufiyaa', en:'Fifty rufiyaa a kilo.'},
+      {s:'you', dv:'އަގުހެޔޮ ކޮށްދީބަލަ', rom:'aguheyo kohdheebala', en:'Make it a bit cheaper for me.'},
+      {s:'them', dv:'ކިހާ ވަރެއް ބޭނުމީ؟', rom:'kihaa vareh beynumee?', en:'How much do you want?'},
+      {s:'you', dv:'ދެ ކިލޯ', rom:'dhe kilo', en:'Two kilos.'},
+      {s:'you', dv:'ކުދިކޮށް ކޮށާލަދީބަލަ', rom:'kudhikoh koshaaladheebala', en:'Cut it small for me.'}
+    ]
+  },
+  {
+    id:'ferry', dv:'ފެރީ', rom:'feri', en:'Ferry', spot:'hulhu-centre',
+    note:'MTCC ferries run Malé–Hulhumalé and Malé–Villimalé every ten to fifteen minutes, and cost a few rufiyaa. Since the bridge opened, buses are faster to Hulhumalé, but the ferry still wins for Villimalé. Tap your card at the gate — most people use the RaajjeTransport card.',
+    turns:[
+      {s:'you', dv:'ހުޅުމާލެއަށް ފެރީ ކޮންއިރަކު؟', rom:'hulhumaleah feri kon-iraku?', en:"When's the ferry to Hulhumalé?"},
+      {s:'them', dv:'ފަނަރަ މިނެޓު ތެރޭ', rom:'fanara minetu therey', en:'In fifteen minutes.'},
+      {s:'you', dv:'ޓިކެޓް ކޮންތާކުން؟', rom:'ticket konthaakun?', en:'Where do I get a ticket?'},
+      {s:'them', dv:'ކާޑު ޖައްސަވާ', rom:'kaadu jassavaa', en:'Just tap your card.'},
+      {s:'you', dv:'މިއީ ވިލިމާލެ ފެރީތަ؟', rom:'mee villimale feritha?', en:'Is this the Villimalé ferry?'}
+    ]
+  },
+  {
+    id:'taxi', dv:'ޓެކްސީ', rom:'teksee', en:'Taxi', spot:'majeedhee',
+    note:'Fares inside Malé are flat, not metered — around MVR 30, more if you cross the bridge to Hulhumalé or the airport. Plenty of drivers still take cash only, and you phone a taxi centre or use an app rather than hailing one on the street.',
+    turns:[
+      {s:'you', dv:'މަޖީދީ މަގަށް ދެވިދާނެތަ؟', rom:'majeedhee magah dhevidhaanetha?', en:'Can you take me to Majeedhee Magu?'},
+      {s:'them', dv:'ކޮން ހިސާބަކަށް؟', rom:'kon hisaabakah?', en:'Whereabouts?'},
+      {s:'you', dv:'ޗާންދަނީ މަގު ކަންމަތި', rom:'chaandhanee magu kanmathi', en:'The Chaandhanee Magu corner.'},
+      {s:'them', dv:'ކާޑެއް ނުހިނގާނެ', rom:'kaadeh nuhingaane', en:"Card won't work — cash."},
+      {s:'you', dv:'މަޑުކޮށްލަދީބަލަ', rom:'madhukohladheebala', en:'Wait for me a moment.'}
+    ]
+  },
+  {
+    id:'pharmacy', dv:'ބޭސްފިހާރަ', rom:'beysfihaara', en:'Pharmacy', spot:'sultan-park',
+    note:'Aasandha is the national health insurance scheme — say whether you are using it, and have your ID card out. STO pharmacies keep the longest hours and there is usually one open near IGMH through the night.',
+    turns:[
+      {s:'you', dv:'މި ބޭސް ސިޓީ', rom:'mi beys sitee', en:'This prescription, please.'},
+      {s:'them', dv:'އާސަންދަ ބޭނުންކުރަނީތަ؟', rom:'aasandha beynunkuraneetha?', en:'Are you using Aasandha?'},
+      {s:'you', dv:'ނޫން، އަމިއްލައަށް ދައްކާނީ', rom:'noon, amillaah dhakkaanee', en:"No, I'll pay myself."},
+      {s:'you', dv:'ބޮލުގައި ރިއްސަނީ', rom:'bolugai rissanee', en:'I have a headache.'},
+      {s:'them', dv:'ދުވާލަކު ތިން ފަހަރު', rom:'dhuvaalaku thin faharu', en:'Three times a day.'}
+    ]
+  },
+  {
+    id:'landlord', dv:'ގޭގެ ވެރިޔާ', rom:'geyge veriyaa', en:'Landlord', spot:'male-south',
+    note:'Rent is quoted per month, and the deposit is usually one or two months on top, plus an agent fee. Water and electricity are almost never included — ask, because Malé bills can be a real surprise in the hot months.',
+    turns:[
+      {s:'you', dv:'ކުލި ކިހާ ވަރެއް؟', rom:'kuli kihaa vareh?', en:'How much is the rent?'},
+      {s:'them', dv:'ބާރަ ހާސް، ޑިޕޮސިޓް ދެ މަސް', rom:'baara haas, deposit dhe mas', en:'Twelve thousand, two months deposit.'},
+      {s:'you', dv:'ފެނާއި ކަރަންޓް ހިމެނޭތަ؟', rom:'fenaai karantu himeneytha?', en:'Are water and electricity included?'},
+      {s:'them', dv:'ވަކިން ދައްކަވަންޖެހޭނެ', rom:'vakin dhakkavaanjeheyne', en:'You pay those separately.'},
+      {s:'you', dv:'ކޮޓަރި ބަލާލެވިދާނެތަ؟', rom:'kotari balaalevidhaanetha?', en:'Can I see the room?'}
+    ]
+  },
+  {
+    id:'shop', dv:'ފިހާރަ', rom:'fihaara', en:'Corner shop', spot:'majeedhee',
+    note:'Card is widely taken now, but the machine goes down often enough that you should keep a couple of hundred rufiyaa in small notes. If you want something held while you fetch cash, the word that makes it happen is ބަހައްޓާ.',
+    turns:[
+      {s:'you', dv:'ކާޑުން ދެއްކިދާނެތަ؟', rom:'kaadun dhekkidhaanetha?', en:'Can I pay by card?'},
+      {s:'them', dv:'ކާޑު މެޝިން ހަލާކުވެފައި', rom:'kaadu machine halaakuvefai', en:'The card machine is down.'},
+      {s:'you', dv:'މީތި ބަހައްޓާލަދީފާނަންތަ؟', rom:'meethi bahattaaladheefaanantha?', en:'Could you hold this for me?'},
+      {s:'you', dv:'ފައިސާ ހިފައިގެން އަންނާނަން', rom:'faisaa hifaigen annaanan', en:"I'll come back with cash."}
+    ]
+  },
+  {
+    id:'clinic', dv:'ހޮސްޕިޓަލް', rom:'hospital', en:'Clinic', spot:'sultan-park',
+    note:'IGMH is the public hospital and ADK the main private one. You take a number and wait, sometimes a long while — going early matters more than anything you can say at the desk.',
+    turns:[
+      {s:'you', dv:'ޑޮކްޓަރަށް ދައްކަން ބޭނުން', rom:'doctor-ah dhakkan beynun', en:"I'd like to see a doctor."},
+      {s:'them', dv:'އާސަންދަ ބޭނުންކުރަނީތަ؟', rom:'aasandha beynunkuraneetha?', en:'Are you using Aasandha?'},
+      {s:'them', dv:'އައިޑީ ކާޑު ދެއްވަބަލަ', rom:'ID kaadu dhevvabala', en:'Your ID card, please.'},
+      {s:'you', dv:'ނަންބަރު ކޮންއިރަކުން؟', rom:'namburu kon-irakun?', en:"When's my number up?"},
+      {s:'you', dv:'ބަނޑުގައި ރިއްސަނީ', rom:'bandugai rissanee', en:'I have a stomach ache.'}
+    ]
+  }
+];
+
+/* ---------- street view spots (verified pano IDs) ---------- */
+const SPOTS = {
+  'majeedhee':   {island:'male',  name:'Majeedhee Magu',      short:'Majeedhee Magu', dv:'މަޖީދީ މަގު',            rom:'majeedhee magu',
+                  desc:"Malé's main east–west street. Tea shops, phone shops and the densest scooter traffic in the country.",
+                  pano:'CIHM0ogKEICAgICE2K2-Yw', lat:4.1754959, lng:73.5093474, heading:69},
+  'market':      {island:'male',  name:'Local Market waterfront', short:'Local Market', dv:'ލޯކަލް މާރުކޭޓް',    rom:'local maarukeyt',
+                  desc:'The north harbour road, with the fish market and the produce market side by side and the dhonis tied up behind.',
+                  pano:'CIHM0ogKEICAgIDqvf7-9wE', lat:4.1784198, lng:73.5107529, heading:300},
+  'sultan-park': {island:'male',  name:'Sultan Park',          short:'Sultan Park', dv:'ސުލްޠާން ޕާކް',          rom:'sultan park',
+                  desc:'Green space beside the Old Friday Mosque, in the government quarter — ministries, the hospital and the pharmacies are all within a few minutes.',
+                  pano:'CIHM0ogKEICAgICFpffqXw', lat:4.177195, lng:73.510573, heading:4},
+  'male-south':  {island:'male',  name:'Southern Malé',        short:'Southern Malé', dv:'މާލެ ދެކުނު',            rom:'maale dhekunu',
+                  desc:'The residential grid south of Majeedhee Magu — narrow lanes, tall blocks, and where most of the rooms for rent actually are.',
+                  pano:'CIHM0ogKEICAgIDcx7S5rAE', lat:4.1745498, lng:73.5108431, heading:0},
+  'hulhu-centre':{island:'hulhumale', name:'Hulhumalé centre', short:'Hulhumalé centre', dv:'ހުޅުމާލެ',               rom:'hulhumale',
+                  desc:'Wide planned streets on reclaimed land, twenty minutes from Malé by bridge or ferry. Everything here was sea in 1997.',
+                  pano:'CIHM0ogKEICAgIDa0eeFyQE', lat:4.2114331, lng:73.5399576, heading:238},
+  'hulhu-beach': {island:'hulhumale', name:'Hulhumalé beach',  short:'The beach', dv:'ހުޅުމާލެ ބީޗް',          rom:'hulhumale beach',
+                  desc:'The east-facing artificial beach. Where Malé goes in the evening when the city gets too hot to sit in.',
+                  pano:'CIHM0ogKEICAgIDa0f-0XA', lat:4.216018, lng:73.5454479, heading:175}
+};
+
+/* ------------------------------------------------------------
+   Offline vector map of Malé, Hulhumalé, Villimalé and the
+   airport island. Geometry is real OpenStreetMap data (coastline
+   + trunk/primary/secondary/tertiary roads) queried from the
+   Overpass API, projected equirectangular about 4.21°N and
+   simplified with Ramer–Douglas–Peucker, then baked in here.
+   Nothing is fetched at runtime, so this renders everywhere —
+   including hosts whose CSP blocks Google frames.
+   1 map unit = 10.8 m.  © OpenStreetMap contributors (ODbL).
+   ------------------------------------------------------------ */
+const MAP = {
+  mPerUnit: 10.803,
+  views: {
+    male:      {vb:'427 666 268 201', ar:'4/3',   label:'Malé'},
+    hulhumale: {vb:'782 296 268 201', ar:'4/3',   label:'Hulhumalé'},
+    both:      {vb:'435 80 580 795',  ar:'58/79', label:'Malé, the airport and Hulhumalé'}
+  },
+  islands: [
+    {n:'MALÉ',      x:512, y:640},
+    {n:'HULHUMALÉ', x:806, y:150},
+    {n:'AIRPORT',   x:646, y:560}
+  ],
+  coast:"M576.2 736.9L569.8 733.1L571.6 728.9L580.8 731.1L556 723.3L567 727.6L565.4 732.4L560.1 732.3L543.7 738.5L540.6 727.7L541.6 725.7L553.6 723.7L536.8 725.2L539.4 733.9L534.7 735.3L532.4 725.6L529 726.5L528.7 725.3L519.2 729.1L519.8 730.5L506.3 739.3L510.5 737L514.4 747.3L507.7 749.8L501.9 745.3L503.8 741.7L489.9 761.1L483.6 774.9L485.1 778.6L482.6 783.2L482.8 788.2L478.9 793.6L476.5 793.4L473.6 804.5L477.7 824.9L479.2 819L497.4 820.9L496.9 826.9L489.6 826.4L489.3 829.1L496.5 830.1L495.3 841.1L482.6 840.8L477.2 829.9L476.9 832.7L474.4 833L472.8 824.3L471.6 841.3L472.9 848L475.1 851.5L480.7 854L512.1 854.1M878.9 518.2L879.3 523.2L876.1 527.9L874.8 527.6L873.2 532.9L876.4 533.6L875.8 536.5L880.1 538.7L884.5 525.2L888 533.5L887 539.9L867.7 582.4L843.9 643.2L828.6 643.9L828.7 624.2L830.8 622.8L829.3 615L815.3 615.2L815.2 635.8L810.4 635.9L810.4 638.5L803 638.4L802.8 632.9L800.3 631.9L800.2 576.9L810.4 576.1L810.2 552.7L807.7 552L807.2 554.8L800.3 554.8L800.1 392.3L789.6 360.8L800.9 335.4L792.4 330.8M827.8 243.5L823.5 254.5L822.2 254L821.5 255.8L796.4 320.3L803.1 323.1L809.3 322.5L816.2 325.1L824.7 325.1L833 297.2L842.7 290.2L848 276.1L869.4 279.9L866.8 288M866.8 288L843 373L840.3 372.2L836.4 387.1L833.4 386.3L828.8 402.8L834.1 404.5L831 415.6L832.6 416L831.3 420.4L829.8 420.1L822.5 446.7M822.5 446.7L828.8 457.2L832.8 459.8L878.9 518.2M751.4 773.4L758 775.1L758.4 777.9L756 780.8L758.5 783.1L769.7 776.4M769.7 776.4L788.3 765.5L789.9 757.4L809 736.6L826.9 708.1L851.3 662.2L863.3 633.4L892.1 539.5L891.4 530.1L886.3 521.4M792.4 330.8L789.7 332.3L783.5 355.4L779.1 363.2L747.5 461.2L748.3 481.6L743.7 487.2L738.5 507.1L738.5 520.5L734.2 547.9L731.6 559.4L729.6 560.9L732.6 559.2L733.6 552.4L739.1 552.3L739.5 570L730 570.1L729.7 589.2L726.8 588.9L727.4 576.9L726 591.9L724.1 594.9L727.3 595.2L726.3 606.5L725 606.8L726.8 606.9L727.4 597.3L741.4 596.9L742.1 639L735.1 645.1L734.3 674.3L733.3 675.9L727.3 675.9L725.5 677.7L730.9 704.7L744.8 755.2L744.1 759.9L746.6 760.2L751.4 773.4M562.3 845.3L575.2 845.7L601 841.5M512.1 854.1L522.1 853.6L526.7 850.5L536.1 850.5L535.4 854.2L538 849.7L525.3 848.9L525.4 844.5L562.3 845.3M601 841.5L608.5 840.3L614.3 842.9L653 832.4L653.1 830.9L649.1 830.4L649.1 813.5L653.1 806L659 802.8L659.6 796.6L658.2 797.7L656.1 796.4L655.7 791.8L658.8 789.2L660 791.5L662.8 773L666.3 770.7L662.4 769.6L657.7 760.3L649.7 755.4L637.9 751.3L638.5 753.1L642.1 754.1L641.1 757.5L628.7 753.4L629.8 749.5L635.5 751.1L630 748.8L617.7 745.7L626.3 748.5L625.2 752.3L612.3 748.7L613 746.2L603.8 743.6L603 746.1L580.3 739.6L576.2 736.9M886.3 521.4L926.9 396L960 266.2L993.1 176.5L998.9 153.9L999.9 126.7L996.9 117.6L989.4 110.2L982.3 105.6L973.9 103.3L970.5 106.5L970.5 112.6L958.5 110.2L954.9 103.5L951.2 102.4L906 114.3L901.5 121.4L905.5 116.5L916.1 128L907.9 135.8L892 120.9L895.3 119.7L895 118.1L887.1 122.2L879 130.7L873.2 140.8L865.8 164.2L841.4 210.7L827.8 243.5",
+  main:"M474.3 842.6L499.7 843.2M885.1 522.3L889.6 532L889.6 541.3M842.8 672L847 657.6L864.9 616.5M865.6 616.7L861.3 631.7L843.7 672.4M525.1 843.4L575.7 844.6L628.3 835.9M758.8 780.5L765.1 776.3M759.2 781.2L721.9 805.4L699.7 817L671.6 827.4L642.9 833.7M642.8 833L671.4 826.6L699.3 816.3L721.5 804.7L758.8 780.5M765.6 776.8L759.2 781.2M772.8 770.3L787.9 755.8L813.9 724.1L828.9 700.6L842.8 672M843.7 672.4L829.5 701L812.2 727.6L788.4 756.3L765.6 776.8M767.4 774.6L772.8 770.3M499.1 843.7L474.3 843.2M888.8 541.2L887.4 527.5L875.6 512.6M499.7 843.2L525.1 843.4M864.9 616.5L888.8 541.2M889.6 541.3L865.6 616.7M877.7 510.5L877.6 513.4L885.1 522.3M477.7 797.8L491.3 799.4M486.9 776.3L484.3 788.1L477.7 797.8M628.6 753.9L641.2 757.9M489.9 814L476.9 812.2M502.3 815.3L499.7 843.2M639.2 811.3L647.9 811.7M491.3 799.4L489.9 814M641.2 757.9L648.4 764.4M650.3 792.7L652 777L650.5 768.2M486.9 776.3L491 761.9L495.8 757M495.8 757L544.1 739.3M637.1 829.7L639.2 811.3M628.6 753.9L587.7 742M476.9 812.2L475.2 804L477.7 797.8M502.3 815.3L489.9 814M647.9 811.7L649.5 798.9M649.5 798.9L650.3 792.7M582 740.4L575.9 737.8M544.1 739.3L560.8 733.1L571.8 735.5",
+  minor:"M617.6 789.3L560.1 783.2M608.8 826.7L502.3 815.3M614 808.4L617.6 789.3M894.9 456.8L877.7 510.5M875.6 512.6L855.4 487M902 343L911.6 309.1M844.5 401.5L875.7 290.5M875.7 290.5L913.7 302.1M938.5 318.3L924.7 364.8M881.5 369.3L870.1 362.7L867.9 349.5M647.2 767.9L640.4 763.4M877.1 409.3L881.5 369.3M530.2 773.2L542.1 758.6L563.1 746.2M569.9 755L554.6 758.6L530.9 773.9M617.6 789.3L623.5 758.3M573.7 744.1L586.1 747.7M835.2 458.6L849.7 403M735.6 677.6L737.1 654.3M495.4 760.7L493.8 776.1M933.1 230.1L939.5 206.1M940.3 207.8L934.1 230.3M955.2 149.1L942.6 144.7L937 145.4L909.5 171L938.8 204.3M563.1 746.2L573.7 744.1M640.4 763.4L626.9 759.5M591.6 749.2L603.8 752.6M603.8 752.6L623.5 758.3M573.7 744.1L569.9 755M493.8 776.1L491.3 799.4M939.5 206.1L908.7 170.9L936.7 144.7L942.9 144L955.9 148.7M744 747.4L749.3 759.6L759.4 770.5M759.4 770.5L749 760.7L744 747.4M855.4 487L865.6 448.7M929.2 306.8L913.7 302.1M929.2 306.8L940.3 310.2M650.3 792.7L617.6 789.3M525.5 779.5L493.8 776.1M877.7 510.5L875.1 510.7L855.6 486M901.6 344.5L898 357.1M560.1 783.2L525.5 779.5M633.5 829.3L621.2 828M621.2 828L608.8 826.7M940.6 309.3L942.8 300.9M943.4 301L941.3 309.5M941.1 310.4L938.5 318.3M942.9 300.4L921.2 293.8M727.9 681.9L735.6 677.6M836.9 463.2L853.8 484L856.1 483.8M855.4 487L836.9 463.2M891.8 366.5L881.5 369.3M919.4 282.8L916.7 292.4M922.3 272.6L919.4 282.8M744 747.4L734 709.5M730.6 697.3L727.9 681.9M734 709.5L730.6 697.3M730.6 697.3L727.9 681.9M737.1 654.3L736.8 677.6M736.8 677.6L736.8 704M949.5 171.8L955.2 149.1M955.9 148.7L950.4 171.9M915.4 253.2L916.3 263.4L922.5 271.3M884.1 338.2L900.2 342.5M907 419.7L894.9 456.8M866.6 446.8L876.1 412.7M923.5 368.7L907 419.7M923.5 365.6L900 358.8M921.6 271.8L915.6 263.7L915 248M916 292.2L921.6 272.1M940.2 204.7L944 191.5M944.7 191.8L941 205M867.9 349.5L873.7 341.1L882.8 338.1M897.6 358.1L891.8 366.5M933.4 231.4L924.2 235.2L916.5 247.2M915.5 246.5L923.8 234.6L932.9 230.3M944.4 190.5L949.3 172.8M950.3 173L945 190.6",
+  pins:{
+    'majeedhee':[562.7,780.7], 'market':[577.1,750.6], 'sultan-park':[575.3,763.2],
+    'male-south':[578.1,790.5], 'hulhu-centre':[877.3,410.4], 'hulhu-beach':[933.7,363.2]
+  }
+};
+
+/* OSM coastline arrives as separate ways that share end nodes. Chain them
+   back into rings so the islands can be filled as land rather than left as
+   outlines on an undifferentiated tint. */
+let LAND = '';
+function stitchLand(d){
+  const chains = d.split('M').filter(Boolean).map(sub =>
+    sub.split('L').map(pt => pt.trim().split(/\s+/).map(Number))
+  );
+  const k = p => p[0].toFixed(1) + ',' + p[1].toFixed(1);
+  let merged = true;
+  while (merged){
+    merged = false;
+    outer:
+    for (let i = 0; i < chains.length; i++){
+      const a = chains[i];
+      if (!a) continue;
+      if (k(a[0]) === k(a[a.length - 1])) continue;       // already a ring
+      for (let j = 0; j < chains.length; j++){
+        const b = chains[j];
+        if (i === j || !b) continue;
+        if      (k(a[a.length-1]) === k(b[0]))            chains[i] = a.concat(b.slice(1));
+        else if (k(a[a.length-1]) === k(b[b.length-1]))    chains[i] = a.concat(b.slice(0,-1).reverse());
+        else if (k(a[0])          === k(b[b.length-1]))    chains[i] = b.concat(a.slice(1));
+        else if (k(a[0])          === k(b[0]))             chains[i] = b.slice().reverse().concat(a.slice(1));
+        else continue;
+        chains[j] = null; merged = true;
+        break outer;
+      }
+    }
+  }
+  return chains.filter(c => c && c.length > 8)
+    .map(c => 'M' + c.map(p => p[0] + ' ' + p[1]).join('L') + 'Z')
+    .join('');
+}
+
+function niceDistance(m){
+  const steps = [100,200,250,500,1000,2000,5000];
+  for (const s of steps) if (m <= s) return s;
+  return 5000;
+}
+
+function mapSvg(view, activeKey){
+  const v = MAP.views[view] || MAP.views.both;
+  const [vx, vy, vw, vh] = v.vb.split(' ').map(Number);
+  const r  = vw * 0.0135;
+  const fs = vw * 0.026;
+  const overview = view === 'both';
+
+  // scale bar: about a quarter of the visible width, rounded to a sensible number
+  const barM = niceDistance(vw * MAP.mPerUnit / 4);
+  const barU = barM / MAP.mPerUnit;
+  const bx = vx + vw * 0.62, by = vy + vh * 0.93;
+
+  const keys = Object.keys(MAP.pins).filter(k => overview || SPOTS[k].island === view);
+
+  return '<svg class="map" viewBox="' + v.vb + '" preserveAspectRatio="xMidYMid meet" '
+    + 'style="aspect-ratio:' + (v.ar || '4/3') + '" '
+    + 'role="img" aria-label="Map of ' + esc(v.label) + ' showing the panorama locations">'
+    + '<rect class="sea" x="' + vx + '" y="' + vy + '" width="' + vw + '" height="' + vh + '"/>'
+    + '<path class="m-land" d="' + LAND + '"/>'
+    + '<path class="m-minor" d="' + MAP.minor + '" vector-effect="non-scaling-stroke"/>'
+    + '<path class="m-main" d="' + MAP.main + '" vector-effect="non-scaling-stroke"/>'
+    + '<path class="m-coast" d="' + MAP.coast + '" vector-effect="non-scaling-stroke"/>'
+    + (overview ? MAP.islands.map(i =>
+        '<text class="m-island" x="' + i.x + '" y="' + i.y + '" font-size="' + (vw * 0.019) + '">'
+        + esc(i.n) + '</text>').join('') : '')
+    + keys.map(k => {
+        const [x, y] = MAP.pins[k];
+        const on = k === activeKey;
+        return '<g class="m-pin' + (on ? ' on' : '') + '" data-pin="' + k + '" tabindex="0" role="button" '
+          + 'aria-label="' + esc(SPOTS[k].name) + '">'
+          + '<circle class="halo" cx="' + x + '" cy="' + y + '" r="' + (r * 2.2) + '"/>'
+          + '<circle class="dot" cx="' + x + '" cy="' + y + '" r="' + r + '"/>'
+          + (overview ? '' : (() => {
+              const flip = x > vx + vw * 0.55;
+              return '<text x="' + (flip ? x - r * 1.9 : x + r * 1.9) + '" y="' + (y + fs * 0.34)
+                + '" font-size="' + fs + '" text-anchor="' + (flip ? 'end' : 'start') + '">'
+                + esc(SPOTS[k].short) + '</text>';
+            })())
+          + '</g>';
+      }).join('')
+    + '<g class="m-scale">'
+    + '<path d="M' + bx + ' ' + by + 'h' + barU + '" vector-effect="non-scaling-stroke"/>'
+    + '<path d="M' + bx + ' ' + (by - vh * 0.014) + 'v' + (vh * 0.028)
+    + 'M' + (bx + barU) + ' ' + (by - vh * 0.014) + 'v' + (vh * 0.028) + '" vector-effect="non-scaling-stroke"/>'
+    + '<text x="' + bx + '" y="' + (by - vh * 0.028) + '" font-size="' + (vw * 0.018) + '">'
+    + (barM >= 1000 ? (barM / 1000) + ' km' : barM + ' m') + '</text>'
+    + '</g></svg>';
+}
+
+function panoEmbed(s){
+  return 'https://www.google.com/maps/embed?pb=!4v1!6m8!1m7!1s' + s.pano
+       + '!2m2!1d' + s.lat + '!2d' + s.lng
+       + '!3f' + s.heading + '!4f0!5f0.7820865974627469';
+}
+function panoLink(s){
+  return 'https://www.google.com/maps/@?api=1&map_action=pano&pano=' + s.pano
+       + '&heading=' + s.heading + '&pitch=0&fov=90';
+}
+
+LAND = stitchLand(MAP.coast);
+
+/* ---------- storage ---------- */
+const KEY = 'pocketmale.saved.v1';
+function loadSaved(){
+  try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function persist(list){
+  try { localStorage.setItem(KEY, JSON.stringify(list)); } catch(e){}
+}
+let saved = loadSaved();
+const keyOf = (sitId, i) => sitId + ':' + i;
+const isSaved = k => saved.indexOf(k) !== -1;
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let toastTimer;
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+}
+function updateBadge(){
+  const b = $('#savedBadge');
+  b.textContent = saved.length;
+  b.hidden = saved.length === 0;
+}
+
+/* ---------- views ---------- */
+function renderPhrases(){
+  $('#view-phrases').innerHTML =
+    '<div class="view-head"><p class="eyebrow">Dhivehi phrasebook</p>'
+    + '<h2>Situations, not lessons.</h2>'
+    + '<p>Open the one you are about to walk into. Each has the lines you would say, the replies you will get back, and a note on how it actually works in Malé.</p></div>'
+    + '<div class="sits">'
+    + SITUATIONS.map(s =>
+        '<button class="sit" data-sit="' + s.id + '">'
+        + SCENES[s.id]
+        + '<span class="lab"><span class="dv">' + s.dv + '</span>'
+        + '<span class="rom">' + esc(s.rom) + '</span>'
+        + '<span class="en">' + esc(s.en) + '</span></span></button>'
+      ).join('')
+    + '</div>';
+}
+
+function renderSituation(id){
+  const s = SITUATIONS.find(x => x.id === id);
+  if (!s) return;
+  const spot = SPOTS[s.spot];
+  $('#view-phrases').innerHTML =
+    '<div class="detail-hero">' + SCENES[s.id] + '</div>'
+    + '<div class="view-head"><p class="eyebrow">' + esc(s.rom) + '</p>'
+    + '<h2>' + esc(s.en) + ' <span class="dv" style="font-size:1.78rem">' + s.dv + '</span></h2></div>'
+    + '<div class="note"><p class="eyebrow">Malé note</p><p>' + esc(s.note) + '</p></div>'
+    + '<div class="turns">'
+    + s.turns.map((t, i) => {
+        const k = keyOf(s.id, i);
+        return '<div class="turn ' + t.s + '">'
+          + '<span class="who">' + (t.s === 'you' ? 'You' : 'They say') + '</span>'
+          + '<span class="dv">' + t.dv + '</span>'
+          + '<span class="rom">' + esc(t.rom) + '</span>'
+          + '<span class="en">' + esc(t.en) + '</span>'
+          + '<span class="acts">'
+          + '<button class="chip" data-say="' + esc(t.dv) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Listen</button>'
+          + '<button class="chip" data-fav="' + k + '" aria-pressed="' + isSaved(k) + '">'
+          + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.2A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.8C19 15.6 12 20 12 20z"/></svg>'
+          + (isSaved(k) ? 'Saved' : 'Save') + '</button>'
+          + '</span></div>';
+      }).join('')
+    + '</div>'
+    + (spot ? '<button class="sv-link" data-goto-spot="' + s.spot + '">'
+        + '<span><span class="t">Walk ' + esc(spot.name) + '</span><br><span class="s">See where this conversation happens</span></span>'
+        + '<span class="arrow">→</span></button>' : '');
+  window.scrollTo(0, 0);
+}
+
+let walkView = 'male', activePin = null;
+
+function renderWalk(island, pin){
+  walkView = island || walkView || 'male';
+  island = walkView;
+  if (pin !== undefined) activePin = pin;
+  const list = Object.keys(SPOTS).filter(k => island === 'both' || SPOTS[k].island === island);
+  $('#view-walk').innerHTML =
+    '<div class="view-head"><p class="eyebrow">Walk the city</p>'
+    + '<h2>Stand where you would say it.</h2>'
+    + '<p>Six street-level panoramas across Malé and Hulhumalé, pinned to the places the phrases belong to. Tap a pin on the map, then open the panorama and drag to look around.</p></div>'
+    + '<div class="seg" role="tablist">'
+    + '<button role="tab" data-island="male" aria-selected="' + (island === 'male') + '">Malé</button>'
+    + '<button role="tab" data-island="hulhumale" aria-selected="' + (island === 'hulhumale') + '">Hulhumalé</button>'
+    + '<button role="tab" data-island="both" aria-selected="' + (island === 'both') + '">Both</button>'
+    + '</div>'
+    + '<div class="mapwrap">' + mapSvg(island, activePin) + '</div>'
+    + '<p class="mapcap"><span>' + esc(MAP.views[island].label) + ' · '
+    + list.length + ' panorama' + (list.length === 1 ? '' : 's') + '</span>'
+    + '<span>Map data © OpenStreetMap contributors</span></p>'
+    + '<div class="spots">'
+    + list.map(k => {
+        const s = SPOTS[k];
+        return '<article class="spot' + (k === activePin ? ' on' : '') + '" id="spot-' + k + '">'
+          + '<div class="head"><div><h3>' + esc(s.name) + '</h3><span class="rom">' + esc(s.rom) + '</span></div>'
+          + '<span class="dv">' + s.dv + '</span></div>'
+          + '<p class="desc">' + esc(s.desc) + '</p>'
+          + '<div class="pano" data-pano="' + k + '">'
+          + '<div class="pano-cta">'
+          + '<button class="big" data-load="' + k + '">Open panorama</button>'
+          + '<span class="sub">Loads Google Street View · ' + s.lat.toFixed(4) + ', ' + s.lng.toFixed(4) + '</span>'
+          + '</div></div>'
+          + '<div class="foot"><span>Pano ' + esc(s.pano.slice(0, 12)) + '…</span>'
+          + '<a href="' + panoLink(s) + '" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a></div>'
+          + '</article>';
+      }).join('')
+    + '</div>'
+    + '<p class="sv-disclaimer">The map above is drawn from OpenStreetMap coastline and road data baked into this page — it needs no network and always renders. The panoramas are a separate thing: Malé has no continuous Street View car coverage, so these are user-contributed 360° photospheres, each pinned by its own panorama ID rather than snapping to whatever is nearest. Imagery © Google and its contributors. If a panorama panel stays empty, this page is being served somewhere that blocks Google frames — the link under each one always works.</p>';
+}
+
+function renderSaved(){
+  const el = $('#view-saved');
+  let body;
+  if (!saved.length){
+    body = '<div class="empty"><span class="dv">ހުސް</span>'
+      + '<p>Nothing saved yet. Tap ♡ on any line and it will wait for you here.</p></div>';
+  } else {
+    body = '<div class="saved-list">' + saved.map(k => {
+      const [sid, idx] = k.split(':');
+      const s = SITUATIONS.find(x => x.id === sid);
+      if (!s) return '';
+      const t = s.turns[+idx];
+      if (!t) return '';
+      return '<div class="saved-item">'
+        + '<div class="from">' + esc(s.en) + ' · ' + (t.s === 'you' ? 'you say' : 'they say') + '</div>'
+        + '<div class="dv">' + t.dv + '</div>'
+        + '<div class="rom">' + esc(t.rom) + '</div>'
+        + '<div class="en">' + esc(t.en) + '</div>'
+        + '<span class="acts" style="display:flex;gap:8px;margin-top:10px">'
+        + '<button class="chip" data-say="' + esc(t.dv) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Listen</button>'
+        + '<button class="chip" data-fav="' + k + '" aria-pressed="true">Remove</button>'
+        + '</span></div>';
+    }).join('') + '</div>';
+  }
+  el.innerHTML = '<div class="view-head"><p class="eyebrow">Your review list</p>'
+    + '<h2>Saved lines.</h2>'
+    + '<p>Kept on this device only — no account, nothing uploaded.</p></div>' + body;
+}
+
+function renderAbout(){
+  $('#view-about').innerHTML =
+    '<div class="view-head"><p class="eyebrow">About</p><h2>Pocket Malé</h2>'
+    + '<p>A situation-based Dhivehi phrasebook for the city, with street-level panoramas of the places the phrases belong to.</p></div>'
+    + '<div class="about">'
+    + '<section><h3>Reading the fili</h3>'
+    + '<p>Thaana is twenty-four letters and ten <em>fili</em> — the vowel marks that ride above and below them. A letter on its own is only a consonant; the fili tells you what to say.</p>'
+    + '<div class="fn-row"><span class="base">ސ</span><span class="op">+ abafili =</span><span class="made">ސަ</span><span class="say"><b>sa</b> · <span class="dv">ސައި</span>, tea</span></div>'
+    + '<div class="fn-row"><span class="base">ބ</span><span class="op">+ eybeyfili =</span><span class="made">ބޭ</span><span class="say"><b>bey</b> · <span class="dv">ބޭސް</span>, medicine</span></div>'
+    + '<div class="fn-row"><span class="base">ކ</span><span class="op">+ ubufili =</span><span class="made">ކު</span><span class="say"><b>ku</b> · <span class="dv">ކުލި</span>, rent</span></div>'
+    + '</section>'
+    + '<section><h3>Malé Dhivehi, not the written register</h3>'
+    + '<p>The spoken city dialect. Where a textbook teaches <span class="dv">އަޅުގަނޑު</span> (<span class="rom">alhugandu</span>), across a counter in Malé you will hear <span class="dv">އަހަރެން</span> (<span class="rom">ahuren</span>). The atoll dialects — Addu, Fuvahmulah, Huvadhu — differ enough that mixing them in would confuse more than help, so they are left out.</p></section>'
+    + '<section><h3>Audio</h3>'
+    + '<p>Listen uses your device speech synthesis. Almost no device ships a Dhivehi voice, so it will usually tell you so rather than read the line out in the wrong language — recorded audio is what a real build would ship.</p></section>'
+    + '<section><h3>Street View</h3>'
+    + '<p>The six panoramas are user-contributed 360° photospheres resolved against Google Maps, pinned by panorama ID. Imagery © Google and its contributors. If a panel stays blank, the page is being served somewhere that blocks Google frames — use the "Open in Google Maps" link underneath it.</p></section>'
+    + '<section><div class="warn"><p class="eyebrow">Check the Dhivehi before shipping</p>'
+    + '<p>This is a demonstration build. The Thaana has not been reviewed by a native speaker — spelling, fili placement and the naturalness of the longer sentences all need checking before it goes in front of anyone learning from it.</p></div></section>'
+    + '</div>';
+}
+
+/* ---------- speech ---------- */
+function speak(text){
+  if (!('speechSynthesis' in window)){
+    toast('This device has no speech synthesis.'); return;
+  }
+  const voices = speechSynthesis.getVoices() || [];
+  const dv = voices.find(v => /^dv(-|_|$)/i.test(v.lang || ''));
+  if (!dv){
+    toast('No Dhivehi voice on this device — a real build ships recorded audio.');
+    return;
+  }
+  const u = new SpeechSynthesisUtterance(text);
+  u.voice = dv; u.lang = dv.lang; u.rate = 0.9;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+if ('speechSynthesis' in window) speechSynthesis.getVoices();
+
+/* ---------- navigation ---------- */
+let current = 'phrases';
+function showTab(tab){
+  current = tab;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  $('#view-' + tab).classList.add('on');
+  document.querySelectorAll('.tabbar button[data-tab]').forEach(b => {
+    b.setAttribute('aria-selected', String(b.dataset.tab === tab));
+  });
+  $('#backBtn').hidden = true;
+  $('#ctx').textContent = tab === 'walk' ? 'Street View' : 'Malé · Dhivehi';
+  if (tab === 'phrases') renderPhrases();
+  if (tab === 'saved') renderSaved();
+  window.scrollTo(0, 0);
+}
+
+document.addEventListener('click', e => {
+  const tabBtn = e.target.closest('.tabbar button[data-tab]');
+  if (tabBtn){ showTab(tabBtn.dataset.tab); return; }
+
+  const sit = e.target.closest('[data-sit]');
+  if (sit){
+    renderSituation(sit.dataset.sit);
+    $('#backBtn').hidden = false;
+    return;
+  }
+
+  if (e.target.closest('#backBtn')){ showTab('phrases'); return; }
+
+  const island = e.target.closest('[data-island]');
+  if (island){ renderWalk(island.dataset.island, null); return; }
+
+  const pin = e.target.closest('[data-pin]');
+  if (pin){
+    const key = pin.dataset.pin;
+    renderWalk(SPOTS[key].island === walkView || walkView === 'both' ? walkView : SPOTS[key].island, key);
+    const el = document.getElementById('spot-' + key);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
+  const goto = e.target.closest('[data-goto-spot]');
+  if (goto){
+    const key = goto.dataset.gotoSpot;
+    renderWalk(SPOTS[key].island, key);
+    showTabOnly('walk');
+    const el = document.getElementById('spot-' + key);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    return;
+  }
+
+  const load = e.target.closest('[data-load]');
+  if (load){
+    const key = load.dataset.load;
+    const box = document.querySelector('.pano[data-pano="' + key + '"]');
+    const s = SPOTS[key];
+    box.innerHTML = '<iframe title="Street View — ' + esc(s.name) + '" src="' + panoEmbed(s)
+      + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>';
+    // A working Google embed builds nested subframes; one blocked by a strict
+    // frame-src policy stays at about:blank with none. Fall back to the link.
+    setTimeout(() => {
+      const f = box.querySelector('iframe');
+      if (!f) return;
+      let nested = 1;
+      try { nested = f.contentWindow ? f.contentWindow.length : 0; } catch (err) { nested = 1; }
+      if (nested === 0){
+        box.innerHTML = '<div class="pano-cta">'
+          + '<span class="sub">This page is served somewhere that blocks Google frames. The panorama opens fine in a new tab.</span>'
+          + '<a class="big" href="' + panoLink(s) + '" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a></div>';
+      }
+    }, 4000);
+    return;
+  }
+
+  const say = e.target.closest('[data-say]');
+  if (say){ speak(say.dataset.say); return; }
+
+  const fav = e.target.closest('[data-fav]');
+  if (fav){
+    const k = fav.dataset.fav;
+    const i = saved.indexOf(k);
+    if (i === -1){ saved.push(k); toast('Saved to your review list.'); }
+    else { saved.splice(i, 1); toast('Removed.'); }
+    persist(saved);
+    updateBadge();
+    if (current === 'saved') renderSaved();
+    else {
+      fav.setAttribute('aria-pressed', String(isSaved(k)));
+      const svg = fav.querySelector('svg');
+      fav.textContent = isSaved(k) ? 'Saved' : 'Save';
+      if (svg) fav.prepend(svg);
+    }
+    return;
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const pin = e.target.closest && e.target.closest('[data-pin]');
+  if (!pin) return;
+  e.preventDefault();
+  pin.dispatchEvent(new MouseEvent('click', {bubbles:true}));
+});
+
+function showTabOnly(tab){
+  current = tab;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  $('#view-' + tab).classList.add('on');
+  document.querySelectorAll('.tabbar button[data-tab]').forEach(b => {
+    b.setAttribute('aria-selected', String(b.dataset.tab === tab));
+  });
+  $('#backBtn').hidden = true;
+  $('#ctx').textContent = tab === 'walk' ? 'Street View' : 'Malé · Dhivehi';
+}
+
+/* ---------- boot ---------- */
+renderPhrases();
+renderWalk('male');
+renderSaved();
+renderAbout();
+updateBadge();
+</script>

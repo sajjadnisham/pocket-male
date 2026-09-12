@@ -1,0 +1,14 @@
+{
+  "name": "Pocket Malé — Dhivehi phrasebook",
+  "short_name": "Pocket Malé",
+  "description": "Situation-based Dhivehi for Malé, with street-level panoramas of the places the phrases belong to.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f1e7",
+  "theme_color": "#f6f1e7",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

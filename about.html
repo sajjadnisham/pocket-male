@@ -1,0 +1,835 @@
+<title>Pocket Malé</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Thaana:wght@400;600&display=swap">
+
+<style>
+:root{
+  --paper:#f6f1e7;
+  --paper-2:#ece3d1;
+  --card:#fdfaf3;
+  --ink:#1c1a16;
+  --ink-2:#4e4740;
+  --muted:#8a8073;
+  --rule:#ded3bd;
+  --lacquer:#b2361f;
+  --lacquer-deep:#8c2916;
+  --ochre:#c08417;
+  --lagoon:#0d6663;
+  --night:#10201f;
+  --night-2:#193029;
+  --night-ink:#ede6d6;
+  --night-muted:#95a39a;
+  --night-rule:#2b423a;
+  --shadow:0 1px 2px rgba(28,26,22,.05), 0 10px 30px -18px rgba(28,26,22,.28);
+
+  --display:'Newsreader',Georgia,'Times New Roman',serif;
+  --sans:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --dv:'Noto Sans Thaana','MV Faseyha','A_Faruma','Faruma',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141210;
+    --paper-2:#1d1a15;
+    --card:#1b1813;
+    --ink:#f1eade;
+    --ink-2:#c3bbab;
+    --muted:#8d8578;
+    --rule:#2f2a22;
+    --lacquer:#df7a5f;
+    --lacquer-deep:#e89476;
+    --ochre:#e0a83c;
+    --lagoon:#63bdb1;
+    --night:#0c1817;
+    --night-2:#14241f;
+    --night-ink:#ede6d6;
+    --night-muted:#93a199;
+    --night-rule:#26392f;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141210;
+  --paper-2:#1d1a15;
+  --card:#1b1813;
+  --ink:#f1eade;
+  --ink-2:#c3bbab;
+  --muted:#8d8578;
+  --rule:#2f2a22;
+  --lacquer:#df7a5f;
+  --lacquer-deep:#e89476;
+  --ochre:#e0a83c;
+  --lagoon:#63bdb1;
+  --night:#0c1817;
+  --night-2:#14241f;
+  --night-ink:#ede6d6;
+  --night-muted:#93a199;
+  --night-rule:#26392f;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.015em;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.4rem,5.4vw,3.5rem);line-height:1.06}
+h2{font-size:clamp(1.85rem,3.6vw,2.5rem);line-height:1.12}
+h3{font-size:1.16rem;line-height:1.3}
+p{margin:0}
+a{color:inherit}
+em{font-style:italic}
+
+.wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+.band{padding:76px 0;border-top:1px solid var(--rule)}
+.band:first-of-type{border-top:0}
+
+.eyebrow{
+  font-family:var(--mono);font-size:.685rem;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  margin:0 0 14px;
+}
+.lede{color:var(--ink-2);font-size:1.06rem;max-width:60ch;margin-top:18px}
+
+/* ---------- Dhivehi type ---------- */
+.dv{font-family:var(--dv);direction:rtl;unicode-bidi:isolate;line-height:1.85;font-feature-settings:normal}
+.rom{font-family:var(--mono);font-size:.82rem;letter-spacing:.01em;color:var(--muted)}
+.gloss{font-family:var(--display);font-style:italic;color:var(--ink-2)}
+
+/* ---------- nav ---------- */
+header.nav{
+  position:sticky;top:0;z-index:40;
+  background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--rule);
+}
+.nav-in{display:flex;align-items:center;gap:26px;height:60px}
+.brand{font-family:var(--display);font-size:1.16rem;font-style:italic;letter-spacing:-.01em;text-decoration:none;display:flex;align-items:baseline;gap:9px;white-space:nowrap}
+.brand .dv{font-style:normal;font-size:1rem;color:var(--lacquer)}
+.nav-links{display:flex;gap:22px;margin-left:auto;font-size:.86rem}
+.nav-links a{color:var(--ink-2);text-decoration:none;padding:4px 0;border-bottom:1px solid transparent}
+.nav-links a:hover{color:var(--lacquer);border-bottom-color:var(--lacquer)}
+@media (max-width:900px){.nav-links{display:none}.nav-in{gap:14px}}
+
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--sans);font-size:.88rem;font-weight:500;
+  padding:10px 18px;border-radius:999px;text-decoration:none;
+  border:1px solid transparent;cursor:pointer;
+}
+.btn-solid{background:var(--lacquer);color:#fdf8ee;border-color:var(--lacquer)}
+.btn-solid:hover{background:var(--lacquer-deep);border-color:var(--lacquer-deep)}
+.btn-line{border-color:var(--rule);color:var(--ink);background:var(--card)}
+.btn-line:hover{border-color:var(--ink-2)}
+.nav .btn{margin-left:0;padding:8px 16px}
+@media (max-width:900px){.nav .btn{margin-left:auto}}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--lacquer);outline-offset:3px;border-radius:4px}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 20px}
+.hero-grid{display:grid;grid-template-columns:1fr 300px;gap:60px;align-items:start}
+@media (max-width:860px){.hero-grid{grid-template-columns:1fr;gap:44px}}
+h1 .alt{font-family:var(--display);font-style:italic;color:var(--lacquer);display:block}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.fineprint{font-size:.8rem;color:var(--muted);margin-top:16px}
+
+.promo{
+  margin-top:30px;background:var(--night);color:var(--night-ink);
+  border-radius:4px;padding:18px 20px;display:flex;gap:18px;align-items:center;
+  max-width:62ch;
+}
+.promo .tag{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--night);background:var(--ochre);padding:3px 8px;border-radius:2px;white-space:nowrap;align-self:flex-start;margin-top:3px;
+}
+.promo p{font-size:.9rem;color:var(--night-ink);line-height:1.55}
+.promo a{color:var(--ochre);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--ochre) 45%,transparent)}
+@media (max-width:560px){.promo{flex-direction:column;align-items:flex-start;gap:12px}}
+
+/* phone */
+.phone{
+  background:var(--night);border-radius:22px;padding:11px;box-shadow:var(--shadow);
+  border:1px solid var(--night-rule);
+}
+.screen{background:var(--card);border-radius:14px;padding:16px 15px 18px;display:flex;flex-direction:column;gap:14px}
+.screen-bar{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.62rem;color:var(--muted);letter-spacing:.05em}
+.phrase-dv{font-family:var(--dv);direction:rtl;font-size:1.7rem;line-height:1.9;color:var(--ink);text-align:right}
+.phrase-rom{font-family:var(--mono);font-size:.78rem;color:var(--lacquer)}
+.phrase-en{font-family:var(--display);font-size:1rem;color:var(--ink-2);font-style:italic}
+.screen hr{border:0;border-top:1px solid var(--rule);margin:0}
+.mini-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.listen{
+  display:inline-flex;align-items:center;gap:7px;align-self:flex-start;
+  font-family:var(--sans);font-size:.76rem;color:var(--ink);
+  border:1px solid var(--rule);border-radius:999px;padding:5px 12px;background:var(--paper);
+}
+.listen .tri{width:0;height:0;border-left:6px solid var(--lacquer);border-top:4px solid transparent;border-bottom:4px solid transparent}
+.reply-dv{font-family:var(--dv);direction:rtl;font-size:1.15rem;color:var(--lagoon);text-align:right}
+.caption{font-family:var(--mono);font-size:.68rem;color:var(--muted);margin-top:12px;text-align:center;line-height:1.6}
+
+.fili-note{
+  border-top:1px solid var(--rule);margin-top:54px;padding-top:26px;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:start;
+}
+@media (max-width:860px){.fili-note{grid-template-columns:1fr;gap:26px}}
+.fili-note .intro{font-size:.9rem;color:var(--ink-2);max-width:50ch}
+.fn-rows{display:flex;flex-direction:column;gap:0}
+.fn-row{
+  display:grid;grid-template-columns:auto auto auto 1fr;gap:14px;align-items:center;
+  padding:12px 0;border-bottom:1px solid var(--rule);
+}
+.fn-row:first-child{border-top:1px solid var(--rule)}
+.fn-row .base{font-family:var(--dv);font-size:1.5rem;color:var(--muted)}
+.fn-row .op{font-family:var(--mono);font-size:.7rem;color:var(--ochre);letter-spacing:.04em;white-space:nowrap}
+.fn-row .made{font-family:var(--dv);font-size:1.5rem;color:var(--ink)}
+.fn-row .say{font-family:var(--mono);font-size:.76rem;color:var(--muted);text-align:right}
+.fn-row .say b{color:var(--ink-2);font-weight:500}
+
+/* ---------- night section ---------- */
+.night{background:var(--night);color:var(--night-ink);border-top:1px solid var(--night-rule)}
+.night .eyebrow{color:var(--ochre)}
+.night h2{color:var(--night-ink)}
+.night .lede{color:var(--night-muted)}
+.night h3{color:var(--night-ink)}
+.night-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--night-rule);margin-top:48px;border:1px solid var(--night-rule)}
+.night-grid > div{background:var(--night);padding:26px 22px}
+.night-grid p{font-size:.88rem;color:var(--night-muted);margin-top:10px}
+.night-grid .dv{font-size:1.15rem;color:var(--ochre);margin-bottom:10px}
+@media (max-width:880px){.night-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.night-grid{grid-template-columns:1fr}}
+.night-caps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:44px}
+.night-caps p{font-size:.82rem;color:var(--night-muted);border-top:1px solid var(--night-rule);padding-top:14px}
+.night-caps .dv{color:var(--night-ink);font-size:1.05rem;display:block;margin-bottom:6px}
+@media (max-width:760px){.night-caps{grid-template-columns:1fr;gap:18px}}
+.night-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:44px}
+.night .btn-line{background:transparent;border-color:var(--night-rule);color:var(--night-ink)}
+.night .btn-line:hover{border-color:var(--night-muted)}
+.night .btn-solid{background:var(--ochre);color:var(--night);border-color:var(--ochre)}
+.night .btn-solid:hover{background:#d79726;border-color:#d79726}
+.night .fineprint{color:var(--night-muted);max-width:64ch}
+
+/* ---------- exchanges ---------- */
+.exchanges{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;margin-top:52px}
+@media (max-width:900px){.exchanges{grid-template-columns:1fr;gap:44px;max-width:560px}}
+.ex-head{font-family:var(--mono);font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--lacquer);padding-bottom:12px;border-bottom:1px solid var(--rule);margin-bottom:22px}
+.turn{display:flex;flex-direction:column;gap:3px;padding:14px 0}
+.turn + .turn{border-top:1px dashed var(--rule)}
+.turn .who{font-family:var(--mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.turn .dv{font-size:1.32rem}
+.turn.you{padding-right:18%}
+.turn.them{padding-left:18%;text-align:right}
+.turn.them .who{color:var(--lagoon)}
+.turn.them .dv{color:var(--lagoon)}
+.turn.them .rom,.turn.them .gloss{display:block}
+@media (max-width:420px){.turn.you{padding-right:0}.turn.them{padding-left:0}}
+
+/* ---------- situations wall ---------- */
+.wall{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:48px}
+.wall a{background:var(--card);padding:22px 18px;text-decoration:none;display:block;transition:background .15s}
+.wall a:hover{background:var(--paper-2)}
+.wall .dv{font-size:1.45rem;color:var(--ink);line-height:1.5}
+.wall .en{font-size:.82rem;color:var(--ink-2);margin-top:6px}
+.wall .rom{display:block;margin-top:2px}
+@media (max-width:860px){.wall{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:600px){.wall{grid-template-columns:repeat(2,1fr)}}
+.wall-more{font-size:.9rem;color:var(--muted);margin-top:22px;max-width:58ch}
+
+/* ---------- look inside ---------- */
+.split{display:grid;grid-template-columns:1fr 300px;gap:60px;align-items:start;margin-top:48px}
+@media (max-width:860px){.split{grid-template-columns:1fr;gap:40px}}
+.numlist{display:flex;flex-direction:column;gap:0}
+.numlist > div{padding:20px 0;border-top:1px solid var(--rule)}
+.numlist > div:last-child{border-bottom:1px solid var(--rule)}
+.numlist p{font-size:.92rem;color:var(--ink-2);margin-top:5px;max-width:54ch}
+
+/* ---------- feature cards ---------- */
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:34px 40px;margin-top:48px}
+@media (max-width:860px){.feats{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.feats{grid-template-columns:1fr}}
+.feat p{font-size:.9rem;color:var(--ink-2);margin-top:8px}
+.feat h3{padding-bottom:10px;border-bottom:2px solid var(--lacquer);display:inline-block}
+
+/* ---------- table ---------- */
+.tablewrap{overflow-x:auto;margin-top:40px;border:1px solid var(--rule);background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:600px}
+th{
+  font-family:var(--mono);font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);text-align:left;font-weight:500;padding:14px 20px;border-bottom:1px solid var(--rule);
+}
+td{padding:14px 20px;border-bottom:1px solid var(--rule);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.en{font-size:.94rem;color:var(--ink-2);width:26%}
+td.says .dv{font-size:1.25rem;color:var(--ink)}
+td.taught .dv{font-size:1.25rem;color:var(--muted)}
+td.taught{color:var(--muted)}
+
+/* ---------- price ---------- */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px;max-width:760px}
+@media (max-width:700px){.plans{grid-template-columns:1fr}}
+.plan{border:1px solid var(--rule);background:var(--card);padding:28px 26px;display:flex;flex-direction:column;gap:16px}
+.plan.full{border-color:var(--lacquer);border-width:1px;box-shadow:var(--shadow)}
+.plan .tier{font-family:var(--mono);font-size:.63rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.plan.full .tier{color:var(--lacquer)}
+.plan .price{font-family:var(--display);font-size:2.1rem;line-height:1;font-variant-numeric:tabular-nums}
+.plan ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;font-size:.9rem;color:var(--ink-2)}
+.plan li{padding-left:20px;position:relative}
+.plan li::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:1px;background:var(--lacquer)}
+.price-note{font-size:.82rem;color:var(--muted);margin-top:20px;max-width:60ch}
+
+/* ---------- quote ---------- */
+.quote{max-width:64ch}
+.quote blockquote{margin:0;font-family:var(--display);font-size:clamp(1.25rem,2.4vw,1.6rem);line-height:1.45;color:var(--ink)}
+.quote .attrib{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--muted);margin-top:22px}
+
+/* ---------- guides ---------- */
+.guides{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:48px}
+.guides a{background:var(--card);padding:24px 20px;text-decoration:none;display:block}
+.guides a:hover{background:var(--paper-2)}
+.guides h3{font-size:1.02rem}
+.guides p{font-size:.85rem;color:var(--ink-2);margin-top:8px}
+@media (max-width:880px){.guides{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.guides{grid-template-columns:1fr}}
+.guides-more{display:inline-block;margin-top:24px;font-size:.9rem;color:var(--lacquer);text-decoration:none;border-bottom:1px solid var(--lacquer)}
+
+/* ---------- faq ---------- */
+.faq{margin-top:44px;max-width:72ch;border-top:1px solid var(--rule)}
+details{border-bottom:1px solid var(--rule)}
+summary{
+  cursor:pointer;list-style:none;padding:17px 30px 17px 0;position:relative;
+  font-size:1rem;color:var(--ink);
+}
+summary::-webkit-details-marker{display:none}
+summary::after{
+  content:"+";position:absolute;right:4px;top:15px;
+  font-family:var(--mono);color:var(--lacquer);font-size:1.1rem;
+}
+details[open] summary::after{content:"–"}
+details p{padding:0 30px 20px 0;font-size:.92rem;color:var(--ink-2)}
+
+/* ---------- close ---------- */
+.close{background:var(--paper-2);border-top:1px solid var(--rule);padding:84px 0}
+.close .inner{max-width:58ch}
+.close .hero-actions{margin-top:26px}
+
+footer{border-top:1px solid var(--rule);padding:32px 0 44px;background:var(--paper)}
+.foot{display:flex;flex-wrap:wrap;gap:20px;align-items:center;font-size:.84rem}
+.foot a{color:var(--ink-2);text-decoration:none}
+.foot a:hover{color:var(--lacquer)}
+.foot .copy{margin-left:auto;color:var(--muted);font-family:var(--mono);font-size:.7rem;letter-spacing:.04em}
+@media (max-width:700px){.foot .copy{margin-left:0;width:100%}}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+}
+html{scroll-behavior:smooth}
+</style>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">Pocket Malé <span class="dv">ހަލޯ؟</span></a>
+    <nav class="nav-links">
+      <a href="#market">The Market</a>
+      <a href="#moment">The moment</a>
+      <a href="#inside">What's inside</a>
+      <a href="#look">A look inside</a>
+      <a href="#why">Why Dhivehi</a>
+      <a href="#guides">Guides</a>
+    </nav>
+    <a class="btn btn-solid" href="#price">Get the app</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="band hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">Dhivehi phrasebook · Malé</p>
+        <h1>Every counter in Malé <span class="alt">has its own Dhivehi.</span></h1>
+        <p class="lede">You can say <span class="dv">ޝުކުރިއްޔާ</span> without thinking, then stand in the BML queue to open an account and realise you know zero Dhivehi for that situation. Pocket Malé is organised by situation — the lines you'd say and the replies you'll get back, in Thaana with a Malé-accurate romanisation and audio.</p>
+
+        <div class="promo">
+          <span class="tag">New · Free</span>
+          <p><strong>Pocket Malé World.</strong> Walk into the Local Market off Boduthakurufaanu Magu and buy your fish in Dhivehi — in your browser, on a phone or a laptop. <a href="#market">See how it works →</a></p>
+        </div>
+
+        <div class="hero-actions">
+          <a class="btn btn-solid" href="#price">Get it on Google Play</a>
+          <a class="btn btn-line" href="#market">Play the World free</a>
+        </div>
+        <p class="fineprint">On iPhone? The App Store build is in review. · Five situations free · one-time unlock for the rest · no subscription, no account, no ads.</p>
+      </div>
+
+      <div>
+        <div class="phone">
+          <div class="screen">
+            <div class="screen-bar"><span>← Back</span><span>Ferry terminal</span></div>
+            <div class="phrase-dv">ހުޅުމާލެއަށް ފެރީ ކޮންއިރަކު؟</div>
+            <div class="phrase-rom">hulhumale-ah feri kon-iraku?</div>
+            <div class="phrase-en">When's the ferry to Hulhumalé?</div>
+            <button class="listen" type="button"><span class="tri"></span> Listen</button>
+            <hr>
+            <div class="mini-label">What comes back</div>
+            <div class="reply-dv">ފަނަރަ މިނެޓު ތެރޭ</div>
+            <div class="phrase-rom">fanara minetu therey</div>
+            <div class="phrase-en">In fifteen minutes.</div>
+          </div>
+        </div>
+        <p class="caption">Thaana reads right to left.<br>The romanisation reads left to right.<br>The app shows you both at once.</p>
+      </div>
+    </div>
+
+    <div class="wrap fili-note">
+      <div>
+        <p class="eyebrow">Reading the fili</p>
+        <p class="intro">Thaana is twenty-four letters and ten <em>fili</em> — the vowel marks that ride above and below them. A letter on its own is only a consonant; the fili tells you what to say. Pocket Malé teaches them as pairs, so the script stops being decoration and starts being readable.</p>
+      </div>
+      <div class="fn-rows">
+        <div class="fn-row">
+          <span class="base">ސ</span><span class="op">+ abafili =</span><span class="made">ސަ</span>
+          <span class="say"><b>sa</b> · as in <span class="dv">ސައި</span>, tea</span>
+        </div>
+        <div class="fn-row">
+          <span class="base">ބ</span><span class="op">+ eybeyfili =</span><span class="made">ބޭ</span>
+          <span class="say"><b>bey</b> · as in <span class="dv">ބޭސް</span>, medicine</span>
+        </div>
+        <div class="fn-row">
+          <span class="base">ކ</span><span class="op">+ ubufili =</span><span class="made">ކު</span>
+          <span class="say"><b>ku</b> · as in <span class="dv">ކުލި</span>, rent</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORLD -->
+  <section class="band night" id="market">
+    <div class="wrap">
+      <p class="eyebrow">New · Pocket Malé World · Free</p>
+      <h2>Walk into the Local Market. Buy your fish in Dhivehi.</h2>
+      <p class="lede">The Malé Local Market and the fish market next door, rebuilt as a place you can walk through. Every stall has a seller who answers only in Dhivehi. Ask the price, handle the follow-up, pay — and tap anything you see to learn the word for it. The same phrases as the app, now in the place you'd use them.</p>
+
+      <div class="night-grid">
+        <div>
+          <div class="dv">މަސް މާރުކޭޓް</div>
+          <h3>Buy at real stalls</h3>
+          <p>Kanneli, raagondi, reef fish on ice, coconuts, breadfruit, bundles of curry leaf — laid out along the real Local Market aisles, each stall with its own goods to haggle over.</p>
+        </div>
+        <div>
+          <div class="dv">ސުވާލު</div>
+          <h3>The seller answers back</h3>
+          <p>Say <span class="dv">މީގެ އަގަކީ ކޮބާ؟</span> and you'll get <span class="dv">ކިލޯއެއް ފަންސާސް ރުފިޔާ</span> — fifty a kilo. Then he asks if you want it cut. Answer that too.</p>
+        </div>
+        <div>
+          <div class="dv">ބަހެއް</div>
+          <h3>Tap anything, learn the word</h3>
+          <p>The scales, the awning, the stacked <span class="dv">ބިލެތް</span> at the betel stall: tap it and get the Thaana, the romanisation and the meaning, with audio.</p>
+        </div>
+        <div>
+          <div class="dv">ވާހަކަ</div>
+          <h3>Speak, or tap</h3>
+          <p>Use the microphone and the stall checks your Dhivehi, or leave speaking off and answer by tapping while you build up the nerve.</p>
+        </div>
+      </div>
+
+      <div class="night-caps">
+        <p><span class="dv">ބޮޑުތަކުރުފާނު މަގު</span> The harbour road. Turn in past the dhonis and the market opens up.</p>
+        <p><span class="dv">ކިލޯއެއް ކިހާ ވަރެއް؟</span> How much a kilo? The stall answers. You answer back.</p>
+        <p><span class="dv">ބިލެތް، bileiy، betel leaf.</span> Tap the pile and it tells you.</p>
+      </div>
+
+      <div class="night-actions">
+        <a class="btn btn-solid" href="#price">Play free in your browser</a>
+        <a class="btn btn-line" href="#price">Or open it inside the app</a>
+      </div>
+      <p class="fineprint">Phone or laptop, no download. Conversations need a connection. Experimental and free: the market and five practice situations today, the ferry terminal and Majeedhee Magu next.</p>
+    </div>
+  </section>
+
+  <!-- THE MOMENT -->
+  <section class="band" id="moment">
+    <div class="wrap">
+      <p class="eyebrow">The moment this is for</p>
+      <h2>Prepared for both halves.</h2>
+      <p class="lede">You rehearse your line and it lands. Then comes the follow-up nobody taught you. Every situation gives you both sides — what you say, and what comes back — so the whole exchange is familiar before you're standing in it.</p>
+
+      <div class="exchanges">
+        <div>
+          <div class="ex-head">At the clinic</div>
+          <div class="turn you">
+            <div class="who">You</div>
+            <div class="dv">ޑޮކްޓަރަށް ދައްކަން ބޭނުން</div>
+            <div class="rom">doctor-ah dhakkan beynun</div>
+            <div class="gloss">I'd like to see a doctor.</div>
+          </div>
+          <div class="turn them">
+            <div class="who">They say</div>
+            <div class="dv">އާސަންދަ ބޭނުންކުރަނީތަ؟</div>
+            <div class="rom">aasandha beynunkuraneetha?</div>
+            <div class="gloss">Are you using Aasandha?</div>
+          </div>
+          <div class="turn you">
+            <div class="who">You</div>
+            <div class="dv">ނޫން، އަމިއްލައަށް ދައްކާނީ</div>
+            <div class="rom">noon, amillaah dhakkaanee</div>
+            <div class="gloss">No, I'll pay myself.</div>
+          </div>
+          <div class="turn them">
+            <div class="who">They say</div>
+            <div class="dv">އައިޑީ ކާޑު ދެއްވަބަލަ</div>
+            <div class="rom">ID kaadu dhevvabala</div>
+            <div class="gloss">Your ID card, please.</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="ex-head">At the tea shop</div>
+          <div class="turn you">
+            <div class="who">You</div>
+            <div class="dv">ހެދިކާ ހުރިތަ؟</div>
+            <div class="rom">hedhikaa hurritha?</div>
+            <div class="gloss">Have you got any short eats?</div>
+          </div>
+          <div class="turn them">
+            <div class="who">They say</div>
+            <div class="dv">ގުޅަ، ބަޖިޔާ، ބިސް ކީމިޔާ ހުރި</div>
+            <div class="rom">gulha, bajiyaa, bis keemiyaa huri</div>
+            <div class="gloss">Gulha, bajiya, egg keemiya.</div>
+          </div>
+          <div class="turn you">
+            <div class="who">You</div>
+            <div class="dv">ދެ ގުޅަ އަދި ކަޅު ސައި</div>
+            <div class="rom">dhe gulha adhi kalhu sai</div>
+            <div class="gloss">Two gulha and a black tea.</div>
+          </div>
+          <div class="turn them">
+            <div class="who">They say</div>
+            <div class="dv">ގެންދަނީތަ؟</div>
+            <div class="rom">gendhaneetha?</div>
+            <div class="gloss">Taking it away?</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="ex-head">In a taxi</div>
+          <div class="turn you">
+            <div class="who">You</div>
+            <div class="dv">މަޖީދީ މަގަށް ދެވިދާނެތަ؟</div>
+            <div class="rom">majeedhee magah dhevidhaanetha?</div>
+            <div class="gloss">Can you take me to Majeedhee Magu?</div>
+          </div>
+          <div class="turn them">
+            <div class="who">They say</div>
+            <div class="dv">ކޮން ހިސާބަކަށް؟</div>
+            <div class="rom">kon hisaabakah?</div>
+            <div class="gloss">Whereabouts?</div>
+          </div>
+          <div class="turn you">
+            <div class="who">You</div>
+            <div class="dv">ޗާންދަނީ މަގު ކަންމަތި</div>
+            <div class="rom">chaandhanee magu kanmathi</div>
+            <div class="gloss">The Chaandhanee Magu corner.</div>
+          </div>
+          <div class="turn them">
+            <div class="who">They say</div>
+            <div class="dv">ކާޑެއް ނުހިނގާނެ</div>
+            <div class="rom">kaadeh nuhingaane</div>
+            <div class="gloss">Card won't work — cash.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT'S INSIDE -->
+  <section class="band" id="inside">
+    <div class="wrap">
+      <p class="eyebrow">What's inside</p>
+      <h2>Situations, not lessons.</h2>
+      <p class="lede">Open the one you're about to walk into. Each has the lines you'd say, the replies you'll hear, and a note on how the thing actually works in Malé.</p>
+
+      <div class="wall">
+        <a href="#price"><div class="dv">ސައި ހޮޓާ</div><div class="rom">sai hotaa</div><div class="en">Tea shop</div></a>
+        <a href="#price"><div class="dv">މާރުކޭޓް</div><div class="rom">maarukeyt</div><div class="en">Local Market</div></a>
+        <a href="#price"><div class="dv">ފެރީ ޓާރމިނަލް</div><div class="rom">feri taarminal</div><div class="en">Ferry terminal</div></a>
+        <a href="#price"><div class="dv">ޓެކްސީ</div><div class="rom">teksee</div><div class="en">Taxi</div></a>
+        <a href="#price"><div class="dv">ބޭސްފިހާރަ</div><div class="rom">beysfihaara</div><div class="en">Pharmacy</div></a>
+        <a href="#price"><div class="dv">ހޮސްޕިޓަލް</div><div class="rom">hospital</div><div class="en">ADK &amp; IGMH</div></a>
+        <a href="#price"><div class="dv">ގޭގެ ވެރިޔާ</div><div class="rom">geyge veriyaa</div><div class="en">Landlord</div></a>
+        <a href="#price"><div class="dv">ބޭންކް</div><div class="rom">baenk</div><div class="en">Bank</div></a>
+        <a href="#price"><div class="dv">ސައިކަލް ގަރާޖް</div><div class="rom">saikal garaaj</div><div class="en">Cycle repair</div></a>
+        <a href="#price"><div class="dv">ފިހާރަ</div><div class="rom">fihaara</div><div class="en">Corner shop</div></a>
+        <a href="#price"><div class="dv">ނަމާދު ވަގުތު</div><div class="rom">namaadhu vaguthu</div><div class="en">Prayer closing</div></a>
+        <a href="#price"><div class="dv">ސަރުކާރު އޮފީސް</div><div class="rom">sarukaaru ofees</div><div class="en">Government office</div></a>
+      </div>
+      <p class="wall-more">…and two dozen more, from the barber and the launderette to speedboat transfers, Ramadan hours, phone calls, deliveries, and apologising properly.</p>
+    </div>
+  </section>
+
+  <!-- A LOOK INSIDE -->
+  <section class="band" id="look">
+    <div class="wrap">
+      <p class="eyebrow">A look inside</p>
+      <h2>Everything on one screen.</h2>
+      <p class="lede">No lessons to unlock, no streak to keep alive. Open the situation, find the line, tap to hear it.</p>
+
+      <div class="split">
+        <div class="numlist">
+          <div>
+            <h3>Browse by situation</h3>
+            <p>Grouped the way life in Malé is — food, errands, health, getting across the water, officialdom.</p>
+          </div>
+          <div>
+            <h3>Malé notes</h3>
+            <p>How the situation actually runs here, not just the words for it: why the shop shutters for twelve minutes, what the ferry card is called, which queue is the right queue.</p>
+          </div>
+          <div>
+            <h3>AI practice mode</h3>
+            <p>The app plays the clerk, the seller, the landlord. You reply — in Dhivehi or in English when you're stuck.</p>
+          </div>
+          <div>
+            <h3>Pocket Malé World</h3>
+            <p>Say a line you've saved at a market stall and it counts toward your review.</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="phone">
+            <div class="screen">
+              <div class="screen-bar"><span>Situations</span><span>12 / 34</span></div>
+              <div class="mini-label">Corner shop</div>
+              <div class="phrase-dv">ކާޑުން ދެއްކިދާނެތަ؟</div>
+              <div class="phrase-rom">kaadun dhekkidhaanetha?</div>
+              <div class="phrase-en">Can I pay by card?</div>
+              <hr>
+              <div class="mini-label">Malé note</div>
+              <p style="font-size:.82rem;color:var(--ink-2)">Most small shops take card now, but the machine goes down often. Carry a couple of hundred rufiyaa in small notes.</p>
+              <button class="listen" type="button"><span class="tri"></span> Listen</button>
+            </div>
+          </div>
+          <p class="caption">Saved lines come back on a spaced schedule.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT HELPS -->
+  <section class="band">
+    <div class="wrap">
+      <p class="eyebrow">How it helps</p>
+      <h2>Built for the counter, not the classroom.</h2>
+
+      <div class="feats">
+        <div class="feat">
+          <h3>Malé Dhivehi</h3>
+          <p>The spoken city dialect, with the loanwords people actually use — not the formal written register you'd meet in a school textbook.</p>
+        </div>
+        <div class="feat">
+          <h3>Tap to hear it</h3>
+          <p>Audio on every line, recorded in Malé at the speed people actually say it — not dictated one word at a time.</p>
+        </div>
+        <div class="feat">
+          <h3>Read the script</h3>
+          <p>Thaana is twenty-four letters and it can be learned in a weekend. Every phrase is shown in Thaana first, romanisation second — the right way round.</p>
+        </div>
+        <div class="feat">
+          <h3>Malé notes</h3>
+          <p>The context nobody teaches: what happens to the shops at <span class="dv">މަޣްރިބް</span>, what a <em>bodu</em> ferry card covers, why the pharmacy asks for your ID.</p>
+        </div>
+        <div class="feat">
+          <h3>Review what you saved</h3>
+          <p>Tap ♡ on a line and it joins your reviews — minutes at first, then days, then months, so the ones you keep losing come round more often.</p>
+        </div>
+        <div class="feat">
+          <h3>Works offline</h3>
+          <p>Loads once and keeps working — ferry decks, lift lobbies and the back of the market included. No account, no tracking.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section class="band" id="why">
+    <div class="wrap">
+      <p class="eyebrow">Why the spoken register matters</p>
+      <h2>Your textbook is written, not spoken.</h2>
+      <p class="lede">Formal Dhivehi will get you understood, and will also mark you out as someone who learned it from a book. These are the forms people in Malé actually use across a counter.</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th scope="col">In English</th><th scope="col">Malé says</th><th scope="col">The textbook taught</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="en">I</td>
+              <td class="says"><span class="dv">އަހަރެން</span> <span class="rom">ahuren</span></td>
+              <td class="taught"><span class="dv">އަޅުގަނޑު</span> <span class="rom">alhugandu</span></td>
+            </tr>
+            <tr>
+              <td class="en">How much?</td>
+              <td class="says"><span class="dv">ކިހާ ވަރެއް؟</span> <span class="rom">kihaa vareh?</span></td>
+              <td class="taught"><span class="dv">އަގަކީ ކޮބައިތޯ؟</span> <span class="rom">agakee kobaitho?</span></td>
+            </tr>
+            <tr>
+              <td class="en">Motorbike</td>
+              <td class="says"><span class="dv">ސައިކަލް</span> <span class="rom">saikal</span></td>
+              <td class="taught"><span class="dv">ސައިކަލު</span> <span class="rom">saikalu</span></td>
+            </tr>
+            <tr>
+              <td class="en">Okay / sure</td>
+              <td class="says"><span class="dv">އޯކޭ</span> <span class="rom">okay</span></td>
+              <td class="taught"><span class="dv">އެންމެ ރަނގަޅު</span> <span class="rom">emme rangalhu</span></td>
+            </tr>
+            <tr>
+              <td class="en">Thanks</td>
+              <td class="says"><span class="dv">ޝުކުރިއްޔާ</span> <span class="rom">shukuriyyaa</span></td>
+              <td class="taught"><span class="dv">ވަރަށް ބޮޑަށް ޝުކުރިއްޔާ</span> <span class="rom">varah bodah shukuriyyaa</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICE -->
+  <section class="band" id="price">
+    <div class="wrap">
+      <p class="eyebrow">Price</p>
+      <h2>Try it free. Buy it once.</h2>
+      <p class="lede">No subscription, no trial countdown, no account to create.</p>
+
+      <div class="plans">
+        <div class="plan">
+          <div class="tier">Free</div>
+          <div class="price">MVR 0</div>
+          <ul>
+            <li>Five full situations</li>
+            <li>Audio, romanisation, Malé notes</li>
+            <li>Quiz, favourites and review mode</li>
+            <li>Pocket Malé World — the Local Market</li>
+            <li>Works offline</li>
+          </ul>
+        </div>
+        <div class="plan full">
+          <div class="tier">Full unlock</div>
+          <div class="price">MVR 79</div>
+          <ul>
+            <li>Every situation</li>
+            <li>AI practice conversations</li>
+            <li>Lines tailored to why you're here</li>
+            <li>One payment, yours for good</li>
+          </ul>
+        </div>
+      </div>
+      <p class="price-note">Roughly US$5 — Google Play shows the price in your own currency. Android for now; the iPhone build is in review.</p>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="band">
+    <div class="wrap quote">
+      <blockquote>“I'd been in Malé two years and could order tea without thinking. But the first time I needed the shop to hold something for me, I had no idea the word that makes that happen is <span class="dv">ބަހައްޓާ</span> — <span class="dv">މީތި ބަހައްޓާލަދީފާނަންތަ؟</span>”</blockquote>
+      <p class="attrib">Built in Malé · Pocket Malé</p>
+    </div>
+  </section>
+
+  <!-- GUIDES -->
+  <section class="band" id="guides">
+    <div class="wrap">
+      <p class="eyebrow">Read first</p>
+      <h2>Guides to Dhivehi in Malé.</h2>
+      <p class="lede">Written from living here — free to read, no app required.</p>
+
+      <div class="guides">
+        <a href="#guides">
+          <h3>Learn to read Thaana</h3>
+          <p>Twenty-four letters and the fili that ride them. A weekend's work, and the whole city opens up.</p>
+        </a>
+        <a href="#guides">
+          <h3>Essential phrases</h3>
+          <p>The short list daily life in Malé actually runs on, with the pronunciation you'll hear.</p>
+        </a>
+        <a href="#guides">
+          <h3>Getting around on the ferries</h3>
+          <p>Malé, Hulhumalé, Villimalé: the routes, the cards, the queues, and what to say at the gate.</p>
+        </a>
+        <a href="#guides">
+          <h3>Renting a room in Malé</h3>
+          <p>What the advert means, what the agent will ask, and the Dhivehi for the deposit conversation.</p>
+        </a>
+      </div>
+      <a class="guides-more" href="#guides">All seven guides →</a>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="band">
+    <div class="wrap">
+      <p class="eyebrow">Questions</p>
+      <h2>Before you download.</h2>
+
+      <div class="faq">
+        <details open>
+          <summary>Do I need to read Thaana first?</summary>
+          <p>No. Every phrase carries a romanisation, so you can use the app from day one. But the script is shown first on purpose — most people who stay end up reading it within a month, and the fili colouring is there to speed that up.</p>
+        </details>
+        <details>
+          <summary>How is this different from a translation app?</summary>
+          <p>A translator gives you one sentence at a time and no idea what's coming back. Pocket Malé gives you the whole exchange — your line, the likely reply, and the reply to that — plus a note on how the situation actually works.</p>
+        </details>
+        <details>
+          <summary>Is this Malé Dhivehi or the atoll dialects?</summary>
+          <p>Malé. The atoll dialects — Addu, Fuvahmulah, Huvadhu — differ enough that mixing them in would confuse more than it helps. A guide comparing them is on the way.</p>
+        </details>
+        <details>
+          <summary>What is Pocket Malé World?</summary>
+          <p>A free browser version of the Local Market you can walk through and buy things in. Same phrases as the app, placed where you'd actually use them. It needs a connection; the app itself doesn't.</p>
+        </details>
+        <details>
+          <summary>Is there an iPhone version?</summary>
+          <p>The build is in review. The World runs in Safari on iOS today, so you can practise while you wait.</p>
+        </details>
+        <details>
+          <summary>Do I need an account or a connection?</summary>
+          <p>No account. The phrasebook, audio and review mode all work offline once it's loaded. Only the AI practice mode and the World need a connection.</p>
+        </details>
+        <details>
+          <summary>Where are my favourites and review progress kept?</summary>
+          <p>On your device. Nothing is uploaded, and there's no account to attach it to.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="close">
+    <div class="wrap inner">
+      <h2>Walk in knowing what's coming.</h2>
+      <p class="lede">Five situations free, and a market to practise them in. See if it helps before you pay anything.</p>
+      <div class="hero-actions">
+        <a class="btn btn-solid" href="#price">Get it on Google Play</a>
+        <a class="btn btn-line" href="#market">Play the World free</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a href="#guides">Guides</a>
+    <a href="#inside">What's inside</a>
+    <a href="#market">Pocket Malé World</a>
+    <a href="#why">Dhivehi</a>
+    <a href="#top">Privacy</a>
+    <span class="copy">Made in Malé · © 2026 Pocket Malé</span>
+  </div>
+</footer>
+
