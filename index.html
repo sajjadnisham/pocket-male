@@ -881,11 +881,16 @@ function renderHome(){
     + '</div>';
 
   if (!q && !filter){
-    html += '<a class="explore" href="./world.html">'
-      + '<span class="top"><span class="lab">Explore Malé</span><span class="badge">Experimental</span></span>'
-      + '<span class="title"><span class="dv">ލޯކަލް މާރުކޭޓް</span><span class="en">· Walk the Local Market</span></span>'
-      + '<span class="sub">Explore the market in 3D, or jump into eight practice stops</span>'
+    html += '<a class="explore" href="./city.html">'
+      + '<span class="top"><span class="lab">Explore Malé · 3D</span><span class="badge">Experimental</span></span>'
+      + '<span class="title"><span class="dv">މާލެ</span><span class="en">· Walk real Malé</span></span>'
+      + '<span class="sub">Every street from OpenStreetMap, 14 situations in their real places — go inside and talk</span>'
       + '</a>'
+      + '<a class="svcard" href="./world.html" style="text-decoration:none">'
+      + '<span class="ico">🌙</span><span><span class="lab">Night market</span>'
+      + '<span class="t">The Local Market after dark</span>'
+      + '<span class="s">A compact 3D market with eight practice stops</span></span>'
+      + '<span class="arrow">→</span></a>'
       + '<button class="svcard" data-go="walk">'
       + '<span class="ico">🌐</span><span><span class="lab">Street View</span>'
       + '<span class="t">Real Malé &amp; Hulhumalé</span>'
@@ -968,6 +973,7 @@ function renderSituation(id){
         + '<button class="big" data-load="' + x.spot + '">Open Street View</button>'
         + '<span class="sub">360° photosphere · ' + spot.lat.toFixed(4) + ', ' + spot.lng.toFixed(4) + '</span></div></div>'
         + '<div class="svfoot"><a href="' + panoLink(spot) + '" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a>'
+        + '<a href="./city.html#place=' + id + '">Walk here in 3D →</a>'
         + '<button data-goto-spot="' + x.spot + '">See it on the map →</button></div>'
         + '</div>' : '');
 }
@@ -1418,4 +1424,9 @@ renderHome();
 renderWalk('male');
 renderSaved();
 renderAbout();
+(function openFromHash(){
+  // city.html and world.html link straight to a situation: index.html#sit=teashop
+  const m = location.hash.match(/sit=([\w-]+)/);
+  if (m && m[1] !== 'sos' && sitById(m[1])){ renderSituation(m[1]); show('situation', {title: sitById(m[1]).en}); }
+})();
 </script>
