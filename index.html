@@ -339,6 +339,53 @@ a{color:inherit}
 .scene .ln{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .scene .lnm{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round}
 
+/* ---------------- world + street view cards ---------------- */
+a.explore{text-decoration:none}
+.svcard{display:flex;align-items:center;gap:12px;width:100%;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:12px 15px;margin-bottom:10px;box-shadow:var(--lift)}
+.svcard:hover{border-color:var(--muted)}
+.svcard .ico{font-size:1.35rem}
+.svcard .lab{display:block;font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--lagoon)}
+.svcard .t{display:block;font-size:.98rem;font-weight:500;margin-top:2px}
+.svcard .s{display:block;font-size:.8rem;color:var(--muted)}
+.svcard .arrow{margin-left:auto;color:var(--lagoon)}
+
+/* ---------------- ask ChatGPT ---------------- */
+.askrow{display:flex;gap:8px;align-items:center;margin:16px 0 8px}
+.search.ask{background:var(--card);border-color:var(--rule)}
+.askbtn{flex:0 0 auto;background:var(--ink);color:var(--paper);border-radius:999px;padding:8px 13px;font-size:.78rem;white-space:nowrap}
+.askbtn:hover{opacity:.9}
+.asknote{font-size:.8rem;color:var(--muted);margin:0 2px 10px}
+.asknote button{color:var(--red);font-size:.8rem}
+.ai-card{background:var(--card);border:1px dashed var(--lagoon);border-radius:13px;padding:12px 14px;margin:0 0 16px}
+.ai-card.err{border-color:var(--red)}
+.ai-card .eyebrow{color:var(--lagoon)}
+.ai-card.err .eyebrow{color:var(--red)}
+.ai-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ai-badge{margin-left:auto;font-family:var(--mono);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lagoon);border:1px solid color-mix(in srgb,var(--lagoon) 40%,transparent);border-radius:5px;padding:2px 6px;white-space:nowrap}
+.ai-p{font-size:.88rem;color:var(--ink-2);margin:6px 0 10px}
+.ai-card .turn.ai{max-width:100%;box-shadow:none}
+.ai-tip{font-size:.85rem;color:var(--ink-2);margin-top:10px;padding-left:10px;border-left:2px solid var(--ochre)}
+.ai-foot{font-size:.72rem;color:var(--muted);margin-top:10px}
+.keybox{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.klab{font-family:var(--mono);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.kin{font:inherit;font-size:.9rem;padding:9px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--card);color:var(--ink)}
+.kin:focus{outline:2px solid var(--red);outline-offset:1px}
+.krow{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+.about .klink{font-size:.78rem;color:var(--muted)}
+.klink a{color:var(--red)}
+
+/* ---------------- street view inside a situation ---------------- */
+.svblock{background:var(--card);border:1px solid var(--rule);border-radius:13px;overflow:hidden;margin-top:18px;box-shadow:var(--lift)}
+.svhead{display:flex;align-items:baseline;gap:8px;padding:12px 15px 0}
+.svhead .eyebrow{color:var(--lagoon)}
+.svname{margin-left:auto;font-family:var(--display);font-size:1rem}
+.svdesc{font-size:.84rem;color:var(--ink-2);padding:6px 15px 12px}
+.svblock .pano{position:relative;background:var(--navy);aspect-ratio:16/10}
+.svblock .pano iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.svfoot{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:11px 15px;border-top:1px solid var(--rule);font-size:.8rem}
+.svfoot a{color:var(--red);text-decoration:none}
+.svfoot button{color:var(--lagoon);margin-left:auto}
+
 /* ---------------- toast ---------------- */
 .toast{
   position:fixed;left:50%;transform:translateX(-50%);bottom:22px;
@@ -378,6 +425,7 @@ html{scroll-behavior:smooth}
 
 <div class="toast" id="toast" hidden></div>
 
+<script src="./data.js"></script>
 <script>
 /* ---------- scene art ---------- */
 function frame(inner){
@@ -503,120 +551,7 @@ const SCENES = {
     <path class="lnm" d="M96 90h128"/>`)
 };
 
-/* ---------- situations ---------- */
-const SITUATIONS = [
-  {
-    id:'teashop', dv:'ސައި ހޮޓާ', rom:'sai hotaa', en:'Tea shop', spot:'majeedhee',
-    note:'Short eats (ހެދިކާ) are priced per piece, usually MVR 3–8, and you help yourself from the tray with tongs, then tell them what you took. "Sai" on its own means black tea. Most shops pull the shutter halfway for about fifteen minutes at each prayer time.',
-    turns:[
-      {s:'you', dv:'ހެދިކާ ހުރިތަ؟', rom:'hedhikaa hurritha?', en:"Have you got any short eats?"},
-      {s:'them', dv:'ގުޅަ، ބަޖިޔާ، ބިސް ކީމިޔާ ހުރި', rom:'gulha, bajiyaa, bis keemiyaa huri', en:'Gulha, bajiya, egg keemiya.'},
-      {s:'you', dv:'ދެ ގުޅަ އަދި ކަޅު ސައި', rom:'dhe gulha adhi kalhu sai', en:'Two gulha and a black tea.'},
-      {s:'them', dv:'ގެންދަނީތަ؟', rom:'gendhaneetha?', en:'Taking it away?'},
-      {s:'you', dv:'ނޫން، މިތާ ކާނީ', rom:'noon, mithaa kaanee', en:"No, I'll eat here."},
-      {s:'you', dv:'ބިލް ދެއްވަބަލަ', rom:'bill dhevvabala', en:'The bill, please.'}
-    ]
-  },
-  {
-    id:'market', dv:'މާރުކޭޓް', rom:'maarukeyt', en:'Local Market', spot:'market',
-    note:'Fish is sold by the kilo at the fish market; fruit and veg next door go by the pile, not by weight. Cash only, and the price softens a little if you buy more than one. Ask them to cut and clean it for you — they will, at no extra charge.',
-    turns:[
-      {s:'you', dv:'މީގެ އަގަކީ ކޮބާ؟', rom:'meege agakee kobaa?', en:"What's the price of this?"},
-      {s:'them', dv:'ކިލޯއެއް ފަންސާސް ރުފިޔާ', rom:'kiloeh fansaas rufiyaa', en:'Fifty rufiyaa a kilo.'},
-      {s:'you', dv:'އަގުހެޔޮ ކޮށްދީބަލަ', rom:'aguheyo kohdheebala', en:'Make it a bit cheaper for me.'},
-      {s:'them', dv:'ކިހާ ވަރެއް ބޭނުމީ؟', rom:'kihaa vareh beynumee?', en:'How much do you want?'},
-      {s:'you', dv:'ދެ ކިލޯ', rom:'dhe kilo', en:'Two kilos.'},
-      {s:'you', dv:'ކުދިކޮށް ކޮށާލަދީބަލަ', rom:'kudhikoh koshaaladheebala', en:'Cut it small for me.'}
-    ]
-  },
-  {
-    id:'ferry', dv:'ފެރީ', rom:'feri', en:'Ferry', spot:'hulhu-centre',
-    note:'MTCC ferries run Malé–Hulhumalé and Malé–Villimalé every ten to fifteen minutes, and cost a few rufiyaa. Since the bridge opened, buses are faster to Hulhumalé, but the ferry still wins for Villimalé. Tap your card at the gate — most people use the RaajjeTransport card.',
-    turns:[
-      {s:'you', dv:'ހުޅުމާލެއަށް ފެރީ ކޮންއިރަކު؟', rom:'hulhumaleah feri kon-iraku?', en:"When's the ferry to Hulhumalé?"},
-      {s:'them', dv:'ފަނަރަ މިނެޓު ތެރޭ', rom:'fanara minetu therey', en:'In fifteen minutes.'},
-      {s:'you', dv:'ޓިކެޓް ކޮންތާކުން؟', rom:'ticket konthaakun?', en:'Where do I get a ticket?'},
-      {s:'them', dv:'ކާޑު ޖައްސަވާ', rom:'kaadu jassavaa', en:'Just tap your card.'},
-      {s:'you', dv:'މިއީ ވިލިމާލެ ފެރީތަ؟', rom:'mee villimale feritha?', en:'Is this the Villimalé ferry?'}
-    ]
-  },
-  {
-    id:'taxi', dv:'ޓެކްސީ', rom:'teksee', en:'Taxi', spot:'majeedhee',
-    note:'Fares inside Malé are flat, not metered — around MVR 30, more if you cross the bridge to Hulhumalé or the airport. Plenty of drivers still take cash only, and you phone a taxi centre or use an app rather than hailing one on the street.',
-    turns:[
-      {s:'you', dv:'މަޖީދީ މަގަށް ދެވިދާނެތަ؟', rom:'majeedhee magah dhevidhaanetha?', en:'Can you take me to Majeedhee Magu?'},
-      {s:'them', dv:'ކޮން ހިސާބަކަށް؟', rom:'kon hisaabakah?', en:'Whereabouts?'},
-      {s:'you', dv:'ޗާންދަނީ މަގު ކަންމަތި', rom:'chaandhanee magu kanmathi', en:'The Chaandhanee Magu corner.'},
-      {s:'them', dv:'ކާޑެއް ނުހިނގާނެ', rom:'kaadeh nuhingaane', en:"Card won't work — cash."},
-      {s:'you', dv:'މަޑުކޮށްލަދީބަލަ', rom:'madhukohladheebala', en:'Wait for me a moment.'}
-    ]
-  },
-  {
-    id:'pharmacy', dv:'ބޭސްފިހާރަ', rom:'beysfihaara', en:'Pharmacy', spot:'sultan-park',
-    note:'Aasandha is the national health insurance scheme — say whether you are using it, and have your ID card out. STO pharmacies keep the longest hours and there is usually one open near IGMH through the night.',
-    turns:[
-      {s:'you', dv:'މި ބޭސް ސިޓީ', rom:'mi beys sitee', en:'This prescription, please.'},
-      {s:'them', dv:'އާސަންދަ ބޭނުންކުރަނީތަ؟', rom:'aasandha beynunkuraneetha?', en:'Are you using Aasandha?'},
-      {s:'you', dv:'ނޫން، އަމިއްލައަށް ދައްކާނީ', rom:'noon, amillaah dhakkaanee', en:"No, I'll pay myself."},
-      {s:'you', dv:'ބޮލުގައި ރިއްސަނީ', rom:'bolugai rissanee', en:'I have a headache.'},
-      {s:'them', dv:'ދުވާލަކު ތިން ފަހަރު', rom:'dhuvaalaku thin faharu', en:'Three times a day.'}
-    ]
-  },
-  {
-    id:'landlord', dv:'ގޭގެ ވެރިޔާ', rom:'geyge veriyaa', en:'Landlord', spot:'male-south',
-    note:'Rent is quoted per month, and the deposit is usually one or two months on top, plus an agent fee. Water and electricity are almost never included — ask, because Malé bills can be a real surprise in the hot months.',
-    turns:[
-      {s:'you', dv:'ކުލި ކިހާ ވަރެއް؟', rom:'kuli kihaa vareh?', en:'How much is the rent?'},
-      {s:'them', dv:'ބާރަ ހާސް، ޑިޕޮސިޓް ދެ މަސް', rom:'baara haas, deposit dhe mas', en:'Twelve thousand, two months deposit.'},
-      {s:'you', dv:'ފެނާއި ކަރަންޓް ހިމެނޭތަ؟', rom:'fenaai karantu himeneytha?', en:'Are water and electricity included?'},
-      {s:'them', dv:'ވަކިން ދައްކަވަންޖެހޭނެ', rom:'vakin dhakkavaanjeheyne', en:'You pay those separately.'},
-      {s:'you', dv:'ކޮޓަރި ބަލާލެވިދާނެތަ؟', rom:'kotari balaalevidhaanetha?', en:'Can I see the room?'}
-    ]
-  },
-  {
-    id:'shop', dv:'ފިހާރަ', rom:'fihaara', en:'Corner shop', spot:'majeedhee',
-    note:'Card is widely taken now, but the machine goes down often enough that you should keep a couple of hundred rufiyaa in small notes. If you want something held while you fetch cash, the word that makes it happen is ބަހައްޓާ.',
-    turns:[
-      {s:'you', dv:'ކާޑުން ދެއްކިދާނެތަ؟', rom:'kaadun dhekkidhaanetha?', en:'Can I pay by card?'},
-      {s:'them', dv:'ކާޑު މެޝިން ހަލާކުވެފައި', rom:'kaadu machine halaakuvefai', en:'The card machine is down.'},
-      {s:'you', dv:'މީތި ބަހައްޓާލަދީފާނަންތަ؟', rom:'meethi bahattaaladheefaanantha?', en:'Could you hold this for me?'},
-      {s:'you', dv:'ފައިސާ ހިފައިގެން އަންނާނަން', rom:'faisaa hifaigen annaanan', en:"I'll come back with cash."}
-    ]
-  },
-  {
-    id:'clinic', dv:'ހޮސްޕިޓަލް', rom:'hospital', en:'Clinic', spot:'sultan-park',
-    note:'IGMH is the public hospital and ADK the main private one. You take a number and wait, sometimes a long while — going early matters more than anything you can say at the desk.',
-    turns:[
-      {s:'you', dv:'ޑޮކްޓަރަށް ދައްކަން ބޭނުން', rom:'doctor-ah dhakkan beynun', en:"I'd like to see a doctor."},
-      {s:'them', dv:'އާސަންދަ ބޭނުންކުރަނީތަ؟', rom:'aasandha beynunkuraneetha?', en:'Are you using Aasandha?'},
-      {s:'them', dv:'އައިޑީ ކާޑު ދެއްވަބަލަ', rom:'ID kaadu dhevvabala', en:'Your ID card, please.'},
-      {s:'you', dv:'ނަންބަރު ކޮންއިރަކުން؟', rom:'namburu kon-irakun?', en:"When's my number up?"},
-      {s:'you', dv:'ބަނޑުގައި ރިއްސަނީ', rom:'bandugai rissanee', en:'I have a stomach ache.'}
-    ]
-  }
-];
 
-/* ---------- street view spots (verified pano IDs) ---------- */
-const SPOTS = {
-  'majeedhee':   {island:'male',  name:'Majeedhee Magu',      short:'Majeedhee Magu', dv:'މަޖީދީ މަގު',            rom:'majeedhee magu',
-                  desc:"Malé's main east–west street. Tea shops, phone shops and the densest scooter traffic in the country.",
-                  pano:'CIHM0ogKEICAgICE2K2-Yw', lat:4.1754959, lng:73.5093474, heading:69},
-  'market':      {island:'male',  name:'Local Market waterfront', short:'Local Market', dv:'ލޯކަލް މާރުކޭޓް',    rom:'local maarukeyt',
-                  desc:'The north harbour road, with the fish market and the produce market side by side and the dhonis tied up behind.',
-                  pano:'CIHM0ogKEICAgIDqvf7-9wE', lat:4.1784198, lng:73.5107529, heading:300},
-  'sultan-park': {island:'male',  name:'Sultan Park',          short:'Sultan Park', dv:'ސުލްޠާން ޕާކް',          rom:'sultan park',
-                  desc:'Green space beside the Old Friday Mosque, in the government quarter — ministries, the hospital and the pharmacies are all within a few minutes.',
-                  pano:'CIHM0ogKEICAgICFpffqXw', lat:4.177195, lng:73.510573, heading:4},
-  'male-south':  {island:'male',  name:'Southern Malé',        short:'Southern Malé', dv:'މާލެ ދެކުނު',            rom:'maale dhekunu',
-                  desc:'The residential grid south of Majeedhee Magu — narrow lanes, tall blocks, and where most of the rooms for rent actually are.',
-                  pano:'CIHM0ogKEICAgIDcx7S5rAE', lat:4.1745498, lng:73.5108431, heading:0},
-  'hulhu-centre':{island:'hulhumale', name:'Hulhumalé centre', short:'Hulhumalé centre', dv:'ހުޅުމާލެ',               rom:'hulhumale',
-                  desc:'Wide planned streets on reclaimed land, twenty minutes from Malé by bridge or ferry. Everything here was sea in 1997.',
-                  pano:'CIHM0ogKEICAgIDa0eeFyQE', lat:4.2114331, lng:73.5399576, heading:238},
-  'hulhu-beach': {island:'hulhumale', name:'Hulhumalé beach',  short:'The beach', dv:'ހުޅުމާލެ ބީޗް',          rom:'hulhumale beach',
-                  desc:'The east-facing artificial beach. Where Malé goes in the evening when the city gets too hot to sit in.',
-                  pano:'CIHM0ogKEICAgIDa0f-0XA', lat:4.216018, lng:73.5454479, heading:175}
-};
 
 /* ------------------------------------------------------------
    Offline vector map of Malé, Hulhumalé, Villimalé and the
@@ -739,15 +674,6 @@ function mapSvg(view, activeKey){
     + '</g></svg>';
 }
 
-function panoEmbed(s){
-  return 'https://www.google.com/maps/embed?pb=!4v1!6m8!1m7!1s' + s.pano
-       + '!2m2!1d' + s.lat + '!2d' + s.lng
-       + '!3f' + s.heading + '!4f0!5f0.7820865974627469';
-}
-function panoLink(s){
-  return 'https://www.google.com/maps/@?api=1&map_action=pano&pano=' + s.pano
-       + '&heading=' + s.heading + '&pitch=0&fov=90';
-}
 
 LAND = stitchLand(MAP.coast);
 
@@ -790,6 +716,7 @@ let state = loadState();
 if (!Array.isArray(state.saved)) state.saved = [];
 if (typeof state.reviewCard !== 'boolean') state.reviewCard = true;
 if (typeof state.unlocked !== 'boolean') state.unlocked = false;
+if (!Array.isArray(state.aiSaved)) state.aiSaved = [];
 
 const keyOf = (sid, i) => sid + ':' + i;
 const isSaved = k => state.saved.indexOf(k) !== -1;
@@ -882,14 +809,19 @@ function renderHome(){
     + '</div>';
 
   if (!q && !filter){
-    html += '<button class="explore" data-go="walk">'
+    html += '<a class="explore" href="./world.html">'
       + '<span class="top"><span class="lab">Explore Malé</span><span class="badge">Experimental</span></span>'
-      + '<span class="title"><span class="dv">ހިނގާ ބަލާލަން</span><span class="en">· Walk the city</span></span>'
-      + '<span class="sub">Six street-level panoramas across Malé and Hulhumalé, on a map you can tap</span>'
-      + '</button>';
+      + '<span class="title"><span class="dv">ލޯކަލް މާރުކޭޓް</span><span class="en">· Walk the Local Market</span></span>'
+      + '<span class="sub">Explore the market in 3D, or jump into five free practice stops</span>'
+      + '</a>'
+      + '<button class="svcard" data-go="walk">'
+      + '<span class="ico">🌐</span><span><span class="lab">Street View</span>'
+      + '<span class="t">Real Malé &amp; Hulhumalé</span>'
+      + '<span class="s">Six 360° panoramas on a map you can tap</span></span>'
+      + '<span class="arrow">→</span></button>';
 
     if (state.reviewCard){
-      const n = state.saved.length;
+      const n = state.saved.length + state.aiSaved.length;
       html += '<div class="review">'
         + '<div><span class="lab">Review' + (n ? '' : '') + '</span>'
         + '<span class="badge">' + (n ? n + ' saved' : 'New') + '</span>'
@@ -935,6 +867,12 @@ function renderSituation(id){
     + (isSos
         ? '<div class="sos-note">' + esc(x.note).replace(/119|102|118/g, m => '<b>' + m + '</b>') + '</div>'
         : '<div class="note"><p class="eyebrow">Malé note</p><p>' + esc(x.note) + '</p></div>')
+    + '<div class="askrow">'
+    + '<label class="search ask"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>'
+    + '<input id="sq" type="search" enterkeyhint="search" placeholder="Search this situation, or ask ChatGPT…" aria-label="Search this situation or ask ChatGPT" data-sit-id="' + id + '"></label>'
+    + '<button class="askbtn" data-ask="' + id + '">Ask ChatGPT</button></div>'
+    + '<p class="asknote" id="askNote" hidden></p>'
+    + '<div id="aiOut"></div>'
     + '<div class="turns">'
     + x.turns.map((t, i) => {
         const k = keyOf(id, i);
@@ -951,10 +889,15 @@ function renderSituation(id){
           + '</span></div>';
       }).join('')
     + '</div>'
-    + (spot ? '<button class="sv-link" data-goto-spot="' + x.spot + '">'
-        + '<span><span class="t">Walk ' + esc(spot.name) + '</span><br>'
-        + '<span class="s">See where this conversation happens</span></span>'
-        + '<span class="arrow">→</span></button>' : '');
+    + (spot ? '<div class="svblock">'
+        + '<div class="svhead"><span class="eyebrow">🌐 Street View</span><span class="svname">' + esc(spot.name) + '</span></div>'
+        + '<p class="svdesc">Where this conversation happens. ' + esc(spot.desc) + '</p>'
+        + '<div class="pano" data-pano="' + x.spot + '"><div class="pano-cta">'
+        + '<button class="big" data-load="' + x.spot + '">Open Street View</button>'
+        + '<span class="sub">360° photosphere · ' + spot.lat.toFixed(4) + ', ' + spot.lng.toFixed(4) + '</span></div></div>'
+        + '<div class="svfoot"><a href="' + panoLink(spot) + '" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a>'
+        + '<button data-goto-spot="' + x.spot + '">See it on the map →</button></div>'
+        + '</div>' : '');
 }
 
 /* ---------- walk ---------- */
@@ -1000,28 +943,30 @@ function renderWalk(island, pin){
 
 /* ---------- saved ---------- */
 function renderSaved(){
-  let body;
-  if (!state.saved.length){
-    body = '<div class="empty"><span class="dv">ހުސް</span>'
-      + '<p>Nothing saved yet. Tap ♡ on any line and it will wait for you here.</p></div>';
-  } else {
-    body = '<div class="saved-list">' + state.saved.map(k => {
-      const [sid, idx] = k.split(':');
-      const x = sitById(sid);
-      if (!x) return '';
-      const t = x.turns[+idx];
-      if (!t) return '';
-      return '<div class="saved-item">'
-        + '<div class="from">' + emOf(sid) + ' ' + esc(x.en) + ' · ' + (t.s === 'you' ? 'you say' : 'they say') + '</div>'
-        + '<div class="dv">' + t.dv + '</div>'
-        + '<div class="rom">' + esc(t.rom) + '</div>'
-        + '<div class="en">' + esc(t.en) + '</div>'
-        + '<span class="acts" style="display:flex;gap:7px;margin-top:10px">'
-        + '<button class="chip" data-say="' + esc(t.dv) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Listen</button>'
-        + '<button class="chip" data-fav="' + k + '" aria-pressed="true">Remove</button>'
-        + '</span></div>';
-    }).join('') + '</div>';
-  }
+  const items = [];
+  state.saved.forEach(k => {
+    const [sid, idx] = k.split(':');
+    const x = sitById(sid); if (!x) return;
+    const t = x.turns[+idx]; if (!t) return;
+    items.push('<div class="saved-item">'
+      + '<div class="from">' + emOf(sid) + ' ' + esc(x.en) + ' · ' + (t.s === 'you' ? 'you say' : 'they say') + '</div>'
+      + '<div class="dv">' + t.dv + '</div><div class="rom">' + esc(t.rom) + '</div><div class="en">' + esc(t.en) + '</div>'
+      + '<span class="acts" style="display:flex;gap:7px;margin-top:10px">'
+      + '<button class="chip" data-say="' + esc(t.dv) + '">Listen</button>'
+      + '<button class="chip" data-fav="' + k + '" aria-pressed="true">Remove</button></span></div>');
+  });
+  state.aiSaved.forEach((p, i) => {
+    const x = sitById(p.sit);
+    items.push('<div class="saved-item">'
+      + '<div class="from">' + (x ? emOf(p.sit) + ' ' + esc(x.en) + ' · ' : '') + '<span style="color:var(--lagoon)">AI · unverified</span></div>'
+      + '<div class="dv">' + esc(p.dv) + '</div><div class="rom">' + esc(p.rom) + '</div><div class="en">' + esc(p.en) + '</div>'
+      + '<span class="acts" style="display:flex;gap:7px;margin-top:10px">'
+      + '<button class="chip" data-say="' + esc(p.dv) + '">Listen</button>'
+      + '<button class="chip" data-ai-unsave="' + i + '">Remove</button></span></div>');
+  });
+  const body = items.length
+    ? '<div class="saved-list">' + items.join('') + '</div>'
+    : '<div class="empty"><span class="dv">ހުސް</span><p>Nothing saved yet. Tap ♡ on any line and it will wait for you here.</p></div>';
   $('#v-saved').innerHTML =
     '<p class="eyebrow">Your review list</p>'
     + '<h2 style="font-size:1.5rem;margin-top:6px">Saved lines.</h2>'
@@ -1050,13 +995,135 @@ function renderAbout(){
     + '<button class="rowlink" data-unlock>Premium situations'
     + '<span class="arrow">' + (state.unlocked ? 'Unlocked (demo)' : 'Locked') + '</span></button>'
     + '<button class="rowlink" data-clear-saved>Clear saved lines'
-    + '<span class="arrow">' + state.saved.length + '</span></button>'
+    + '<span class="arrow">' + (state.saved.length + state.aiSaved.length) + '</span></button>'
+    + '</section>'
+    + '<section><h3>ChatGPT</h3>'
+    + '<p>Ask questions inside any situation — “how do I ask for less sugar?” — and get Dhivehi lines back. It uses <b>your own OpenAI API key</b>, stored only in this browser and sent only to api.openai.com. This site has no server, so there is no shared key to put here.</p>'
+    + aiSettingsHTML()
     + '</section>'
     + '<section><h3>Audio</h3>'
     + '<p>Listen uses your device speech synthesis. Almost no device ships a Dhivehi voice, so it will tell you so rather than read the line out in the wrong language — recorded audio is what a real build would ship.</p></section>'
     + '<section><div class="warn"><p class="eyebrow">Check the Dhivehi before shipping</p>'
     + '<p>This is a demonstration build. The Thaana has not been reviewed by a native speaker — spelling, fili placement and the naturalness of the longer sentences all need checking before it goes in front of anyone learning from it.</p></div></section>'
     + '</div>';
+}
+
+/* ---------- ChatGPT (bring your own key) ----------
+   The key lives in this browser's localStorage and is only ever sent to
+   api.openai.com. There is no server; a key baked into a public static site
+   would be readable by anyone who opens the page source. */
+const AIKEY = 'pocketmale.openai';
+function aiCfg(){ try { return JSON.parse(localStorage.getItem(AIKEY) || 'null'); } catch (e) { return null; } }
+function setAiCfg(c){ try { localStorage.setItem(AIKEY, JSON.stringify(c)); } catch (e) { toast('This browser won’t let the page store the key.'); } }
+function aiErr(code){
+  if (code === 401) return 'OpenAI rejected this key (401). Check it in Settings.';
+  if (code === 429) return 'This key is rate-limited or out of credit (429).';
+  if (code === 404) return 'That model isn’t available to this key (404). Change the model in Settings.';
+  return 'OpenAI returned an error (' + code + ').';
+}
+function aiSettingsHTML(){
+  const c = aiCfg(), has = !!(c && c.key);
+  return '<div class="keybox">'
+    + '<label class="klab" for="aiKey">API key</label>'
+    + '<input id="aiKey" class="kin" type="password" autocomplete="off" spellcheck="false" placeholder="' + (has ? 'Saved · ends …' + esc(c.key.slice(-4)) : 'sk-…') + '">'
+    + '<label class="klab" for="aiModel">Model</label>'
+    + '<input id="aiModel" class="kin" type="text" autocomplete="off" spellcheck="false" value="' + esc((c && c.model) || 'gpt-4o-mini') + '">'
+    + '<div class="krow"><button class="chip" data-ai-save>Save</button><button class="chip" data-ai-test>Test key</button>'
+    + (has ? '<button class="chip" data-ai-remove>Remove key</button>' : '') + '</div>'
+    + '<p class="rom" id="aiStatus">' + (has ? 'Key saved on this device.' : 'No key saved — ChatGPT is off.') + '</p>'
+    + '<p class="klink">Get a key at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">platform.openai.com/api-keys</a>. Usage is billed to your OpenAI account.</p>'
+    + '</div>';
+}
+async function testAI(){
+  const c = aiCfg(), st = $('#aiStatus');
+  const typed = (($('#aiKey') || {}).value || '').trim();
+  const key = typed || (c && c.key);
+  if (!key){ st.textContent = 'Paste a key first.'; return; }
+  st.textContent = 'Testing…';
+  try {
+    const r = await fetch('https://api.openai.com/v1/models', {headers:{'Authorization':'Bearer ' + key}});
+    st.textContent = r.ok ? 'Key works ✓' + (typed ? ' — press Save to keep it.' : '') : aiErr(r.status);
+  } catch (e) { st.textContent = 'Couldn’t reach OpenAI — check your connection.'; }
+}
+
+function filterTurns(q){
+  q = q.trim().toLowerCase();
+  const turns = document.querySelectorAll('#v-situation > .turns > .turn');
+  const note = $('#askNote'), sid = ($('#sq') || {dataset:{}}).dataset.sitId;
+  let n = 0;
+  turns.forEach(el => { const hit = !q || el.textContent.toLowerCase().indexOf(q) !== -1; el.hidden = !hit; if (hit) n++; });
+  if (!note) return;
+  if (!q){ note.hidden = true; return; }
+  note.hidden = false;
+  note.innerHTML = (n ? n + ' of ' + turns.length + ' lines match. Not what you need? '
+                      : 'No lines here match “' + esc(q) + '”. ')
+    + '<button data-ask="' + esc(sid) + '">Ask ChatGPT →</button>';
+}
+
+let lastAI = [];
+async function askAI(id, q){
+  const out = $('#aiOut'); if (!out) return;
+  const c = aiCfg();
+  if (!c || !c.key){
+    out.innerHTML = '<div class="ai-card"><p class="eyebrow">ChatGPT</p>'
+      + '<p class="ai-p">Add your OpenAI API key in Settings to ask questions inside a situation. It stays on this device.</p>'
+      + '<button class="chip" data-go="about">Open Settings</button></div>';
+    return;
+  }
+  const x = sitById(id);
+  out.innerHTML = '<div class="ai-card"><p class="eyebrow">ChatGPT · thinking…</p><p class="ai-p">“' + esc(q) + '”</p></div>';
+  const sys = 'You help people who live in Malé, Maldives, speak everyday Dhivehi. '
+    + 'Use the spoken Malé register (for example "ahuren", not the formal "alhugandu"), written in Thaana script with correct fili. '
+    + 'Situation: ' + x.en + ' (' + x.rom + ').\n'
+    + 'Lines the learner already has:\n' + x.turns.map(t => '- ' + t.rom + ' — ' + t.en).join('\n') + '\n'
+    + 'Local context: ' + x.note + '\n'
+    + 'Answer the learner\'s question with 1 to 3 short, natural phrases they could actually say or hear in this situation. '
+    + 'Reply ONLY with JSON in exactly this shape: {"phrases":[{"dhivehi":"Thaana script","romanisation":"latin letters","english":"meaning"}],"tip":"one or two sentences of practical Malé context"}. '
+    + 'If you are not confident about the Dhivehi, say so plainly in "tip" instead of sounding certain.';
+  try {
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + c.key},
+      body: JSON.stringify({
+        model: c.model || 'gpt-4o-mini', temperature: .3,
+        response_format: {type:'json_object'},
+        messages: [{role:'system', content:sys}, {role:'user', content:q}]
+      })
+    });
+    if (!r.ok) throw new Error(aiErr(r.status));
+    const j = await r.json();
+    let data;
+    try { data = JSON.parse((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '{}'); }
+    catch (e) { throw new Error('ChatGPT replied in an unexpected format. Try asking again.'); }
+    const phrases = (Array.isArray(data.phrases) ? data.phrases : []).filter(p => p && p.dhivehi).slice(0, 3);
+    lastAI = phrases.map(p => ({dv:String(p.dhivehi), rom:String(p.romanisation || ''), en:String(p.english || ''), sit:id}));
+    if (!lastAI.length && !data.tip) throw new Error('ChatGPT didn’t return any phrases. Try rephrasing the question.');
+    out.innerHTML = '<div class="ai-card">'
+      + '<div class="ai-top"><p class="eyebrow">ChatGPT · “' + esc(q) + '”</p><span class="ai-badge">AI · unverified</span></div>'
+      + '<div class="turns">' + lastAI.map((p, k) =>
+          '<div class="turn you ai"><span class="who">You could say</span>'
+          + '<span class="dv">' + esc(p.dv) + '</span><span class="rom">' + esc(p.rom) + '</span><span class="en">' + esc(p.en) + '</span>'
+          + '<span class="acts"><button class="chip" data-say="' + esc(p.dv) + '">Listen</button>'
+          + '<button class="chip" data-ai-keep="' + k + '">♡ Save</button></span></div>').join('') + '</div>'
+      + (data.tip ? '<p class="ai-tip">' + esc(String(data.tip)) + '</p>' : '')
+      + '<p class="ai-foot">Generated by ChatGPT (' + esc(c.model || 'gpt-4o-mini') + '). It can get Dhivehi wrong — check with a speaker before relying on it.</p>'
+      + '</div>';
+  } catch (err) {
+    let msg = (err && err.message) || 'Something went wrong.';
+    if (err instanceof TypeError){
+      // OpenAI's error responses on /chat/completions carry no CORS header, so a
+      // bad key, wrong model or empty balance all surface here as a bare network
+      // failure. /v1/models does send the header — ask it what is actually wrong.
+      try {
+        const probe = await fetch('https://api.openai.com/v1/models', {headers:{'Authorization':'Bearer ' + c.key}});
+        msg = probe.ok
+          ? 'OpenAI accepted the key but refused the request — usually the model name is wrong or the account is out of credit. Check both in Settings.'
+          : aiErr(probe.status);
+      } catch (e2) { msg = 'Couldn’t reach OpenAI — check your connection.'; }
+    }
+    out.innerHTML = '<div class="ai-card err"><p class="eyebrow">ChatGPT</p><p class="ai-p">' + esc(msg) + '</p>'
+      + '<button class="chip" data-go="about">Open Settings</button></div>';
+  }
 }
 
 /* ---------- speech ---------- */
@@ -1149,12 +1216,41 @@ document.addEventListener('click', e => {
     return;
   }
   if (t.closest('[data-clear-saved]')){
-    if (!state.saved.length){ toast('Nothing saved yet.'); return; }
-    const n = state.saved.length;
-    state.saved = []; saveState(); renderAbout();
+    const n = state.saved.length + state.aiSaved.length;
+    if (!n){ toast('Nothing saved yet.'); return; }
+    state.saved = []; state.aiSaved = []; saveState(); renderAbout();
     toast('Cleared ' + n + ' saved line' + (n === 1 ? '' : 's') + '.');
     return;
   }
+
+  if (t.closest('[data-ai-save]')){
+    const k = (($('#aiKey') || {}).value || '').trim(), m = (($('#aiModel') || {}).value || '').trim() || 'gpt-4o-mini';
+    const c = aiCfg() || {};
+    if (k){
+      if (!/^sk-/.test(k)){ $('#aiStatus').textContent = 'That doesn’t look like an OpenAI key — they start with “sk-”.'; return; }
+      c.key = k;
+    }
+    if (!c.key){ $('#aiStatus').textContent = 'Paste a key first.'; return; }
+    c.model = m; setAiCfg(c); renderAbout(); toast('ChatGPT key saved on this device.');
+    return;
+  }
+  if (t.closest('[data-ai-remove]')){ try { localStorage.removeItem(AIKEY); } catch (e) {} renderAbout(); toast('Key removed from this device.'); return; }
+  if (t.closest('[data-ai-test]')){ testAI(); return; }
+  const ask = t.closest('[data-ask]');
+  if (ask){
+    const q = (($('#sq') || {}).value || '').trim();
+    if (!q){ toast('Type a question first — e.g. “how do I ask for less sugar?”'); if ($('#sq')) $('#sq').focus(); return; }
+    askAI(ask.dataset.ask, q); return;
+  }
+  const keep = t.closest('[data-ai-keep]');
+  if (keep){
+    const p = lastAI[+keep.dataset.aiKeep]; if (!p) return;
+    if (!state.aiSaved.some(x => x.dv === p.dv)){ state.aiSaved.push(p); saveState(); }
+    keep.textContent = '♥ Saved'; keep.setAttribute('aria-pressed', 'true');
+    toast('Saved to your review list, marked as AI.'); return;
+  }
+  const unsave = t.closest('[data-ai-unsave]');
+  if (unsave){ state.aiSaved.splice(+unsave.dataset.aiUnsave, 1); saveState(); renderSaved(); toast('Removed.'); return; }
 
   const island = t.closest('[data-island]');
   if (island){ renderWalk(island.dataset.island, null); return; }
@@ -1181,7 +1277,7 @@ document.addEventListener('click', e => {
   const load = t.closest('[data-load]');
   if (load){
     const k = load.dataset.load, s = SPOTS[k];
-    const box = document.querySelector('.pano[data-pano="' + k + '"]');
+    const box = load.closest('.pano');
     box.innerHTML = '<iframe title="Street View — ' + esc(s.name) + '" src="' + panoEmbed(s)
       + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>';
     // A working Google embed builds nested subframes; one blocked by a strict
@@ -1221,6 +1317,7 @@ document.addEventListener('click', e => {
 });
 
 document.addEventListener('input', e => {
+  if (e.target.id === 'sq'){ filterTurns(e.target.value); return; }
   if (e.target.id !== 'q') return;
   query = e.target.value;
   const at = e.target.selectionStart;
@@ -1230,6 +1327,12 @@ document.addEventListener('input', e => {
 });
 
 document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id === 'sq'){
+    e.preventDefault();
+    const q = e.target.value.trim();
+    if (q) askAI(e.target.dataset.sitId, q);
+    return;
+  }
   if (e.key === 'Escape' && route !== 'home'){ show('home'); return; }
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const pin = e.target.closest && e.target.closest('[data-pin]');

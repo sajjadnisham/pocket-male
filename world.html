@@ -1,0 +1,981 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b1426">
+<title>Pocket Malé World</title>
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Thaana:wght@400;600&display=swap">
+<style>
+:root{
+  --paper:#faf7f1; --paper-2:#f2ebdf; --card:#fffdf8; --ink:#1a1814; --ink-2:#4a463f; --muted:#8a8478;
+  --rule:#ece4d6; --red:#9c3a2d; --red-deep:#7e2f23; --navy:#1f2535; --lagoon:#0d6663; --ochre:#c08417; --green:#2f5d46;
+  --display:'Newsreader',Georgia,serif;
+  --sans:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --dv:'Noto Sans Thaana','MV Faseyha','Faruma',sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b1426;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+.dv{font-family:var(--dv);direction:rtl;unicode-bidi:isolate}
+.rom{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+
+#stage{position:fixed;inset:0}
+#stage canvas{display:block;touch-action:none;outline:none}
+
+/* ---------- HUD ---------- */
+.hud{position:fixed;inset:0;pointer-events:none;z-index:5}
+.tl,.tr,.bl,.br,.bc{position:absolute;display:flex;gap:6px}
+.tl{top:max(10px,env(safe-area-inset-top));left:10px;flex-direction:column;align-items:flex-start;max-width:74vw}
+.tr{top:max(10px,env(safe-area-inset-top));right:10px;flex-direction:column;align-items:flex-end}
+.bl{bottom:max(12px,env(safe-area-inset-bottom));left:10px;flex-direction:column;align-items:flex-start}
+.br{bottom:max(12px,env(safe-area-inset-bottom));right:10px;flex-direction:column;align-items:flex-end}
+.bc{bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%)}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.pill{
+  pointer-events:auto;display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,253,248,.93);color:var(--ink);border-radius:999px;
+  padding:6px 11px;font-size:.76rem;line-height:1.2;box-shadow:0 2px 12px rgba(0,0,0,.28);white-space:nowrap;
+}
+.pill.dark{background:rgba(16,22,36,.78);color:#e8ecf4;box-shadow:none}
+.pill .dv{font-size:.9rem}
+.pill b{font-weight:600}
+.goal{
+  pointer-events:auto;text-align:left;background:rgba(255,253,248,.95);border-radius:11px;
+  padding:8px 12px;font-size:.78rem;line-height:1.4;max-width:min(380px,74vw);box-shadow:0 2px 12px rgba(0,0,0,.28);
+}
+.goal .k{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+.goal .go{color:var(--red);font-weight:500;white-space:nowrap}
+.seg{pointer-events:auto;display:flex;background:rgba(255,253,248,.93);border-radius:999px;padding:3px;box-shadow:0 2px 12px rgba(0,0,0,.28)}
+.seg button{padding:6px 14px;border-radius:999px;font-size:.78rem;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--red);color:#fdf4ea}
+.act{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:calc(max(12px,env(safe-area-inset-bottom)) + 52px);
+  pointer-events:auto;background:var(--red);color:#fdf4ea;border-radius:999px;padding:9px 18px;font-size:.86rem;
+  box-shadow:0 6px 22px rgba(0,0,0,.4);z-index:6;display:flex;align-items:center;gap:8px;white-space:nowrap;
+}
+.act .dv{font-size:1rem}
+
+.joy{position:fixed;width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.32);z-index:6;pointer-events:none}
+.joy i{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(255,253,248,.85)}
+
+.panel{
+  position:fixed;left:10px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 44px);z-index:8;
+  width:min(300px,86vw);max-height:58vh;overflow:auto;background:rgba(250,247,241,.97);border-radius:14px;
+  padding:6px;box-shadow:0 10px 34px rgba(0,0,0,.45);
+}
+.panel .it{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border-radius:9px;text-align:left;font-size:.84rem}
+.panel .it:hover{background:var(--paper-2)}
+.panel .it .em{width:22px;text-align:center}
+.panel .it .dv{margin-left:auto;font-size:.95rem;color:var(--muted)}
+.panel .it .done{color:var(--lagoon);font-size:.8rem}
+.panel .sv{font-size:.72rem;color:var(--lagoon);padding:2px 6px;border-radius:6px;border:1px solid rgba(13,102,99,.3)}
+.panel h4{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:8px 10px 4px}
+
+/* ---------- sheets ---------- */
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--paper);
+  border-radius:18px 18px 0 0;max-height:80vh;overflow:auto;
+  padding:14px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.45);
+  -webkit-user-select:text;user-select:text;
+}
+@media (min-width:760px){.sheet{left:50%;right:auto;width:540px;transform:translateX(-50%);bottom:16px;border-radius:18px}}
+.sheet .hd{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.sheet .hd h3{font-family:var(--display);font-weight:600;font-size:1.12rem;margin:0}
+.sheet .hd .dv{font-size:1.2rem;color:var(--red)}
+.sheet .hd .x{margin-left:auto;color:var(--muted);font-size:1.1rem;padding:4px 6px}
+.log{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.b{max-width:88%;border-radius:13px;padding:9px 12px;display:flex;flex-direction:column;gap:1px}
+.b.them{align-self:flex-start;background:var(--paper-2);border-bottom-left-radius:3px}
+.b.you{align-self:flex-end;background:var(--card);border:1px solid var(--rule);border-bottom-right-radius:3px}
+.b .who{font-family:var(--mono);font-size:.52rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.b.them .who{color:var(--lagoon)}
+.b .dv{font-size:1.36rem;line-height:1.8}
+.b.them .dv{color:var(--lagoon)}
+.b .en{font-family:var(--display);font-style:italic;font-size:.9rem;color:var(--ink-2)}
+.prompt{font-size:.8rem;color:var(--ink-2);margin:4px 0 8px}
+.prompt b{color:var(--red);font-weight:600}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;flex-direction:column;align-items:flex-start;gap:0;width:100%;text-align:left;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:9px 13px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.opt:hover{border-color:var(--muted)}
+.opt .dv{font-size:1.3rem;line-height:1.8;align-self:flex-end}
+.opt .en{font-family:var(--display);font-style:italic;font-size:.86rem;color:var(--ink-2)}
+.opt.wrong{border-color:var(--red);animation:shake .32s}
+.opt.right{border-color:var(--lagoon);background:#eef6f4}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.hint{font-size:.8rem;color:var(--red);margin-top:8px;min-height:1.1em}
+.ft{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--rule)}
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 14px;font-size:.82rem;border:1px solid var(--rule);background:var(--card)}
+.btn.primary{background:var(--red);color:#fdf4ea;border-color:var(--red)}
+.btn.sv{color:var(--lagoon);border-color:rgba(13,102,99,.35)}
+.btn:hover{filter:brightness(.97)}
+.done-box{background:#eef6f4;border-radius:12px;padding:12px 14px;font-size:.86rem;color:var(--ink-2)}
+
+.pano{position:relative;aspect-ratio:4/3;background:var(--navy);border-radius:12px;overflow:hidden}
+.pano iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.small{font-size:.76rem;color:var(--muted);margin-top:8px;line-height:1.5}
+
+.word{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:calc(max(12px,env(safe-area-inset-bottom)) + 104px);
+  z-index:15;background:var(--card);border-radius:14px;padding:12px 16px;min-width:210px;max-width:86vw;text-align:center;
+  box-shadow:0 10px 34px rgba(0,0,0,.45);
+}
+.word .dv{font-size:2rem;line-height:1.7;display:block}
+.word .en{font-family:var(--display);font-style:italic;font-size:1rem;color:var(--ink-2)}
+.word .note{font-size:.76rem;color:var(--muted);margin-top:6px;max-width:32ch;margin-left:auto;margin-right:auto}
+.word .new{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;color:var(--lagoon);text-transform:uppercase}
+
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:calc(max(12px,env(safe-area-inset-bottom)) + 112px);z-index:30;
+  background:rgba(16,22,36,.92);color:#e8ecf4;border-radius:11px;padding:9px 14px;font-size:.82rem;max-width:88vw;text-align:center;
+}
+
+/* ---------- intro ---------- */
+.intro{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;background:rgba(6,10,20,.55);backdrop-filter:blur(3px)}
+.card{width:min(440px,100%);max-height:92vh;overflow:auto;background:var(--paper);border-radius:18px;padding:22px 20px 18px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.card .mark{font-family:var(--dv);font-size:2.2rem;color:var(--red);line-height:1.6}
+.card h1{font-family:var(--display);font-weight:600;font-size:1.5rem;margin:0}
+.card .lab{font-family:var(--mono);font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:6px 0 14px}
+.promo{background:#e7f0ea;border-radius:12px;padding:12px 14px;text-align:left;margin-bottom:12px}
+.promo h2{font-size:.92rem;margin:0 0 3px;color:var(--green)}
+.promo p{font-size:.78rem;color:var(--ink-2);margin:0 0 9px}
+.promo a{display:inline-block;background:var(--green);color:#fff;text-decoration:none;border-radius:8px;padding:7px 12px;font-size:.82rem}
+.card .body{font-size:.84rem;color:var(--ink-2);margin:0 0 12px;line-height:1.5}
+.speak{display:flex;gap:9px;align-items:flex-start;text-align:left;background:var(--paper-2);border-radius:10px;padding:10px 12px;font-size:.78rem;color:var(--ink-2);margin-bottom:12px}
+.speak input{margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px}
+.chips span{font-family:var(--mono);font-size:.66rem;background:var(--paper-2);border-radius:6px;padding:4px 8px;color:var(--ink-2)}
+.enter{width:100%;background:var(--red);color:#fdf4ea;border-radius:999px;padding:12px;font-size:.95rem;font-weight:500}
+.enter[disabled]{background:#c9918a;cursor:progress}
+.card .foot{font-size:.7rem;color:var(--muted);margin-top:10px}
+
+.toast.top{bottom:auto;top:calc(max(10px,env(safe-area-inset-top)) + 8px)}
+.pop{position:fixed;z-index:31;left:50%;top:40%;transform:translate(-50%,-50%);font-size:1.6rem;pointer-events:none;animation:pop 1s ease-out forwards}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-120%) scale(1)}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+
+.webgl-fail{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:24px;background:var(--paper);text-align:center}
+</style>
+
+<div id="stage"></div>
+
+<div class="hud">
+  <div class="tl">
+    <div class="row">
+      <span class="pill" title="Stars — correct lines"><span>⭐</span><b id="stars">0</b></span>
+      <span class="pill" title="Words learned by tapping things"><span>💬</span><b id="words">0</b></span>
+    </div>
+    <span class="pill" id="where"><span class="dv">ލޯކަލް މާރުކޭޓް</span>· Local Market</span>
+    <span class="pill dark" id="tapHint">👆 Tap stalls to talk, things to learn</span>
+    <button class="goal" id="goal"></button>
+    <button class="pill" id="skip">Skip stop →</button>
+  </div>
+  <div class="tr">
+    <a class="pill" href="./index.html">Pocket Malé ↗</a>
+    <button class="pill" id="tiltBtn" hidden aria-label="Look by moving phone" title="Look by moving phone">📱</button>
+  </div>
+  <div class="bl">
+    <button class="pill" id="placesBtn">📍 Places</button>
+  </div>
+  <div class="br">
+    <button class="pill" id="svBtn">🌐 Street View</button>
+  </div>
+  <div class="bc">
+    <div class="seg" role="group" aria-label="Mode">
+      <button id="mGuided" aria-pressed="true">Guided</button>
+      <button id="mFree" aria-pressed="false">Free</button>
+    </div>
+  </div>
+</div>
+
+<button class="act" id="act" hidden></button>
+<div class="joy" id="joy" hidden><i id="knob"></i></div>
+<div class="panel" id="places" hidden></div>
+<div class="word" id="word" hidden></div>
+<div class="toast" id="toast" hidden></div>
+<div class="sheet" id="talk" hidden></div>
+<div class="sheet" id="svSheet" hidden></div>
+
+<div class="intro" id="intro">
+  <div class="card">
+    <div class="mark">ހަލޯ؟</div>
+    <h1>Pocket Malé World</h1>
+    <p class="lab">Free experimental starter · play in your browser</p>
+    <div class="promo">
+      <h2>Keep learning with Pocket Malé</h2>
+      <p>The situation-based Dhivehi phrasebook for everyday life in Malé.</p>
+      <a href="./index.html">Open Pocket Malé ↗</a>
+    </div>
+    <p class="body">Walk the Local Market on the harbour road at night, or jump straight into five practice stops. Tap a stall and answer the seller in Dhivehi. Tap the fish, the coconuts, the dhonis to learn what they are called.</p>
+    <label class="speak"><input type="checkbox" disabled>
+      <span><b>Require speaking</b> — not available yet. No browser can recognise Dhivehi speech, so you answer by tapping.</span></label>
+    <div class="chips" id="ctrlChips"></div>
+    <button class="enter" id="enter" disabled>Opening the stalls…</button>
+    <p class="foot">Experimental · free starter · representative stalls and illustrative prices · Dhivehi not yet reviewed by a native speaker</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="./data.js"></script>
+<script>
+/* ============================================================
+   Pocket Malé World — a night-time Local Market on the harbour
+   road, built procedurally in three.js (r128). Phrases come from
+   data.js, the same source the phrasebook uses.
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sitById = id => SITUATIONS.find(x => x.id === id);
+const TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+
+/* ---------- saved progress ---------- */
+const WKEY = 'pocketmale.world.v1';
+let W;
+try { W = JSON.parse(localStorage.getItem(WKEY) || '{}') || {}; } catch (e) { W = {}; }
+W.stars = W.stars | 0; W.goal = W.goal | 0;
+if (!Array.isArray(W.words)) W.words = [];
+if (W.mode !== 'free') W.mode = 'guided';
+const saveW = () => { try { localStorage.setItem(WKEY, JSON.stringify(W)); } catch (e) {} };
+
+/* ---------- places, goals, words ---------- */
+const PLACES = [
+  {id:'gate',     em:'🚪', dv:'ލޯކަލް މާރުކޭޓް', en:'West entrance',  x:-39, z:-1,   yaw:-Math.PI/2, spot:'market'},
+  {id:'fish',     em:'🐟', dv:'މަސް',           en:'Fish stall',     x:-24, z:5.0,  yaw:Math.PI, sit:'market',   spot:'market'},
+  {id:'fruit',    em:'🥥', dv:'ތަރުކާރީ',        en:'Fruit & veg',    x:-14, z:5.0,  yaw:Math.PI, sit:'market',   spot:'market'},
+  {id:'mosque',   em:'🕌', dv:'މިސްކިތް',        en:'Mosque',         x:-6,  z:5.0,  yaw:Math.PI, pitch:.3,       spot:'sultan-park'},
+  {id:'tea',      em:'☕', dv:'ސައި ހޮޓާ',        en:'Tea shop',       x:0,   z:5.0,  yaw:Math.PI, sit:'teashop',  spot:'majeedhee'},
+  {id:'shop',     em:'🏪', dv:'ފިހާރަ',          en:'Corner shop',    x:12,  z:5.0,  yaw:Math.PI, sit:'shop',     spot:'majeedhee'},
+  {id:'taxi',     em:'🚕', dv:'ޓެކްސީ',          en:'Taxi stand',     x:16,  z:-4.2, yaw:0,       sit:'taxi',     spot:'majeedhee'},
+  {id:'pharmacy', em:'💊', dv:'ބޭސްފިހާރަ',       en:'Pharmacy',       x:24,  z:5.0,  yaw:Math.PI, sit:'pharmacy', spot:'sultan-park'},
+  {id:'ferry',    em:'⛴️', dv:'ފެރީ',            en:'Ferry terminal', x:33,  z:-7.9, yaw:0,       sit:'ferry',    spot:'hulhu-centre'}
+];
+const PLACE = Object.fromEntries(PLACES.map(p => [p.id, p]));
+
+const GOALS = [
+  {place:'fish',  turn:0, text:'Go to the fish stall and ask the price.'},
+  {place:'tea',   turn:2, text:'At the tea shop, order two gulha and a black tea.'},
+  {place:'shop',  turn:0, text:'At the corner shop, ask whether you can pay by card.'},
+  {place:'taxi',  turn:0, text:'At the taxi stand, ask to be taken to Majeedhee Magu.'},
+  {place:'ferry', turn:0, text:'At the ferry terminal, ask when the ferry to Hulhumalé leaves.'}
+];
+
+const WORDS = {
+  fish:     {dv:'މަސް',       rom:'mas',      en:'fish', note:'Tuna is sold by the kilo; reef fish by the piece.'},
+  coconut:  {dv:'ކާށި',       rom:'kaashi',   en:'coconut'},
+  banana:   {dv:'ދޮންކެޔޮ',    rom:'dhonkeyo', en:'banana'},
+  tea:      {dv:'ސައި',       rom:'sai',      en:'tea', note:'"Sai" on its own means black tea.'},
+  boat:     {dv:'ދޯނި',       rom:'dhoani',   en:'boat — a dhoni'},
+  mosque:   {dv:'މިސްކިތް',    rom:'miskiy',   en:'mosque', note:'Shops nearby close for about fifteen minutes at each prayer time.'},
+  taxi:     {dv:'ޓެކްސީ',      rom:'teksee',   en:'taxi'},
+  ferry:    {dv:'ފެރީ',       rom:'feri',     en:'ferry'},
+  medicine: {dv:'ބޭސް',       rom:'beys',     en:'medicine'}
+};
+
+/* ---------- small UI helpers ---------- */
+let toastT;
+function toast(msg, ms){
+  const t = $('#toast'); t.textContent = msg; t.hidden = false;
+  t.classList.toggle('top', !$('#talk').hidden || !$('#svSheet').hidden);
+  clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, ms || 2600);
+}
+function pop(txt){
+  const d = document.createElement('div'); d.className = 'pop'; d.textContent = txt;
+  document.body.appendChild(d); setTimeout(() => d.remove(), 1000);
+}
+function hud(){
+  $('#stars').textContent = W.stars;
+  $('#words').textContent = W.words.length;
+  $('#mGuided').setAttribute('aria-pressed', String(W.mode === 'guided'));
+  $('#mFree').setAttribute('aria-pressed', String(W.mode === 'free'));
+  const guided = W.mode === 'guided';
+  $('#goal').hidden = !guided; $('#skip').hidden = !guided || W.goal >= GOALS.length;
+  if (guided){
+    if (W.goal < GOALS.length){
+      const g = GOALS[W.goal];
+      $('#goal').innerHTML = '<span class="k">Goal ' + (W.goal + 1) + '/' + GOALS.length + '</span> · ' + esc(g.text) + ' · <span class="go">Tap to go</span>';
+    } else {
+      $('#goal').innerHTML = '<span class="k">All five stops done ⭐</span> · Switch to Free and talk to anyone. · <span class="go">Start again</span>';
+    }
+  }
+}
+
+/* ---------- WebGL check ---------- */
+function webglOK(){
+  try { const c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl'))); }
+  catch (e) { return false; }
+}
+if (typeof THREE === 'undefined' || !webglOK()){
+  document.body.insertAdjacentHTML('beforeend',
+    '<div class="webgl-fail"><div><h2 style="font-family:var(--display)">This device can’t draw the 3D market</h2>' +
+    '<p style="color:var(--ink-2)">It needs WebGL, which is switched off or unsupported here.</p>' +
+    '<p><a href="./index.html" style="color:var(--red)">Back to the phrasebook</a></p></div></div>');
+  throw new Error('WebGL unavailable');
+}
+
+/* ---------- renderer, scene, camera ---------- */
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+$('#stage').appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b1426);
+scene.fog = new THREE.Fog(0x0b1426, 22, 80);
+
+const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 250);
+camera.rotation.order = 'YXZ';
+
+scene.add(new THREE.HemisphereLight(0x8aa0cc, 0x2a2016, 0.34));
+const moon = new THREE.DirectionalLight(0xaec2ff, 0.34);
+moon.position.set(-20, 40, -30); scene.add(moon);
+
+/* ---------- materials & helpers ---------- */
+let seed = 20260913;
+const rand = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const std = (color, o) => new THREE.MeshStandardMaterial(Object.assign({color, roughness:.85, metalness:0}, o || {}));
+const glow = (color) => new THREE.MeshBasicMaterial({color});
+function box(parent, w, h, d, x, y, z, mat){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z); parent.add(m); return m;
+}
+function cyl(parent, rt, rb, h, x, y, z, mat, seg){
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg || 12), mat);
+  m.position.set(x, y, z); parent.add(m); return m;
+}
+function ball(parent, r, x, y, z, mat, seg){
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r, seg || 12, seg ? Math.max(6, seg/2|0) : 8), mat);
+  m.position.set(x, y, z); parent.add(m); return m;
+}
+function canvasTex(canvas){
+  const t = new THREE.CanvasTexture(canvas);
+  t.encoding = THREE.sRGBEncoding; t.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); return t;
+}
+function signTex(dv, en, bg, fg){
+  const c = document.createElement('canvas'); c.width = 768; c.height = 224;
+  const x = c.getContext('2d');
+  x.fillStyle = bg; x.fillRect(0, 0, c.width, c.height);
+  x.strokeStyle = 'rgba(255,255,255,.35)'; x.lineWidth = 6; x.strokeRect(10, 10, c.width - 20, c.height - 20);
+  x.fillStyle = fg; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.direction = 'rtl'; x.font = '600 84px "Noto Sans Thaana", sans-serif';
+  x.fillText(dv, c.width / 2, 84);
+  x.direction = 'ltr'; x.font = '600 50px "Instrument Sans", sans-serif';
+  x.fillText(en.toUpperCase(), c.width / 2, 170);
+  return canvasTex(c);
+}
+function stripeTex(a, b){
+  const c = document.createElement('canvas'); c.width = 256; c.height = 32;
+  const x = c.getContext('2d');
+  for (let i = 0; i < 8; i++){ x.fillStyle = i % 2 ? b : a; x.fillRect(i * 32, 0, 32, 32); }
+  const t = canvasTex(c); t.wrapS = THREE.RepeatWrapping; return t;
+}
+const WIN = [];
+for (let v = 0; v < 3; v++){
+  const cw = 128, ch = 256, cols = 4, rows = 8;
+  const a = document.createElement('canvas'), e = document.createElement('canvas');
+  a.width = e.width = cw; a.height = e.height = ch;
+  const ax = a.getContext('2d'), ex = e.getContext('2d');
+  ax.fillStyle = '#ffffff'; ax.fillRect(0, 0, cw, ch);
+  ex.fillStyle = '#000000'; ex.fillRect(0, 0, cw, ch);
+  for (let r = 0; r < rows; r++) for (let cI = 0; cI < cols; cI++){
+    const lit = rand() < .44, px = cI * cw / cols + cw / cols * .22, py = r * ch / rows + ch / rows * .26;
+    const pw = cw / cols * .56, ph = ch / rows * .44;
+    ax.fillStyle = lit ? '#ffe7ac' : '#3b414b'; ax.fillRect(px, py, pw, ph);
+    if (lit){ ex.fillStyle = rand() < .25 ? '#b9ddff' : '#ffc975'; ex.fillRect(px, py, pw, ph); }
+  }
+  WIN.push([a, e]);
+}
+function buildingMat(color, w, h){
+  const [a, e] = WIN[(rand() * WIN.length) | 0];
+  const map = canvasTex(a), em = canvasTex(e);
+  for (const t of [map, em]){ t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(Math.max(1, Math.round(w / 6.4)), Math.max(1, Math.round(h / 12.8))); }
+  return std(new THREE.Color(color).multiplyScalar(.58), {map, emissive:0xffffff, emissiveMap:em, emissiveIntensity:.9});
+}
+
+/* ---------- interaction registry ---------- */
+const interact = [];
+function tag(obj, hit){ obj.userData.hit = hit; interact.push(obj); return obj; }
+
+/* ---------- the world ---------- */
+const bob = [];
+const flicker = [];
+function buildWorld(){
+  // street, pavements, quay, sea
+  box(scene, 100, .1, 17, 0, -.05, -.5, std(0x2c2e33, {roughness:.95}));
+  box(scene, 100, .18, 5.2, 0, .04, 8.6, std(0x6b6258));
+  box(scene, 100, .18, 4, 0, .04, -10, std(0x585e63));
+  for (let x = -46; x < 46; x += 4) box(scene, 1.8, .02, .12, x, .01, -1.6, glow(0xbfb8a6));
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(260, 140), std(0x0c2336, {roughness:.35, metalness:.35}));
+  sea.rotation.x = -Math.PI / 2; sea.position.set(0, -.55, -82); scene.add(sea);
+  for (let x = -44; x <= 44; x += 5) cyl(scene, .14, .18, .5, x, .34, -11.7, std(0x3a3d40));
+
+  // moon and far Hulhumalé skyline
+  const m = new THREE.Mesh(new THREE.SphereGeometry(3.4, 20, 12), new THREE.MeshBasicMaterial({color:0xf4eedf, fog:false}));
+  m.position.set(-46, 42, -150); scene.add(m);
+  for (let x = -90; x < 90; x += 5 + rand() * 6){
+    const w = 4 + rand() * 6, h = 5 + rand() * 20;
+    box(scene, w, h, 4, x, h / 2 - .5, -60 - rand() * 8, buildingMat(0x1c2638, w, h));
+  }
+
+  // tall Malé blocks behind the stalls, with a gap for the mosque
+  const pastels = [0xe8d9c0, 0xd7e3e0, 0xf0d4c8, 0xcfd8e8, 0xe9e1a8, 0xd9c7e4, 0xc9dfc6, 0xf2f0ea];
+  for (let x = -46; x < 46;){
+    const w = 6 + rand() * 5;
+    if (x + w > -10 && x < -2){ x = -2; continue; }
+    const h = 10 + rand() * 20;
+    box(scene, w - .4, h, 8, x + w / 2, h / 2, 15, buildingMat(pastels[(rand() * pastels.length) | 0], w, h));
+    x += w;
+  }
+
+  // entrance gate
+  const gate = new THREE.Group(); gate.position.set(-36, 0, 0);
+  const gm = std(0x7e2f23);
+  box(gate, .5, 5.2, .5, 0, 2.6, -7.8, gm); box(gate, .5, 5.2, .5, 0, 2.6, 6.2, gm);
+  box(gate, .6, .7, 14.6, 0, 5.2, -.8, gm);
+  const gs = new THREE.Mesh(new THREE.PlaneGeometry(7, 1.9), new THREE.MeshBasicMaterial({map:signTex('ލޯކަލް މާރުކޭޓް', 'Local Market', '#9c3a2d', '#fdf4ea')}));
+  gs.position.set(-.34, 5.2, -.8); gs.rotation.y = -Math.PI / 2; gate.add(gs);
+  scene.add(gate);
+
+  // south-side stalls
+  stall({id:'fish',     x:-24, wall:0x2f6f8f, a:'#1f5f7a', b:'#f1ece0', sign:'#1f5f7a', goods:'fish'});
+  stall({id:'fruit',    x:-14, wall:0x5c7d3a, a:'#4f7a2e', b:'#f3e6b0', sign:'#4f7a2e', goods:'fruit'});
+  stall({id:'tea',      x:0,   wall:0x9c3a2d, a:'#9c3a2d', b:'#f5e9d4', sign:'#7e2f23', goods:'tea'});
+  stall({id:'shop',     x:12,  wall:0x3f4a6b, a:'#c08417', b:'#1f2535', sign:'#1f2535', goods:'shop'});
+  stall({id:'pharmacy', x:24,  wall:0xe9eef0, a:'#2f7a58', b:'#ffffff', sign:'#2f7a58', goods:'pharmacy'});
+
+  mosque(-6, 13);
+  taxi(16, -6.2);
+  ferry(33);
+
+  // dhonis along the quay
+  const hulls = [0xf1ece0, 0x2f6f8f, 0x9c3a2d, 0xe9e1a8, 0x3c7a5a];
+  for (let i = 0; i < 6; i++) dhoni(-40 + i * 12.5 + rand() * 3, -15.5 - rand() * 2.5, hulls[i % hulls.length]);
+
+  // street lamps
+  const pole = std(0x2c3036);
+  const lampAt = (x, z, arm) => {
+    cyl(scene, .08, .11, 5, x, 2.5, z, pole);
+    box(scene, .1, .1, 1.1, x, 4.95, z + arm * .5, pole);
+    ball(scene, .22, x, 4.8, z + arm * 1.05, glow(0xffd59a));
+  };
+  for (let x = -42; x <= 42; x += 12) lampAt(x, -8.3, 1);
+  for (const x of [-19, -9.5, 6, 18, 30]) lampAt(x, 6.3, -1);
+}
+
+function stall(o){
+  const g = new THREE.Group(); g.position.set(o.x, 0, 7.4);
+  const W = 4.2, pl = PLACE[o.id];
+  const wood = std(0x7a5436), top = std(0xb99a74);
+  box(g, W, 1, 1.1, 0, .5, -.6, wood);
+  box(g, W + .1, .08, 1.2, 0, 1.04, -.6, top);
+  box(g, W, 2.9, .15, 0, 1.45, .95, std(o.wall));
+  const pm = std(0x3a3d42);
+  for (const [px, pz] of [[-W/2, -1.25], [W/2, -1.25], [-W/2, .95], [W/2, .95]]) cyl(g, .05, .05, 3.1, px, 1.55, pz, pm, 8);
+  const tex = stripeTex(o.a, o.b); tex.repeat.set(2, 1);
+  const aw = new THREE.Mesh(new THREE.PlaneGeometry(W + .5, 2.6), new THREE.MeshStandardMaterial({map:tex, side:THREE.DoubleSide, roughness:.9}));
+  aw.rotation.x = -Math.PI / 2 + .28; aw.position.set(0, 3.05, -.2); g.add(aw);
+  const sg = new THREE.Mesh(new THREE.PlaneGeometry(3.3, .96), new THREE.MeshBasicMaterial({map:signTex(pl.dv, pl.en, o.sign, '#fdf4ea')}));
+  sg.position.set(0, 3.62, -1.34); sg.rotation.y = Math.PI; g.add(sg);
+  for (let i = 0; i < 6; i++){
+    const b = ball(g, .07, -W/2 + .35 + i * (W - .7) / 5, 2.72, -1.27, glow(0xffcf86), 8);
+    if (i % 2) flicker.push(b);
+  }
+  const shirt = [0xd9c7a3, 0x5a7fa0, 0xe8e2d4, 0x8f5b4a, 0x4f7a5e][(rand() * 5) | 0];
+  cyl(g, .3, .34, 1.1, .7, 1.05, .35, std(shirt), 10);
+  ball(g, .2, .7, 1.82, .35, std(0x8a5a3c), 12);
+  const light = new THREE.PointLight(0xffb561, 1.25, 11, 2); light.position.set(0, 2.4, -1.6); g.add(light);
+
+  if (o.goods === 'fish'){
+    box(g, 3.2, .1, .8, 0, 1.12, -.6, std(0x7fb4c9, {roughness:.25}));
+    for (let i = 0; i < 6; i++){
+      const f = ball(g, .2, -1.25 + i * .5, 1.24, -.6 + (i % 2 ? .15 : -.15), std(0x9fb2bd, {metalness:.55, roughness:.3}), 12);
+      f.scale.set(2.2, .6, .7); tag(f, {type:'word', w:'fish'});
+    }
+  } else if (o.goods === 'fruit'){
+    for (let i = 0; i < 5; i++) tag(ball(g, .17, -1.5 + i * .34, 1.24, -.75, std(0x5a8a2e), 12), {type:'word', w:'coconut'});
+    for (let i = 0; i < 5; i++){
+      const b = cyl(g, .05, .05, .42, .3 + i * .22, 1.2, -.45, std(0xe8c83a), 8);
+      b.rotation.z = Math.PI / 2 - .35; tag(b, {type:'word', w:'banana'});
+    }
+  } else if (o.goods === 'tea'){
+    box(g, 1.3, .06, .6, -.8, 1.11, -.6, std(0xc9c3b6, {metalness:.5, roughness:.4}));
+    for (let i = 0; i < 6; i++) ball(g, .1, -1.25 + (i % 3) * .3, 1.2, -.75 + (i > 2 ? .3 : 0), std(0xb57a3c), 10);
+    for (let i = 0; i < 3; i++) tag(cyl(g, .08, .065, .16, .6 + i * .35, 1.16, -.65, std(0xf4f0e8), 12), {type:'word', w:'tea'});
+  } else if (o.goods === 'shop'){
+    const colors = [0xc0392b, 0x2f7a58, 0xe8c83a, 0x2f6f8f, 0xf1ece0];
+    for (let s = 0; s < 3; s++){
+      box(g, W - .4, .06, .35, 0, .9 + s * .6, .75, std(0x5a4632));
+      for (let i = 0; i < 8; i++) box(g, .3, .36, .26, -1.6 + i * .46, 1.12 + s * .6, .75, std(colors[(i + s) % colors.length]));
+    }
+    box(g, .24, .08, .34, 1.1, 1.13, -.6, std(0x1a1d22));
+  } else if (o.goods === 'pharmacy'){
+    box(g, .9, .28, .08, 0, 2.2, .86, glow(0x39d17b)); box(g, .28, .9, .08, 0, 2.2, .86, glow(0x39d17b));
+    for (let s = 0; s < 2; s++) for (let i = 0; i < 7; i++)
+      tag(box(g, .34, .24, .22, -1.5 + i * .5, 1.02 + s * .55 + (s ? 0 : 0), .72, std(i % 2 ? 0xf4f6f8 : 0x9cc3e6)), {type:'word', w:'medicine'});
+    for (let i = 0; i < 2; i++) box(g, W - .4, .05, .3, 0, .88 + i * .55, .72, std(0xd8dde0));
+  }
+  tag(g, {type:'stall', id:o.id});
+  scene.add(g);
+}
+
+function mosque(x, z){
+  const g = new THREE.Group(); g.position.set(x, 0, z);
+  const white = std(0xf1eee6), gold = std(0xd9b25a, {metalness:.4, roughness:.45});
+  box(g, 6, 3.4, 6, 0, 1.7, 0, white);
+  box(g, 6.3, .3, 6.3, 0, 3.5, 0, std(0xe2ddd0));
+  cyl(g, 2.2, 2.2, 1, 0, 4.1, 0, white, 24);
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(2.2, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2), gold);
+  dome.position.set(0, 4.6, 0); g.add(dome);
+  cyl(g, .45, .5, 10, 3.6, 5, -2.2, white, 12);
+  cyl(g, .75, .75, .25, 3.6, 8.2, -2.2, white, 14);
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(.5, 1.4, 12), gold); cone.position.set(3.6, 10.7, -2.2); g.add(cone);
+  box(g, 6.05, .14, .05, 0, 3.05, -3.01, glow(0x9fe3c0));
+  box(g, 1.2, 2.1, .1, 0, 1.05, -3.02, std(0x3a2e24));
+  tag(g, {type:'word', w:'mosque'});
+  scene.add(g);
+}
+
+function taxi(x, z){
+  const g = new THREE.Group(); g.position.set(x, 0, z);
+  box(g, 4.2, .8, 1.8, 0, .7, 0, std(0xf2f0ea, {roughness:.4, metalness:.2}));
+  box(g, 2.2, .66, 1.62, -.2, 1.43, 0, std(0x1d2733, {roughness:.2, metalness:.3}));
+  const rs = box(g, .9, .26, .4, -.2, 1.9, 0, glow(0xf2c14e));
+  const wheel = std(0x121315);
+  for (const [wx, wz] of [[-1.35, .92], [1.35, .92], [-1.35, -.92], [1.35, -.92]]){
+    const w = cyl(g, .36, .36, .26, wx, .36, wz, wheel, 14); w.rotation.x = Math.PI / 2;
+  }
+  box(g, .12, .16, .5, 2.12, .72, 0, glow(0xfff1c7));
+  ball(g, .18, .1, 1.45, .35, std(0x8a5a3c));
+  tag(g, {type:'stall', id:'taxi'});
+  scene.add(g);
+  const sp = new THREE.Group(); sp.position.set(x + 3.2, 0, z - 1.4);
+  cyl(sp, .06, .06, 3, 0, 1.5, 0, std(0x2c3036));
+  const s = new THREE.Mesh(new THREE.PlaneGeometry(1.9, .56), new THREE.MeshBasicMaterial({map:signTex('ޓެކްސީ', 'Taxi', '#1f2535', '#f2c14e'), side:THREE.DoubleSide}));
+  s.position.set(0, 3.1, 0); sp.add(s);
+  tag(sp, {type:'word', w:'taxi'});
+  scene.add(sp);
+}
+
+function ferry(x){
+  const t = new THREE.Group(); t.position.set(x, 0, -10.6);
+  box(t, 8, 3.4, 3.2, 0, 1.7, 0, std(0xe9e4d8));
+  box(t, 8.4, .3, 3.6, 0, 3.5, 0, std(0x0d6663));
+  box(t, 1.6, 2.3, .1, -1.8, 1.15, 1.62, std(0x1d2733));
+  const s = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 1.34), new THREE.MeshBasicMaterial({map:signTex('ފެރީ', 'Ferry terminal', '#0d6663', '#fdf4ea')}));
+  s.position.set(1.2, 2.55, 1.63); t.add(s);
+  const light = new THREE.PointLight(0x9fe3ff, 1.1, 12, 2); light.position.set(0, 3, 3); t.add(light);
+  tag(t, {type:'stall', id:'ferry'});
+  scene.add(t);
+  const b = new THREE.Group(); b.position.set(x, -.3, -15.2);
+  box(b, 11, 1.4, 3.2, 0, .3, 0, std(0xf4f2ec, {roughness:.5}));
+  box(b, 11.2, .2, 3.3, 0, -.35, 0, std(0x0d6663));
+  box(b, 6.5, 1.3, 2.7, -.6, 1.65, 0, std(0xe4e1da));
+  box(b, 6.2, .5, .05, -.6, 1.75, 1.36, glow(0xffe2a8));
+  box(b, 6.9, .15, 3, -.6, 2.38, 0, std(0x9c3a2d));
+  tag(b, {type:'word', w:'ferry'});
+  bob.push({o:b, base:-.3, ph:rand() * 6});
+  scene.add(b);
+}
+
+function dhoni(x, z, color){
+  const g = new THREE.Group(); g.position.set(x, -.35, z);
+  box(g, 6.4, .9, 1.9, 0, 0, 0, std(color, {roughness:.6}));
+  const prow = box(g, 1.6, .5, 1.2, 3.4, .5, 0, std(color, {roughness:.6})); prow.rotation.z = .5;
+  box(g, 2.2, .9, 1.5, -1.2, .9, 0, std(0xf1ece0));
+  box(g, 2.5, .1, 1.8, -1.2, 1.4, 0, std(0x7a5436));
+  ball(g, .1, -1.2, 1.55, .8, glow(0xffcf86), 8);
+  tag(g, {type:'word', w:'boat'});
+  bob.push({o:g, base:-.35, ph:rand() * 6});
+  scene.add(g);
+}
+
+/* ---------- player & movement ---------- */
+const P = {x:-40, z:-1, yaw:-Math.PI/2, pitch:0};
+const EYE = 1.62, SPEED = 4.2, R = .42;
+const BOUNDS = {x0:-42, x1:42, z0:-8.6, z1:5.9};
+const OBST = [{x0:13.6, x1:18.4, z0:-7.3, z1:-5.1}];
+const keys = {};
+let joy = null, look = null, auto = null, tilt = null;
+
+function clampMove(nx, nz){
+  nx = Math.max(BOUNDS.x0, Math.min(BOUNDS.x1, nx));
+  nz = Math.max(BOUNDS.z0, Math.min(BOUNDS.z1, nz));
+  for (const b of OBST){
+    const cx = Math.max(b.x0, Math.min(b.x1, nx)), cz = Math.max(b.z0, Math.min(b.z1, nz));
+    const dx = nx - cx, dz = nz - cz, d = Math.hypot(dx, dz);
+    if (d < R){
+      if (d > 1e-4){ nx = cx + dx / d * R; nz = cz + dz / d * R; }
+      else { nz = b.z1 + R; }
+    }
+  }
+  return [nx, nz];
+}
+const angDiff = (a, b) => { let d = b - a; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; };
+
+function goTo(placeId, then){
+  const p = PLACE[placeId]; if (!p) return;
+  closePanels();
+  auto = {x:p.x, z:p.z, yaw:p.yaw, pitch:p.pitch || 0, then};
+}
+function cancelAuto(){ auto = null; }
+
+function nearestPlace(maxD){
+  let best = null, bd = Infinity;
+  for (const p of PLACES){
+    const d = Math.hypot(p.x - P.x, p.z - P.z);
+    if (d < bd){ bd = d; best = p; }
+  }
+  return (maxD == null || bd <= maxD) ? best : null;
+}
+
+/* ---------- input ---------- */
+const el = renderer.domElement;
+el.tabIndex = 0;
+addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input,textarea')) return;
+  keys[e.key.toLowerCase()] = true;
+  if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) cancelAuto();
+  if (e.key === 'Escape'){ closeTalk(); closeSV(); closePanels(); }
+  if (e.key === 'e' || e.key === 'Enter'){ const a = $('#act'); if (!a.hidden) a.click(); }
+});
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
+
+const ptrs = new Map();
+el.addEventListener('pointerdown', e => {
+  el.setPointerCapture(e.pointerId);
+  closePanels(); $('#word').hidden = true;
+  const p = {id:e.pointerId, x0:e.clientX, y0:e.clientY, x:e.clientX, y:e.clientY, lx:e.clientX, ly:e.clientY, t0:performance.now(), moved:false, kind:'look'};
+  if (e.pointerType !== 'mouse' && e.clientX < innerWidth * .45 && !joy){
+    p.kind = 'joy'; joy = p;
+    const j = $('#joy'); j.style.left = e.clientX + 'px'; j.style.top = e.clientY + 'px'; j.hidden = false;
+    $('#knob').style.transform = 'translate(0,0)';
+  } else if (!look){ look = p; } else { p.kind = 'none'; }
+  ptrs.set(e.pointerId, p);
+});
+el.addEventListener('pointermove', e => {
+  const p = ptrs.get(e.pointerId); if (!p) return;
+  p.x = e.clientX; p.y = e.clientY;
+  if (Math.hypot(p.x - p.x0, p.y - p.y0) > 8){ if (!p.moved) cancelAuto(); p.moved = true; }
+  if (p.kind === 'look'){
+    const k = e.pointerType === 'mouse' ? .0042 : .0058;
+    P.yaw -= (p.x - p.lx) * k;
+    P.pitch = Math.max(-1.1, Math.min(1.1, P.pitch - (p.y - p.ly) * k));
+  } else if (p.kind === 'joy'){
+    let dx = p.x - p.x0, dy = p.y - p.y0; const d = Math.hypot(dx, dy), m = 44;
+    if (d > m){ dx = dx / d * m; dy = dy / d * m; }
+    $('#knob').style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+  }
+  p.lx = p.x; p.ly = p.y;
+});
+function endPtr(e){
+  const p = ptrs.get(e.pointerId); if (!p) return;
+  ptrs.delete(e.pointerId);
+  if (p.kind === 'joy'){ joy = null; $('#joy').hidden = true; }
+  if (p.kind === 'look') look = null;
+  if (e.type === 'pointerup' && !p.moved && performance.now() - p.t0 < 420) tapAt(e.clientX, e.clientY);
+}
+el.addEventListener('pointerup', endPtr);
+el.addEventListener('pointercancel', endPtr);
+el.addEventListener('contextmenu', e => e.preventDefault());
+
+const ray = new THREE.Raycaster(); ray.far = 16;
+const ndc = new THREE.Vector2();
+function tapAt(cx, cy){
+  ndc.set(cx / innerWidth * 2 - 1, -(cy / innerHeight) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hits = ray.intersectObjects(interact, true);
+  for (const h of hits){
+    let o = h.object;
+    while (o && !o.userData.hit) o = o.parent;
+    if (!o) continue;
+    const hit = o.userData.hit;
+    if (hit.type === 'word') showWord(hit.w);
+    else if (hit.type === 'stall') openTalk(hit.id);
+    return;
+  }
+}
+
+/* tilt-to-look: optional, needs permission on iOS */
+if (TOUCH && 'DeviceOrientationEvent' in window){
+  $('#tiltBtn').hidden = false;
+  $('#tiltBtn').addEventListener('click', async () => {
+    if (tilt){ removeEventListener('deviceorientation', tilt.fn); tilt = null; $('#tiltBtn').textContent = '📱'; return; }
+    try {
+      if (typeof DeviceOrientationEvent.requestPermission === 'function'){
+        const r = await DeviceOrientationEvent.requestPermission();
+        if (r !== 'granted'){ toast('Motion access was declined — drag to look instead.'); return; }
+      }
+    } catch (err){ toast('Motion access isn’t available here — drag to look instead.'); return; }
+    tilt = {a0:null, y0:P.yaw, fn:null};
+    tilt.fn = ev => {
+      if (ev.alpha == null) return;
+      if (tilt.a0 == null){ tilt.a0 = ev.alpha; tilt.y0 = P.yaw; }
+      P.yaw = tilt.y0 + (ev.alpha - tilt.a0) * Math.PI / 180;
+    };
+    addEventListener('deviceorientation', tilt.fn);
+    $('#tiltBtn').textContent = '📱 ✓';
+    toast('Turn your phone to look around.');
+  });
+}
+
+/* ---------- words ---------- */
+let wordT;
+function showWord(w){
+  const d = WORDS[w]; if (!d) return;
+  const isNew = W.words.indexOf(w) === -1;
+  if (isNew){ W.words.push(w); saveW(); hud(); pop('💬 +1'); }
+  const c = $('#word');
+  c.innerHTML = (isNew ? '<div class="new">New word</div>' : '')
+    + '<span class="dv">' + d.dv + '</span><div class="rom">' + esc(d.rom) + '</div>'
+    + '<div class="en">' + esc(d.en) + '</div>'
+    + (d.note ? '<div class="note">' + esc(d.note) + '</div>' : '');
+  c.hidden = false;
+  clearTimeout(wordT); wordT = setTimeout(() => c.hidden = true, 4200);
+}
+
+/* ---------- conversations ---------- */
+let talk = null;
+const allYou = SITUATIONS.flatMap(s => s.turns.filter(t => t.s === 'you').map(t => ({sit:s.id, t})));
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--){ const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+function openTalk(placeId, goalTurn){
+  const pl = PLACE[placeId];
+  if (!pl || !pl.sit) return;
+  const sit = sitById(pl.sit);
+  closePanels(); closeSV(); $('#word').hidden = true;
+  let i = 0;
+  if (goalTurn == null && W.mode === 'guided' && W.goal < GOALS.length){
+    const g = GOALS[W.goal];
+    if (PLACE[g.place].sit === pl.sit) goalTurn = g.turn;
+  }
+  if (goalTurn != null){ i = goalTurn; if (i > 0 && sit.turns[i - 1].s === 'them') i--; }
+  talk = {pl, sit, i, log:[], wrong:''};
+  advanceTalk();
+}
+function advanceTalk(){
+  const t = talk; if (!t) return;
+  while (t.i < t.sit.turns.length && t.sit.turns[t.i].s === 'them'){ t.log.push(t.sit.turns[t.i]); t.i++; }
+  t.options = null;
+  if (t.i < t.sit.turns.length){
+    const right = t.sit.turns[t.i];
+    const pool = shuffle(allYou.filter(y => y.sit !== t.sit.id && y.t.dv !== right.dv)).slice(0, 2).map(y => y.t);
+    t.options = shuffle([right, ...pool]);
+    t.right = right;
+  }
+  renderTalk();
+}
+function renderTalk(){
+  const t = talk, s = $('#talk'); if (!t){ s.hidden = true; return; }
+  const guided = W.mode === 'guided';
+  const g = guided && W.goal < GOALS.length ? GOALS[W.goal] : null;
+  const onGoal = g && PLACE[g.place].sit === t.sit.id && t.i === g.turn;
+  let h = '<div class="hd"><span>' + t.pl.em + '</span><h3>' + esc(t.pl.en) + '</h3><span class="dv">' + t.pl.dv + '</span>'
+    + '<button class="x" data-close-talk aria-label="Close">✕</button></div>';
+  h += '<div class="log">' + t.log.map(x =>
+      '<div class="b ' + x.s + '"><span class="who">' + (x.s === 'you' ? 'You' : 'They say') + '</span>'
+      + '<span class="dv">' + x.dv + '</span><span class="rom">' + esc(x.rom) + '</span>'
+      + ((guided || x.s === 'them') ? '<span class="en">' + esc(x.en) + '</span>' : '') + '</div>').join('')
+    + '</div>';
+  if (t.options){
+    h += '<p class="prompt">' + (onGoal ? '<b>Goal:</b> ' + esc(g.text) : (guided ? 'Pick what you’d say next.' : 'What do you say?')) + '</p>';
+    h += '<div class="opts">' + t.options.map((o, k) =>
+        '<button class="opt" data-opt="' + k + '"><span class="dv">' + o.dv + '</span><span class="rom">' + esc(o.rom) + '</span>'
+        + (guided ? '<span class="en">' + esc(o.en) + '</span>' : '') + '</button>').join('') + '</div>';
+    h += '<p class="hint" id="hint">' + esc(t.wrong) + '</p>';
+  } else {
+    h += '<div class="done-box">That’s the whole exchange. ⭐ Every line you picked is one you can say at a real counter in Malé.</div>';
+  }
+  h += '<div class="ft">'
+    + (t.options ? '' : '<button class="btn primary" data-again>Again</button>')
+    + (t.pl.spot ? '<button class="btn sv" data-sv="' + t.pl.id + '">🌐 See the real place</button>' : '')
+    + '<a class="btn" href="./index.html">Open in phrasebook ↗</a>'
+    + '<button class="btn" data-close-talk>Done</button></div>';
+  s.innerHTML = h; s.hidden = false;
+  s.scrollTop = s.scrollHeight;
+}
+function chooseOpt(k, btn){
+  const t = talk; if (!t || !t.options) return;
+  const o = t.options[k];
+  if (o === t.right){
+    btn.classList.add('right');
+    W.stars++; pop('⭐ +1');
+    const g = W.goal < GOALS.length ? GOALS[W.goal] : null;
+    if (g && W.mode === 'guided' && PLACE[g.place].sit === t.sit.id && t.i === g.turn){
+      W.goal++;
+      setTimeout(() => toast(W.goal < GOALS.length ? 'Goal done ⭐ Next: ' + GOALS[W.goal].text : 'All five stops done ⭐ Try Free mode.', 3600), 250);
+    }
+    saveW(); hud();
+    t.log.push(o); t.i++; t.wrong = '';
+    setTimeout(advanceTalk, 280);
+  } else {
+    btn.classList.remove('wrong'); void btn.offsetWidth; btn.classList.add('wrong');
+    t.wrong = 'Not quite — that one means “' + o.en + '”.';
+    const hint = $('#hint'); if (hint) hint.textContent = t.wrong;
+  }
+}
+function closeTalk(){ talk = null; $('#talk').hidden = true; }
+
+/* ---------- street view ---------- */
+function openSV(placeId){
+  const pl = PLACE[placeId] || nearestPlace();
+  const sp = pl && SPOTS[pl.spot];
+  if (!sp){ toast('No panorama for this spot yet.'); return; }
+  closeTalk(); closePanels();
+  $('#svSheet').innerHTML = '<div class="hd"><span>🌐</span><h3>' + esc(sp.name) + '</h3><span class="dv">' + sp.dv + '</span>'
+    + '<button class="x" data-close-sv aria-label="Close">✕</button></div>'
+    + '<div class="pano"><iframe title="Street View — ' + esc(sp.name) + '" src="' + panoEmbed(sp) + '" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>'
+    + '<p class="small">The real place near “' + esc(pl.en) + '”: a user-contributed 360° photosphere. Drag inside it to look around. Imagery © Google and its contributors.</p>'
+    + '<div class="ft"><a class="btn sv" href="' + panoLink(sp) + '" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a>'
+    + '<button class="btn" data-close-sv>Back to the market</button></div>';
+  $('#svSheet').hidden = false;
+}
+function closeSV(){ const s = $('#svSheet'); s.hidden = true; s.innerHTML = ''; }
+
+/* ---------- places panel ---------- */
+function renderPlaces(){
+  const p = $('#places');
+  const doneSits = new Set(GOALS.slice(0, W.goal).map(g => g.place));
+  p.innerHTML = '<h4>Practice stops</h4>' + GOALS.map((g, k) => {
+      const pl = PLACE[g.place];
+      return '<button class="it" data-go="' + pl.id + '" data-goal="' + k + '"><span class="em">' + pl.em + '</span>Practice · ' + esc(pl.en)
+        + (doneSits.has(pl.id) ? ' <span class="done">✓</span>' : '') + '<span class="dv">' + pl.dv + '</span></button>';
+    }).join('')
+    + '<h4>Around the market</h4>' + PLACES.filter(pl => !GOALS.some(g => g.place === pl.id)).map(pl =>
+      '<button class="it" data-go="' + pl.id + '"><span class="em">' + pl.em + '</span>' + esc(pl.en)
+      + '<span class="dv">' + pl.dv + '</span></button>').join('')
+    + '<h4>Real places</h4>' + PLACES.filter(pl => pl.spot).filter((pl, i, a) => a.findIndex(q => q.spot === pl.spot) === i).map(pl =>
+      '<button class="it" data-sv="' + pl.id + '"><span class="em">🌐</span>' + esc(SPOTS[pl.spot].name)
+      + '<span class="sv">Street View</span></button>').join('');
+}
+function closePanels(){ $('#places').hidden = true; }
+
+/* ---------- HUD events ---------- */
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (t.closest('#placesBtn')){ const p = $('#places'); if (p.hidden){ renderPlaces(); p.hidden = false; } else p.hidden = true; return; }
+  if (t.closest('#stopsBtn')){ renderPlaces(); $('#places').hidden = false; return; }
+  if (t.closest('#svBtn')){ openSV(); return; }
+  if (t.closest('#mGuided')){ W.mode = 'guided'; saveW(); hud(); if (talk) renderTalk(); return; }
+  if (t.closest('#mFree')){ W.mode = 'free'; saveW(); hud(); if (talk) renderTalk(); return; }
+  if (t.closest('#goal')){
+    if (W.goal >= GOALS.length){ W.goal = 0; saveW(); hud(); toast('Starting the five stops again.'); return; }
+    const g = GOALS[W.goal]; goTo(g.place, () => openTalk(g.place, g.turn)); return;
+  }
+  if (t.closest('#skip')){
+    if (W.goal < GOALS.length){ W.goal++; saveW(); hud(); toast(W.goal < GOALS.length ? 'Skipped. Next: ' + GOALS[W.goal].text : 'That was the last stop.'); }
+    return;
+  }
+  const act = t.closest('#act');
+  if (act){ const id = act.dataset.place; if (PLACE[id].sit) openTalk(id); else if (id === 'mosque') showWord('mosque'); else openSV(id); return; }
+  const go = t.closest('[data-go]');
+  if (go){
+    const id = go.dataset.go, gk = go.dataset.goal;
+    goTo(id, () => { if (PLACE[id].sit) openTalk(id, gk != null && +gk === W.goal ? GOALS[+gk].turn : undefined); });
+    return;
+  }
+  const sv = t.closest('[data-sv]'); if (sv){ openSV(sv.dataset.sv); return; }
+  const opt = t.closest('[data-opt]'); if (opt){ chooseOpt(+opt.dataset.opt, opt); return; }
+  if (t.closest('[data-again]')){ if (talk){ talk.i = 0; talk.log = []; advanceTalk(); } return; }
+  if (t.closest('[data-close-talk]')){ closeTalk(); return; }
+  if (t.closest('[data-close-sv]')){ closeSV(); return; }
+});
+
+/* ---------- loop ---------- */
+let last = performance.now(), clock = 0, running = true;
+document.addEventListener('visibilitychange', () => { running = !document.hidden; last = performance.now(); if (running) requestAnimationFrame(frame); });
+
+function frame(now){
+  if (!running) return;
+  const dt = Math.min(.05, (now - last) / 1000); last = now; clock += dt;
+
+  let f = 0, r = 0, turn = 0;
+  if (keys.w) f += 1; if (keys.s) f -= 1; if (keys.d) r += 1; if (keys.a) r -= 1;
+  if (keys.arrowup) f += 1; if (keys.arrowdown) f -= 1;
+  if (keys.arrowleft) turn += 1; if (keys.arrowright) turn -= 1;
+  if (joy){ const dx = (joy.x - joy.x0) / 44, dy = (joy.y - joy.y0) / 44, m = Math.hypot(dx, dy) || 1, s = Math.min(1, m); r += dx / m * s; f -= dy / m * s; }
+  P.yaw += turn * 1.9 * dt;
+
+  if (auto){
+    const dx = auto.x - P.x, dz = auto.z - P.z, d = Math.hypot(dx, dz);
+    if (d > .12){
+      const step = Math.min(d, 5.2 * dt);
+      [P.x, P.z] = clampMove(P.x + dx / d * step, P.z + dz / d * step);
+      const want = Math.atan2(-dx, -dz);
+      P.yaw += angDiff(P.yaw, d > 1.5 ? want : auto.yaw) * Math.min(1, 5 * dt);
+      P.pitch += (0 - P.pitch) * Math.min(1, 4 * dt);
+    } else {
+      P.yaw += angDiff(P.yaw, auto.yaw) * Math.min(1, 6 * dt);
+      P.pitch += (auto.pitch - P.pitch) * Math.min(1, 6 * dt);
+      if (Math.abs(angDiff(P.yaw, auto.yaw)) < .03){ const then = auto.then; auto = null; if (then) then(); }
+    }
+  } else if (f || r){
+    const len = Math.max(1, Math.hypot(f, r));
+    const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw), rx = Math.cos(P.yaw), rz = -Math.sin(P.yaw);
+    const vx = (fx * f + rx * r) / len * SPEED, vz = (fz * f + rz * r) / len * SPEED;
+    [P.x, P.z] = clampMove(P.x + vx * dt, P.z + vz * dt);
+  }
+
+  const walking = !!(auto || f || r);
+  camera.position.set(P.x, EYE + (walking ? Math.sin(clock * 9) * .025 : 0), P.z);
+  camera.rotation.y = P.yaw; camera.rotation.x = P.pitch;
+
+  for (const b of bob){ b.o.position.y = b.base + Math.sin(clock * .9 + b.ph) * .09; b.o.rotation.z = Math.sin(clock * .7 + b.ph) * .025; }
+  for (let i = 0; i < flicker.length; i++) flicker[i].material.color.setHSL(.09, 1, .72 + Math.sin(clock * 3 + i * 1.7) * .04);
+
+  // location label + action pill
+  const np = nearestPlace();
+  if (np && np !== frame.lastNear){ frame.lastNear = np; $('#where').innerHTML = '<span class="dv">' + np.dv + '</span>· ' + esc(np.en); }
+  const near = nearestPlace(3.2);
+  const a = $('#act');
+  const busy = !$('#talk').hidden || !$('#svSheet').hidden || !$('#intro').hidden;
+  if (near && !busy && !auto && (near.sit || near.id === 'mosque')){
+    if (a.dataset.place !== near.id){
+      a.dataset.place = near.id;
+      a.innerHTML = (TOUCH ? 'Tap' : 'Click') + ' · ' + (near.sit ? 'talk at the ' + esc(near.en.toLowerCase()) : 'learn “mosque”') + ' <span class="dv">' + near.dv + '</span>';
+    }
+    a.hidden = false;
+  } else { a.hidden = true; a.dataset.place = ''; }
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+/* ---------- boot: wait for the sign fonts, then build ---------- */
+$('#ctrlChips').innerHTML = TOUCH
+  ? '<span>left thumb — walk</span><span>drag right — look</span><span>tap — talk / learn</span>'
+  : '<span>WASD — walk</span><span>drag — look</span><span>click — talk / learn</span>';
+
+(async () => {
+  try {
+    await Promise.race([
+      Promise.all([
+        document.fonts.load('600 84px "Noto Sans Thaana"', 'ހަލޯ'),
+        document.fonts.load('600 50px "Instrument Sans"', 'MARKET')
+      ]),
+      new Promise(r => setTimeout(r, 3000))
+    ]);
+  } catch (e) {}
+  buildWorld();
+  hud();
+  camera.position.set(P.x, EYE, P.z); camera.rotation.y = P.yaw;
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+  const btn = $('#enter');
+  btn.disabled = false;
+  btn.textContent = W.goal > 0 && W.goal < GOALS.length ? 'Continue — stop ' + (W.goal + 1) + ' of 5 →' : 'Enter the market →';
+  btn.addEventListener('click', () => { $('#intro').hidden = true; el.focus(); setTimeout(() => { $('#tapHint').hidden = true; }, 7000); toast(TOUCH ? 'Left thumb to walk · drag right to look' : 'WASD to walk · drag to look · click to talk'); });
+})();
+</script>

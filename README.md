@@ -12,7 +12,9 @@ Static site. No build step, no dependencies, no API keys.
 
 | File | What it is |
 |---|---|
-| `index.html` | The app. Self-contained: markup, CSS, JS, situation artwork and map geometry all inline. |
+| `index.html` | The phrasebook app: situations, search, saved lines, map, Street View, ChatGPT. |
+| `world.html` | **Pocket Malé World** — a 3D night-time Local Market you can walk through and talk in. |
+| `data.js` | Situations, phrases and Street View locations, shared by both pages. |
 | `about.html` | The marketing landing page. |
 | `manifest.json`, `icon.svg` | Web app manifest, so it installs to a phone home screen. |
 
@@ -45,6 +47,37 @@ whose CSP blocks `frame-src` will block them. Each panel carries a direct
 
 Imagery © Google and its contributors.
 
+## Pocket Malé World (3D)
+
+`world.html` builds the harbour-road Local Market procedurally in three.js
+(r128, loaded from cdnjs): fish and fruit stalls, a tea shop, a corner shop, a
+pharmacy, a taxi stand, the ferry terminal, a mosque and dhonis on the water.
+
+- **Walk:** left thumb on phones, WASD on a keyboard. **Look:** drag. **Talk:** tap a stall.
+- **Learn words:** tap the fish, coconuts, bananas, tea, boats, the mosque.
+- **Guided mode** runs five practice goals; **Free mode** lets you talk to anyone.
+- **Places** jumps to any stall; every stop links to its real Street View panorama.
+- Progress (stars, words, goal) is kept in `localStorage`.
+- Speaking is not supported: no browser recognises Dhivehi speech, so answers are tapped.
+
+## ChatGPT inside a situation
+
+Each situation has a search field that filters its own lines instantly, and an
+**Ask ChatGPT** button for anything that isn't there.
+
+This is a static site with no server, so there is **no shared API key** — one
+committed here would be readable by anyone. Each user adds their own OpenAI key
+in *Settings*; it is stored in that browser's `localStorage` and sent only to
+`api.openai.com`. Model defaults to `gpt-4o-mini` and can be changed.
+
+Answers are labelled **AI · unverified** and can be saved separately from the
+curated phrases.
+
+One quirk worth knowing if you debug this: OpenAI's error responses on
+`/v1/chat/completions` carry no CORS header, so in a browser a rejected key
+looks like a network failure. The app probes `/v1/models` (which does send the
+header) to report the real reason.
+
 ## Known limitations
 
 - **The Dhivehi has not been reviewed by a native speaker.** Spelling, fili
@@ -53,5 +86,6 @@ Imagery © Google and its contributors.
 - "Listen" uses the Web Speech API. Effectively no device ships a Dhivehi
   (`dv-MV`) voice, so it reports that rather than reading Thaana aloud in the
   wrong language. Recorded audio is the real fix.
+- ChatGPT's Dhivehi is unreviewed too, and is labelled as such in the app.
 - Villimalé's coastline is absent from the baked geometry, so it does not appear
   on the overview map.
