@@ -91,6 +91,72 @@ const SITUATIONS = [
       {s:'you', dv:'ނަންބަރު ކޮންއިރަކުން؟', rom:'namburu kon-irakun?', en:"When's my number up?"},
       {s:'you', dv:'ބަނޑުގައި ރިއްސަނީ', rom:'bandugai rissanee', en:'I have a stomach ache.'}
     ]
+  },
+  {
+    id:'kurumba', dv:'ކުރުނބާ', rom:'kurumba', en:'Coconut cart', spot:'market',
+    note:'Young coconuts (kurumba) are sold chilled from carts and small stalls near the harbour. The seller opens the top for you; when you have finished drinking, hand it back and ask them to split it so you can eat the soft flesh inside.',
+    turns:[
+      {s:'you', dv:'ކުރުނބާ ހުރިތަ؟', rom:'kurumba hurritha?', en:'Do you have young coconuts?'},
+      {s:'them', dv:'އާނ، ފިނިކުރި ކުރުނބާ ހުރި', rom:'aan, finikuri kurumba huri', en:'Yes, chilled ones.'},
+      {s:'you', dv:'ދެ ކުރުނބާ ދީބަލަ', rom:'dhe kurumba dheebala', en:'Two coconuts, please.'},
+      {s:'them', dv:'ހުޅުވާލަދެންތަ؟', rom:'hulhuvaaladhentha?', en:'Shall I open them for you?'},
+      {s:'you', dv:'އާނ، ސްޓްރޯއެއް ވެސް', rom:'aan, straw-eh ves', en:'Yes, and a straw too.'}
+    ]
+  },
+  {
+    id:'restaurant', dv:'ރެސްޓޯރަންޓް', rom:'restoarant', en:'Restaurant', spot:'majeedhee',
+    note:'Mas huni — tuna, grated coconut, onion and chilli — eaten with roshi and black tea is the classic Malé breakfast. At busy times you share a table; nobody minds.',
+    turns:[
+      {s:'you', dv:'މަސްހުނި ހުރިތަ؟', rom:'mashuni hurritha?', en:'Do you have mas huni?'},
+      {s:'them', dv:'އާނ، ރޮށިއާއެކު', rom:'aan, roshiaa eku', en:'Yes, with roshi.'},
+      {s:'you', dv:'ފޮނިކަން ކުޑަކޮށް ސައި', rom:'fonikan kudakoh sai', en:'Tea with less sugar.'},
+      {s:'them', dv:'އިތުރު އެއްޗެއް؟', rom:'ithuru ehcheh?', en:'Anything else?'},
+      {s:'you', dv:'ފެން ފުޅިއެއް ދީބަލަ', rom:'fen fulhi-eh dheebala', en:'A bottle of water, please.'}
+    ]
+  },
+  {
+    id:'phone', dv:'ފޯނު ފިހާރަ', rom:'foanu fihaara', en:'Phone & SIM', spot:'majeedhee',
+    note:'Both mobile networks have shops along Majeedhee Magu. Visitors need a passport to register a SIM, residents an ID card or work-permit card. Top-ups are sold in almost every corner shop.',
+    turns:[
+      {s:'you', dv:'ސިމް ކާޑެއް ބޭނުން', rom:'sim kaadeh beynun', en:'I need a SIM card.'},
+      {s:'them', dv:'ޕާސްޕޯޓް ނުވަތަ އައިޑީ ކާޑު ދެއްވަބަލަ', rom:'passport nuvatha ID kaadu dhevvabala', en:'Your passport or ID card, please.'},
+      {s:'you', dv:'ޑޭޓާ ޕެކޭޖް ކިހާ ވަރެއް؟', rom:'data package kihaa vareh?', en:'How much is a data package?'},
+      {s:'them', dv:'ކިހާ ދުވަހަކަށް؟', rom:'kihaa dhuvahakah?', en:'For how many days?'},
+      {s:'you', dv:'އެއް މަހަށް', rom:'eh mahah', en:'For one month.'}
+    ]
+  },
+  {
+    id:'barber', dv:'ބާބަރ', rom:'baabar', en:'Barber', spot:'male-south',
+    note:'Most barbers are walk-in: sit on the bench and wait your turn. Like other shops they close for about fifteen minutes at each prayer time, so check the clock before you sit down.',
+    turns:[
+      {s:'you', dv:'ބޮލު ކޮށާލަން ބޭނުން', rom:'bolu koshaalan beynun', en:"I'd like a haircut."},
+      {s:'them', dv:'ކިހިނެއް ކޮށާނީ؟', rom:'kihineh koshaanee?', en:'How shall I cut it?'},
+      {s:'you', dv:'ތަންކޮޅެއް ކުރުކޮށް', rom:'thankolheh kurukoh', en:'A little shorter.'},
+      {s:'them', dv:'ނިމުނީ، ބަލާލާ', rom:'nimunee, balaalaa', en:'Done — have a look.'},
+      {s:'you', dv:'ރަނގަޅު، ޝުކުރިއްޔާ', rom:'rangalhu, shukuriyyaa', en:'Good, thank you.'}
+    ]
+  },
+  {
+    id:'bank', dv:'ބޭންކް', rom:'baenk', en:'Bank', spot:'market',
+    note:'Queues at the main banks run on ticket numbers, so take one as soon as you walk in. Bring your passport or ID for anything beyond a cash withdrawal. US dollars are widely accepted in Malé, but change usually comes back in rufiyaa.',
+    turns:[
+      {s:'you', dv:'ފައިސާ ބަދަލުކުރަން ބޭނުން', rom:'faisaa badhalukuran beynun', en:"I'd like to change money."},
+      {s:'them', dv:'ނަންބަރެއް ނަގާ', rom:'nambareh nagaa', en:'Take a number.'},
+      {s:'you', dv:'ޑޮލަރުގެ ރޭޓަކީ ކޮބާ؟', rom:'dolaruge reytakee kobaa?', en:"What's the dollar rate?"},
+      {s:'them', dv:'ޕާސްޕޯޓް ދެއްވަބަލަ', rom:'passport dhevvabala', en:'Your passport, please.'},
+      {s:'you', dv:'އޭޓީއެމް ކޮބާ؟', rom:'ATM kobaa?', en:"Where's the ATM?"}
+    ]
+  },
+  {
+    id:'bus', dv:'ބަސް', rom:'bas', en:'Bus stop', spot:'hulhu-centre',
+    note:'Buses cross the bridge between Malé, the airport and Hulhumalé every few minutes, and most riders tap a transport card. The route numbers in these lines are illustrative — check the sign on the front of the bus.',
+    turns:[
+      {s:'you', dv:'ހުޅުމާލެއަށް ދާ ބަސް ކޮބާ؟', rom:'hulhumaleah dhaa bas kobaa?', en:"Where's the bus to Hulhumalé?"},
+      {s:'them', dv:'އެ ހުރީ، އެއް ނަންބަރު', rom:'e huree, eh namburu', en:'That one — number one.'},
+      {s:'you', dv:'އެއާޕޯޓަށް ދާނެތަ؟', rom:'eyaarpoatah dhaanetha?', en:'Does it go to the airport?'},
+      {s:'them', dv:'ނޫން، އެތަނަށް ދަނީ ދެ ނަންބަރު', rom:'noon, ethanah dhanee dhe namburu', en:'No — number two goes there.'},
+      {s:'you', dv:'ކާޑުން ދެއްކިދާނެތަ؟', rom:'kaadun dhekkidhaanetha?', en:'Can I pay by card?'}
+    ]
   }
 ];
 

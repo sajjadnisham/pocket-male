@@ -211,7 +211,7 @@ a{color:inherit}
       <p>The situation-based Dhivehi phrasebook for everyday life in Malé.</p>
       <a href="./index.html">Open Pocket Malé ↗</a>
     </div>
-    <p class="body">Walk the Local Market on the harbour road at night, or jump straight into five practice stops. Tap a stall and answer the seller in Dhivehi. Tap the fish, the coconuts, the dhonis to learn what they are called.</p>
+    <p class="body">Walk the Local Market on the harbour road at night, or jump straight into eight practice stops. Tap a stall and answer the seller in Dhivehi. Tap the fish, the coconuts, the dhonis to learn what they are called.</p>
     <label class="speak"><input type="checkbox" disabled>
       <span><b>Require speaking</b> — not available yet. No browser can recognise Dhivehi speech, so you answer by tapping.</span></label>
     <div class="chips" id="ctrlChips"></div>
@@ -246,22 +246,31 @@ const saveW = () => { try { localStorage.setItem(WKEY, JSON.stringify(W)); } cat
 const PLACES = [
   {id:'gate',     em:'🚪', dv:'ލޯކަލް މާރުކޭޓް', en:'West entrance',  x:-39, z:-1,   yaw:-Math.PI/2, spot:'market'},
   {id:'fish',     em:'🐟', dv:'މަސް',           en:'Fish stall',     x:-24, z:5.0,  yaw:Math.PI, sit:'market',   spot:'market'},
-  {id:'fruit',    em:'🥥', dv:'ތަރުކާރީ',        en:'Fruit & veg',    x:-14, z:5.0,  yaw:Math.PI, sit:'market',   spot:'market'},
+  {id:'fruit',    em:'🍌', dv:'ތަރުކާރީ',        en:'Fruit & veg',    x:-14, z:5.0,  yaw:Math.PI, sit:'market',   spot:'market'},
   {id:'mosque',   em:'🕌', dv:'މިސްކިތް',        en:'Mosque',         x:-6,  z:5.0,  yaw:Math.PI, pitch:.3,       spot:'sultan-park'},
   {id:'tea',      em:'☕', dv:'ސައި ހޮޓާ',        en:'Tea shop',       x:0,   z:5.0,  yaw:Math.PI, sit:'teashop',  spot:'majeedhee'},
   {id:'shop',     em:'🏪', dv:'ފިހާރަ',          en:'Corner shop',    x:12,  z:5.0,  yaw:Math.PI, sit:'shop',     spot:'majeedhee'},
   {id:'taxi',     em:'🚕', dv:'ޓެކްސީ',          en:'Taxi stand',     x:16,  z:-4.2, yaw:0,       sit:'taxi',     spot:'majeedhee'},
   {id:'pharmacy', em:'💊', dv:'ބޭސްފިހާރަ',       en:'Pharmacy',       x:24,  z:5.0,  yaw:Math.PI, sit:'pharmacy', spot:'sultan-park'},
-  {id:'ferry',    em:'⛴️', dv:'ފެރީ',            en:'Ferry terminal', x:33,  z:-7.9, yaw:0,       sit:'ferry',    spot:'hulhu-centre'}
+  {id:'ferry',    em:'⛴️', dv:'ފެރީ',            en:'Ferry terminal', x:33,  z:-7.9, yaw:0,       sit:'ferry',    spot:'hulhu-centre'},
+  {id:'kurumba',  em:'🥥', dv:'ކުރުނބާ',          en:'Coconut cart',   x:-12, z:-6.2, yaw:0,       sit:'kurumba',  spot:'market'},
+  {id:'restaurant',em:'🍛', dv:'ރެސްޓޯރަންޓް',     en:'Restaurant',     x:36,  z:5.0,  yaw:Math.PI, sit:'restaurant', spot:'majeedhee'},
+  {id:'phone',    em:'📱', dv:'ފޯނު ފިހާރަ',       en:'Phone shop',     x:48,  z:5.0,  yaw:Math.PI, sit:'phone',    spot:'majeedhee'},
+  {id:'bus',      em:'🚌', dv:'ބަސް',             en:'Bus stop',       x:50,  z:-6.2, yaw:0,       sit:'bus',      spot:'hulhu-centre'},
+  {id:'barber',   em:'💈', dv:'ބާބަރ',            en:'Barber',         x:60,  z:5.0,  yaw:Math.PI, sit:'barber',   spot:'male-south'},
+  {id:'bank',     em:'🏦', dv:'ބޭންކް',            en:'Bank',           x:72,  z:5.0,  yaw:Math.PI, sit:'bank',     spot:'market'}
 ];
 const PLACE = Object.fromEntries(PLACES.map(p => [p.id, p]));
 
 const GOALS = [
-  {place:'fish',  turn:0, text:'Go to the fish stall and ask the price.'},
-  {place:'tea',   turn:2, text:'At the tea shop, order two gulha and a black tea.'},
-  {place:'shop',  turn:0, text:'At the corner shop, ask whether you can pay by card.'},
-  {place:'taxi',  turn:0, text:'At the taxi stand, ask to be taken to Majeedhee Magu.'},
-  {place:'ferry', turn:0, text:'At the ferry terminal, ask when the ferry to Hulhumalé leaves.'}
+  {place:'fish',       turn:0, text:'Go to the fish stall and ask the price.'},
+  {place:'kurumba',    turn:2, text:'At the coconut cart, buy two young coconuts.'},
+  {place:'tea',        turn:2, text:'At the tea shop, order two gulha and a black tea.'},
+  {place:'shop',       turn:0, text:'At the corner shop, ask whether you can pay by card.'},
+  {place:'taxi',       turn:0, text:'At the taxi stand, ask to be taken to Majeedhee Magu.'},
+  {place:'ferry',      turn:0, text:'At the ferry terminal, ask when the ferry to Hulhumalé leaves.'},
+  {place:'restaurant', turn:2, text:'At the restaurant, order tea with less sugar.'},
+  {place:'bus',        turn:0, text:'At the bus stop, find the bus to Hulhumalé.'}
 ];
 
 const WORDS = {
@@ -273,7 +282,11 @@ const WORDS = {
   mosque:   {dv:'މިސްކިތް',    rom:'miskiy',   en:'mosque', note:'Shops nearby close for about fifteen minutes at each prayer time.'},
   taxi:     {dv:'ޓެކްސީ',      rom:'teksee',   en:'taxi'},
   ferry:    {dv:'ފެރީ',       rom:'feri',     en:'ferry'},
-  medicine: {dv:'ބޭސް',       rom:'beys',     en:'medicine'}
+  medicine: {dv:'ބޭސް',       rom:'beys',     en:'medicine'},
+  kurumba:  {dv:'ކުރުނބާ',     rom:'kurumba',  en:'young coconut', note:'Drink it cold, then ask for it to be split so you can eat the soft flesh.'},
+  roshi:    {dv:'ރޮށި',       rom:'roshi',    en:'roshi — flatbread', note:'Eaten with mas huni at breakfast.'},
+  phone:    {dv:'ފޯނު',       rom:'foanu',    en:'phone'},
+  bus:      {dv:'ބަސް',       rom:'bas',      en:'bus'}
 };
 
 /* ---------- small UI helpers ---------- */
@@ -299,7 +312,7 @@ function hud(){
       const g = GOALS[W.goal];
       $('#goal').innerHTML = '<span class="k">Goal ' + (W.goal + 1) + '/' + GOALS.length + '</span> · ' + esc(g.text) + ' · <span class="go">Tap to go</span>';
     } else {
-      $('#goal').innerHTML = '<span class="k">All five stops done ⭐</span> · Switch to Free and talk to anyone. · <span class="go">Start again</span>';
+      $('#goal').innerHTML = '<span class="k">All ' + GOALS.length + ' stops done ⭐</span> · Switch to Free and talk to anyone. · <span class="go">Start again</span>';
     }
   }
 }
@@ -408,25 +421,25 @@ const bob = [];
 const flicker = [];
 function buildWorld(){
   // street, pavements, quay, sea
-  box(scene, 100, .1, 17, 0, -.05, -.5, std(0x2c2e33, {roughness:.95}));
-  box(scene, 100, .18, 5.2, 0, .04, 8.6, std(0x6b6258));
-  box(scene, 100, .18, 4, 0, .04, -10, std(0x585e63));
-  for (let x = -46; x < 46; x += 4) box(scene, 1.8, .02, .12, x, .01, -1.6, glow(0xbfb8a6));
+  box(scene, 170, .1, 17, 20, -.05, -.5, std(0x2c2e33, {roughness:.95}));
+  box(scene, 170, .18, 5.2, 20, .04, 8.6, std(0x6b6258));
+  box(scene, 170, .18, 4, 20, .04, -10, std(0x585e63));
+  for (let x = -46; x < 96; x += 4) box(scene, 1.8, .02, .12, x, .01, -1.6, glow(0xbfb8a6));
   const sea = new THREE.Mesh(new THREE.PlaneGeometry(260, 140), std(0x0c2336, {roughness:.35, metalness:.35}));
   sea.rotation.x = -Math.PI / 2; sea.position.set(0, -.55, -82); scene.add(sea);
-  for (let x = -44; x <= 44; x += 5) cyl(scene, .14, .18, .5, x, .34, -11.7, std(0x3a3d40));
+  for (let x = -44; x <= 94; x += 5) cyl(scene, .14, .18, .5, x, .34, -11.7, std(0x3a3d40));
 
   // moon and far Hulhumalé skyline
   const m = new THREE.Mesh(new THREE.SphereGeometry(3.4, 20, 12), new THREE.MeshBasicMaterial({color:0xf4eedf, fog:false}));
   m.position.set(-46, 42, -150); scene.add(m);
-  for (let x = -90; x < 90; x += 5 + rand() * 6){
+  for (let x = -90; x < 150; x += 5 + rand() * 6){
     const w = 4 + rand() * 6, h = 5 + rand() * 20;
     box(scene, w, h, 4, x, h / 2 - .5, -60 - rand() * 8, buildingMat(0x1c2638, w, h));
   }
 
   // tall Malé blocks behind the stalls, with a gap for the mosque
   const pastels = [0xe8d9c0, 0xd7e3e0, 0xf0d4c8, 0xcfd8e8, 0xe9e1a8, 0xd9c7e4, 0xc9dfc6, 0xf2f0ea];
-  for (let x = -46; x < 46;){
+  for (let x = -46; x < 96;){
     const w = 6 + rand() * 5;
     if (x + w > -10 && x < -2){ x = -2; continue; }
     const h = 10 + rand() * 20;
@@ -450,13 +463,24 @@ function buildWorld(){
   stall({id:'shop',     x:12,  wall:0x3f4a6b, a:'#c08417', b:'#1f2535', sign:'#1f2535', goods:'shop'});
   stall({id:'pharmacy', x:24,  wall:0xe9eef0, a:'#2f7a58', b:'#ffffff', sign:'#2f7a58', goods:'pharmacy'});
 
+  stall({id:'restaurant', x:36, wall:0xc08417, a:'#c08417', b:'#fdf4ea', sign:'#7e5a12', goods:'restaurant'});
+  stall({id:'phone',      x:48, wall:0x2a3347, a:'#c0392b', b:'#f4f2ec', sign:'#b83227', goods:'phone'});
+  stall({id:'barber',     x:60, wall:0xdfe7ea, a:'#1f5f7a', b:'#ffffff', sign:'#1f2535', goods:'barber'});
+  stall({id:'bank',       x:72, wall:0xe9e4d8, a:'#0d6663', b:'#e9e4d8', sign:'#0d6663', goods:'bank'});
+  stall({id:'kurumba',    x:-12, side:'north', wall:0x4f7a2e, a:'#4f7a2e', b:'#f3e6b0', sign:'#3d6124', goods:'kurumba'});
+
   mosque(-6, 13);
   taxi(16, -6.2);
   ferry(33);
+  busStop(50);
 
   // dhonis along the quay
   const hulls = [0xf1ece0, 0x2f6f8f, 0x9c3a2d, 0xe9e1a8, 0x3c7a5a];
-  for (let i = 0; i < 6; i++) dhoni(-40 + i * 12.5 + rand() * 3, -15.5 - rand() * 2.5, hulls[i % hulls.length]);
+  for (let i = 0; i < 11; i++){
+    const dx = -40 + i * 12.5 + rand() * 3;
+    if (Math.abs(dx - 33) < 9) continue;          // keep clear of the ferry
+    dhoni(dx, -15.5 - rand() * 2.5, hulls[i % hulls.length]);
+  }
 
   // street lamps
   const pole = std(0x2c3036);
@@ -465,12 +489,18 @@ function buildWorld(){
     box(scene, .1, .1, 1.1, x, 4.95, z + arm * .5, pole);
     ball(scene, .22, x, 4.8, z + arm * 1.05, glow(0xffd59a));
   };
-  for (let x = -42; x <= 42; x += 12) lampAt(x, -8.3, 1);
-  for (const x of [-19, -9.5, 6, 18, 30]) lampAt(x, 6.3, -1);
+  for (let x = -42; x <= 90; x += 12) lampAt(x, -8.3, 1);
+  for (const x of [-19, -9.5, 6, 18, 30, 42, 54, 66, 78]) lampAt(x, 6.3, -1);
 }
 
 function stall(o){
-  const g = new THREE.Group(); g.position.set(o.x, 0, 7.4);
+  const g = new THREE.Group();
+  if (o.side === 'north'){
+    g.position.set(o.x, 0, -9.4); g.rotation.y = Math.PI;
+    OBST.push({x0:o.x - 2.3, x1:o.x + 2.3, z0:-10.6, z1:-8.1});
+  } else {
+    g.position.set(o.x, 0, 7.4);
+  }
   const W = 4.2, pl = PLACE[o.id];
   const wood = std(0x7a5436), top = std(0xb99a74);
   box(g, W, 1, 1.1, 0, .5, -.6, wood);
@@ -521,8 +551,75 @@ function stall(o){
       tag(box(g, .34, .24, .22, -1.5 + i * .5, 1.02 + s * .55 + (s ? 0 : 0), .72, std(i % 2 ? 0xf4f6f8 : 0x9cc3e6)), {type:'word', w:'medicine'});
     for (let i = 0; i < 2; i++) box(g, W - .4, .05, .3, 0, .88 + i * .55, .72, std(0xd8dde0));
   }
+  if (o.goods === 'kurumba'){
+    for (let i = 0; i < 7; i++){
+      const row = i < 4 ? 0 : 1;
+      tag(ball(g, .2, -1.1 + (row ? .3 : 0) + (i - (row ? 4 : 0)) * .44, 1.28 + row * .3, -.6 - row * .05, std(0x5f8f34, {roughness:.7}), 14), {type:'word', w:'kurumba'});
+    }
+    for (let i = 0; i < 3; i++){ const st = cyl(g, .012, .012, .5, 1.2 + i * .12, 1.35, -.5, std(0xe8e2d4), 6); st.rotation.z = .25; }
+  } else if (o.goods === 'restaurant'){
+    for (let i = 0; i < 3; i++){
+      cyl(g, .3, .28, .03, -1.3 + i * 1.1, 1.1, -.6, std(0xf4f0e8), 20);
+      tag(cyl(g, .21, .21, .02, -1.3 + i * 1.1, 1.13, -.6, std(0xd9a55a), 18), {type:'word', w:'roshi'});
+      tag(cyl(g, .07, .06, .14, -.95 + i * 1.1, 1.17, -.35, std(0xf4f0e8), 12), {type:'word', w:'tea'});
+    }
+    const menu = new THREE.Mesh(new THREE.PlaneGeometry(2.2, .64), new THREE.MeshBasicMaterial({map:signTex('މަސްހުނި', 'Mas huni · Roshi', '#2c241c', '#f5e9d4')}));
+    menu.position.set(0, 2.1, .86); menu.rotation.y = Math.PI; g.add(menu);
+  } else if (o.goods === 'phone'){
+    const glass = new THREE.MeshStandardMaterial({color:0xbfe3ff, transparent:true, opacity:.22, roughness:.1, metalness:.1});
+    box(g, W - .5, .34, .9, 0, 1.25, -.6, glass);
+    for (let i = 0; i < 6; i++){
+      tag(box(g, .2, .03, .38, -1.5 + i * .6, 1.12, -.6, std(0x14161a, {roughness:.3})), {type:'word', w:'phone'});
+      box(g, .17, .005, .32, -1.5 + i * .6, 1.14, -.6, glow(i % 2 ? 0x6fb7ff : 0x9fe3c0));
+    }
+    box(g, 2.6, 1.1, .05, 0, 2.05, .86, glow(0xb83227));
+  } else if (o.goods === 'barber'){
+    const mirror = std(0xcfe6ef, {metalness:.9, roughness:.08});
+    box(g, 2.6, 1.2, .04, 0, 1.9, .86, mirror);
+    box(g, .8, .12, .8, 0, .62, .1, std(0x1a1d22)); box(g, .8, .9, .12, 0, 1.05, .45, std(0x1a1d22));
+    cyl(g, .08, .08, .5, 0, .33, .1, std(0x9aa0a6, {metalness:.6}), 10);
+    const poleTex = stripeTex('#c0392b', '#ffffff'); poleTex.repeat.set(3, 1);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(.14, .14, 1.6, 16, 1, true), new THREE.MeshBasicMaterial({map:poleTex}));
+    pole.position.set(-2.45, 2, -1.1); g.add(pole); flicker.push({pole});
+  } else if (o.goods === 'bank'){
+    const glass = new THREE.MeshStandardMaterial({color:0xd7f0ec, transparent:true, opacity:.25, roughness:.05});
+    box(g, W - .2, 1.2, .04, 0, 1.7, -.55, glass);
+    box(g, .9, .4, .1, 0, 2.55, .86, glow(0x1a1d22));
+    box(g, .74, .26, .02, 0, 2.55, .8, glow(0xff5a3c));
+    const atm = new THREE.Group(); atm.position.set(2.75, 0, -1.1);
+    box(atm, .7, 1.7, .55, 0, .85, 0, std(0x2c3036));
+    box(atm, .5, .34, .02, 0, 1.3, -.29, glow(0x7fd1ff));
+    g.add(atm);
+  }
   tag(g, {type:'stall', id:o.id});
   scene.add(g);
+}
+
+function busStop(x){
+  const s = new THREE.Group(); s.position.set(x, 0, -9.3);
+  const frame = std(0x2c3036);
+  for (const px of [-1.8, 1.8]) box(s, .1, 2.6, .1, px, 1.3, .6, frame);
+  box(s, 4, .12, 1.8, 0, 2.65, .1, std(0x0d6663));
+  box(s, 3.8, 1.8, .06, 0, 1.4, -.7, new THREE.MeshStandardMaterial({color:0xbfe3ff, transparent:true, opacity:.25}));
+  box(s, 3, .1, .5, 0, .55, -.3, std(0x7a5436));
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.9, .56), new THREE.MeshBasicMaterial({map:signTex('ބަސް', 'Bus stop', '#0d6663', '#fdf4ea'), side:THREE.DoubleSide}));
+  sign.position.set(0, 3.05, .6); s.add(sign);
+  tag(s, {type:'stall', id:'bus'});
+  scene.add(s);
+  OBST.push({x0:x - 2.1, x1:x + 2.1, z0:-10.4, z1:-8.3});
+
+  const b = new THREE.Group(); b.position.set(x + 10, 0, -6.3);
+  box(b, 10, 2.5, 2.4, 0, 1.55, 0, std(0x0d6663, {roughness:.5}));
+  for (const side of [1.21, -1.21]) box(b, 8.2, .8, .02, -.4, 2.1, side, glow(0xffe2a8));
+  box(b, .06, 1.1, 2.1, 5.02, 1.9, 0, std(0x1d2733, {roughness:.2}));
+  box(b, .04, .3, 1.4, 5.05, 2.95, 0, glow(0xf2c14e));
+  const wheel = std(0x121315);
+  for (const [wx, wz] of [[-3.3, 1.2], [3.3, 1.2], [-3.3, -1.2], [3.3, -1.2]]){
+    const wh = cyl(b, .45, .45, .3, wx, .45, wz, wheel, 14); wh.rotation.x = Math.PI / 2;
+  }
+  tag(b, {type:'word', w:'bus'});
+  scene.add(b);
+  OBST.push({x0:x + 4.8, x1:x + 15.2, z0:-7.6, z1:-5});
 }
 
 function mosque(x, z){
@@ -599,7 +696,7 @@ function dhoni(x, z, color){
 /* ---------- player & movement ---------- */
 const P = {x:-40, z:-1, yaw:-Math.PI/2, pitch:0};
 const EYE = 1.62, SPEED = 4.2, R = .42;
-const BOUNDS = {x0:-42, x1:42, z0:-8.6, z1:5.9};
+const BOUNDS = {x0:-42, x1:84, z0:-8.6, z1:5.9};
 const OBST = [{x0:13.6, x1:18.4, z0:-7.3, z1:-5.1}];
 const keys = {};
 let joy = null, look = null, auto = null, tilt = null;
@@ -810,7 +907,7 @@ function chooseOpt(k, btn){
     const g = W.goal < GOALS.length ? GOALS[W.goal] : null;
     if (g && W.mode === 'guided' && PLACE[g.place].sit === t.sit.id && t.i === g.turn){
       W.goal++;
-      setTimeout(() => toast(W.goal < GOALS.length ? 'Goal done ⭐ Next: ' + GOALS[W.goal].text : 'All five stops done ⭐ Try Free mode.', 3600), 250);
+      setTimeout(() => toast(W.goal < GOALS.length ? 'Goal done ⭐ Next: ' + GOALS[W.goal].text : 'All ' + GOALS.length + ' stops done ⭐ Try Free mode.', 3600), 250);
     }
     saveW(); hud();
     t.log.push(o); t.i++; t.wrong = '';
@@ -866,7 +963,7 @@ document.addEventListener('click', e => {
   if (t.closest('#mGuided')){ W.mode = 'guided'; saveW(); hud(); if (talk) renderTalk(); return; }
   if (t.closest('#mFree')){ W.mode = 'free'; saveW(); hud(); if (talk) renderTalk(); return; }
   if (t.closest('#goal')){
-    if (W.goal >= GOALS.length){ W.goal = 0; saveW(); hud(); toast('Starting the five stops again.'); return; }
+    if (W.goal >= GOALS.length){ W.goal = 0; saveW(); hud(); toast('Starting the practice stops again.'); return; }
     const g = GOALS[W.goal]; goTo(g.place, () => openTalk(g.place, g.turn)); return;
   }
   if (t.closest('#skip')){
@@ -928,7 +1025,11 @@ function frame(now){
   camera.rotation.y = P.yaw; camera.rotation.x = P.pitch;
 
   for (const b of bob){ b.o.position.y = b.base + Math.sin(clock * .9 + b.ph) * .09; b.o.rotation.z = Math.sin(clock * .7 + b.ph) * .025; }
-  for (let i = 0; i < flicker.length; i++) flicker[i].material.color.setHSL(.09, 1, .72 + Math.sin(clock * 3 + i * 1.7) * .04);
+  for (let i = 0; i < flicker.length; i++){
+    const f = flicker[i];
+    if (f.pole){ f.pole.material.map.offset.x = (clock * .35) % 1; continue; }
+    f.material.color.setHSL(.09, 1, .72 + Math.sin(clock * 3 + i * 1.7) * .04);
+  }
 
   // location label + action pill
   const np = nearestPlace();
@@ -975,7 +1076,7 @@ $('#ctrlChips').innerHTML = TOUCH
   requestAnimationFrame(frame);
   const btn = $('#enter');
   btn.disabled = false;
-  btn.textContent = W.goal > 0 && W.goal < GOALS.length ? 'Continue — stop ' + (W.goal + 1) + ' of 5 →' : 'Enter the market →';
+  btn.textContent = W.goal > 0 && W.goal < GOALS.length ? 'Continue — stop ' + (W.goal + 1) + ' of ' + GOALS.length + ' →' : 'Enter the market →';
   btn.addEventListener('click', () => { $('#intro').hidden = true; el.focus(); setTimeout(() => { $('#tapHint').hidden = true; }, 7000); toast(TOUCH ? 'Left thumb to walk · drag right to look' : 'WASD to walk · drag to look · click to talk'); });
 })();
 </script>
