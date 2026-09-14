@@ -56,6 +56,16 @@
    "file": "6d4cc4c25bc53b.mp3",
    "voice": "seller",
    "seconds": 1.67
+  },
+  "ދެ ކިލޯ": {
+   "file": "f761d7d552b4e2.mp3",
+   "voice": "learner",
+   "seconds": 0.95
+  },
+  "ކުދިކޮށް ކޮށާލަދީބަލަ": {
+   "file": "243e4e5a9af1d4.mp3",
+   "voice": "learner",
+   "seconds": 1.78
   }
  }
 }
