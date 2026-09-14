@@ -76,6 +76,21 @@
    "file": "60be36825a31b7.mp3",
    "voice": "seller",
    "seconds": 1.72
+  },
+  "ޓިކެޓް ކޮންތާކުން؟": {
+   "file": "966927ebeede84.mp3",
+   "voice": "learner",
+   "seconds": 1.21
+  },
+  "ކާޑު ޖައްސަވާ": {
+   "file": "1ceb25aa06492c.mp3",
+   "voice": "seller",
+   "seconds": 1.54
+  },
+  "މިއީ ވިލިމާލެ ފެރީތަ؟": {
+   "file": "1f454265564995.mp3",
+   "voice": "learner",
+   "seconds": 1.63
   }
  }
 }
