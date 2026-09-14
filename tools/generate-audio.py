@@ -63,7 +63,7 @@ def main():
 
     params = inspect.signature(model.generate).parameters
     lang_kw = next((k for k in ('language_id', 'language', 'lang') if k in params), None)
-    base = {'num_step': args.steps} if 'num_step' in params else {}
+    base = {'num_step': args.steps}          # generate() takes this through **kwargs (default 32)
     if lang_kw: base[lang_kw] = 'dv'
     print('generate() language arg:', lang_kw or 'none (text only)', flush=True)
 
