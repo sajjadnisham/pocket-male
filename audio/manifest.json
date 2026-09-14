@@ -91,6 +91,56 @@
    "file": "1f454265564995.mp3",
    "voice": "learner",
    "seconds": 1.63
+  },
+  "މަޖީދީ މަގަށް ދެވިދާނެތަ؟": {
+   "file": "6214720ac5f2f6.mp3",
+   "voice": "learner",
+   "seconds": 1.91
+  },
+  "ކޮން ހިސާބަކަށް؟": {
+   "file": "fc7c6c3513d936.mp3",
+   "voice": "seller",
+   "seconds": 1.68
+  },
+  "ޗާންދަނީ މަގު ކަންމަތި": {
+   "file": "3ad1b25218c8f1.mp3",
+   "voice": "learner",
+   "seconds": 1.69
+  },
+  "ކާޑެއް ނުހިނގާނެ": {
+   "file": "cb3160686456dd.mp3",
+   "voice": "seller",
+   "seconds": 1.62
+  },
+  "މަޑުކޮށްލަދީބަލަ": {
+   "file": "626661c181786d.mp3",
+   "voice": "learner",
+   "seconds": 1.27
+  },
+  "މި ބޭސް ސިޓީ": {
+   "file": "c6ccf72baae1fe.mp3",
+   "voice": "learner",
+   "seconds": 1.45
+  },
+  "އާސަންދަ ބޭނުންކުރަނީތަ؟": {
+   "file": "a7ca8a6c4b2fad.mp3",
+   "voice": "seller",
+   "seconds": 1.83
+  },
+  "ނޫން، އަމިއްލައަށް ދައްކާނީ": {
+   "file": "e9d6c21e054063.mp3",
+   "voice": "learner",
+   "seconds": 1.8
+  },
+  "ބޮލުގައި ރިއްސަނީ": {
+   "file": "441f4698dffa1c.mp3",
+   "voice": "learner",
+   "seconds": 1.35
+  },
+  "ދުވާލަކު ތިން ފަހަރު": {
+   "file": "d643ec1729b2c2.mp3",
+   "voice": "seller",
+   "seconds": 1.8
   }
  }
 }
