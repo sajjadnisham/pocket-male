@@ -1,4 +1,4 @@
-/* Pocket Malé — shared data for the app (index.html) and the 3D world (world.html).
+/* Pocket Malé — shared data for the app (index.html) and the 3D city (city.html).
    The Dhivehi here has NOT been reviewed by a native speaker. */
 
 /* ---------- situations ---------- */
@@ -157,5 +157,130 @@ const SITUATIONS = [
       {s:'them', dv:'ނޫން، އެތަނަށް ދަނީ ދެ ނަންބަރު', rom:'noon, ethanah dhanee dhe namburu', en:'No — number two goes there.'},
       {s:'you', dv:'ކާޑުން ދެއްކިދާނެތަ؟', rom:'kaadun dhekkidhaanetha?', en:'Can I pay by card?'}
     ]
+  },
+  {
+    id:'mosque', dv:'މިސްކިތް', rom:'miskiy', en:'Mosque',
+    note:'Malé has a mosque every few streets and shops close for about fifteen minutes at each of the five prayers. Visitors are welcome outside prayer times: cover shoulders and knees, take your shoes off at the door, and ask before visiting the Old Friday Mosque, which needs permission.',
+    turns:[
+      {s:'you', dv:'ނަމާދު ވަގުތަކީ ކޮން އިރެއް؟', rom:'namaadhu vaguthakee kon ireh?', en:'When is prayer time?'},
+      {s:'them', dv:'ފަނަރަ މިނެޓު ފަހުން', rom:'fanara minetu fahun', en:'In fifteen minutes.'},
+      {s:'you', dv:'ފައިވާން ބަހައްޓާނީ ކޮން ތާކު؟', rom:'faivaan bahattaanee kon thaaku?', en:'Where do I leave my shoes?'},
+      {s:'them', dv:'ދޮރުމަތީގައި ބަހައްޓަވާ', rom:'dhorumatheegai bahattavaa', en:'Leave them by the door.'},
+      {s:'you', dv:'އަންހެނުންގެ ބައި ކޮބާ؟', rom:'anhenunge bai kobaa?', en:"Where is the women's section?"},
+      {s:'them', dv:'މަތީ ބުރިއަށް', rom:'mathee buriah', en:'Upstairs.'}
+    ]
+  },
+  {
+    id:'office', dv:'އޮފީސް', rom:'ofees', en:'Office',
+    note:'The working week in the Maldives runs Sunday to Thursday; Friday and Saturday are the weekend. Government counters in Malé use token numbers and ask for your ID card, and many services have moved online to eFaas — worth checking before you queue.',
+    turns:[
+      {s:'you', dv:'ބައްދަލުވުމަކަށް އައީ', rom:'baddaluvumakah aee', en:"I've come for a meeting."},
+      {s:'them', dv:'ކާކާ ބައްދަލުކުރަން؟', rom:'kaakaa baddalukuran?', en:'Who are you meeting?'},
+      {s:'you', dv:'މެނޭޖަރާ', rom:'manejaraa', en:'The manager.'},
+      {s:'them', dv:'ގޮނޑިއެއްގައި އިށީނދެލައްވާ', rom:'gondi-ehgai isheendhelavvaa', en:'Please take a seat.'},
+      {s:'you', dv:'ފޯމު ކޮބާ؟', rom:'foamu kobaa?', en:"Where's the form?"}
+    ]
+  },
+  {
+    id:'bakery', dv:'ބޭކަރީ', rom:'beykaree', en:'Bakery',
+    note:'Roshi, the thin flatbread eaten with mas huni, is bought by the bundle first thing in the morning, and the early batch sells out. Bakeries also sell loaves, buns and sweet short eats.',
+    turns:[
+      {s:'you', dv:'ރޮށި ހުރިތަ؟', rom:'roshi hurritha?', en:'Do you have roshi?'},
+      {s:'them', dv:'އާނ، ހޫނު ރޮށި', rom:'aan, hoonu roshi', en:'Yes, warm roshi.'},
+      {s:'you', dv:'ދިހަ ރޮށި ދީބަލަ', rom:'dhiha roshi dheebala', en:'Ten roshi, please.'},
+      {s:'them', dv:'ކޭކު ވެސް ބޭނުންތަ؟', rom:'keyku ves beynuntha?', en:'Would you like cake too?'},
+      {s:'you', dv:'ނޫން، ޝުކުރިއްޔާ', rom:'noon, shukuriyyaa', en:'No, thank you.'}
+    ]
+  },
+  {
+    id:'tailor', dv:'ޓެއިލަރ', rom:'teilar', en:'Tailor',
+    note:'Small tailors along Majeedhee Magu and Chaandhanee Magu alter clothes and sew school uniforms. Alterations usually take a day or two and you pay when you collect.',
+    turns:[
+      {s:'you', dv:'މި ހެދުން ކުރުކޮށްދެވޭނެތަ؟', rom:'mi hedhun kurukohdheveynetha?', en:'Can you shorten this?'},
+      {s:'them', dv:'ކިހާ ވަރަކަށް؟', rom:'kihaa varakah?', en:'By how much?'},
+      {s:'you', dv:'ތަންކޮޅެއް', rom:'thankolheh', en:'A little.'},
+      {s:'them', dv:'މާދަމާ ނިމޭނެ', rom:'maadhamaa nimeyne', en:"It'll be ready tomorrow."},
+      {s:'you', dv:'ކިހާ ވަރެއް؟', rom:'kihaa vareh?', en:'How much?'}
+    ]
+  },
+  {
+    id:'laundry', dv:'ލޯންޑްރީ', rom:'loandree', en:'Laundry',
+    note:'Rooms in Malé are small and many have nowhere for a washing machine, so laundries are on almost every street. Prices are per piece or per kilo; ironing costs extra.',
+    turns:[
+      {s:'you', dv:'މި ހެދުން ދޮވެދެވޭނެތަ؟', rom:'mi hedhun dhovedheveynetha?', en:'Can you wash these clothes?'},
+      {s:'them', dv:'އިސްތިރި ވެސް ކުރަންތަ؟', rom:'isthiri ves kurantha?', en:'Iron them too?'},
+      {s:'you', dv:'އާނ، އިސްތިރި ވެސް', rom:'aan, isthiri ves', en:'Yes, ironed too.'},
+      {s:'them', dv:'ހަވީރު ނިމޭނެ', rom:'haveeru nimeyne', en:'Ready this afternoon.'},
+      {s:'you', dv:'ކިހާ ވަރެއް؟', rom:'kihaa vareh?', en:'How much?'}
+    ]
+  },
+  {
+    id:'garage', dv:'ސައިކަލް ގަރާޖު', rom:'saikal garaaju', en:'Bike garage',
+    note:'Malé runs on scooters, so there is a small repair garage on nearly every street. Punctures and batteries are quick, cheap fixes; bigger jobs can take a day.',
+    turns:[
+      {s:'you', dv:'ސައިކަލު ސްޓާޓް ނުވަނީ', rom:'saikalu staat nuvanee', en:"My bike won't start."},
+      {s:'them', dv:'ބެޓެރީ ބަލާލާނަން', rom:'beteree balaalaanan', en:"I'll check the battery."},
+      {s:'you', dv:'ކިހާއިރެއް ނަގާނީ؟', rom:'kihaaireh nagaanee?', en:'How long will it take?'},
+      {s:'them', dv:'އެއް ގަޑިއިރު', rom:'eh gadiiru', en:'One hour.'},
+      {s:'you', dv:'ޓަޔަރުގައި ވައި ލާދީބަލަ', rom:'tayarugai vai laadheebala', en:'Please put air in the tyre.'}
+    ]
+  },
+  {
+    id:'guesthouse', dv:'ގެސްޓްހައުސް', rom:'gesthaus', en:'Guesthouse',
+    note:'Hulhumalé is full of guesthouses near the beach, a short ride from the airport. Foreign guests show a passport at check-in, and breakfast is often included.',
+    turns:[
+      {s:'you', dv:'ކޮޓަރިއެއް ހުސްތަ؟', rom:'kotari-eh husttha?', en:'Is a room free?'},
+      {s:'them', dv:'ކިހާ ރޭއަކަށް؟', rom:'kihaa reyakah?', en:'For how many nights?'},
+      {s:'you', dv:'ދެ ރޭއަކަށް', rom:'dhe reyakah', en:'For two nights.'},
+      {s:'them', dv:'ނާސްތާ ހިމެނޭ', rom:'naasthaa himeney', en:'Breakfast is included.'},
+      {s:'you', dv:'ވައިފައި ޕާސްވޯޑަކީ ކޮބާ؟', rom:'waifai paasvoadakee kobaa?', en:"What's the Wi-Fi password?"}
+    ]
   }
 ];
+
+/* ---------- Dhivehi audio ----------
+   Pre-generated with OmniVoice (k2-fsa/OmniVoice, language "dv") by
+   tools/generate-audio.py. audio/manifest.json maps each Thaana line to its
+   file. Model weights are CC-BY-NC: fine for this free, non-commercial site;
+   replace the audio before charging for anything.
+   Playback starts synchronously inside the tap handler once the manifest is
+   loaded, because mobile Safari refuses audio started after an await. */
+const DhivehiAudio = (() => {
+  const MUTE_KEY = 'pocketmale.mute';
+  let lines = null, loading = null, current = null, token = 0;
+  let muted = false; try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (e) {}
+  const key = t => String(t || '').trim();
+  function load(){
+    return loading || (loading = fetch('./audio/manifest.json')
+      .then(r => r.ok ? r.json() : {})
+      .then(j => (lines = j.lines || {}))
+      .catch(() => (lines = {})));
+  }
+  function stop(){ token++; if (current){ current.pause(); current = null; } }
+  function playOne(text, my){
+    const f = lines && lines[key(text)];
+    if (!f || muted || my !== token) return Promise.resolve(false);
+    const a = new Audio('./audio/' + f.file);
+    current = a;
+    const done = new Promise(res => { a.onended = () => res(true); a.onerror = () => res(false); });
+    return a.play().then(() => done, () => false);
+  }
+  function play(text){
+    if (!lines) return load().then(() => play(text));
+    stop(); return playOne(text, token);
+  }
+  function playSequence(texts, gapMs){
+    if (!lines) return load().then(() => playSequence(texts, gapMs));
+    stop(); const my = token;
+    let chain = Promise.resolve(false);
+    texts.forEach((t, i) => {
+      chain = i === 0 ? playOne(t, my)
+        : chain.then(ok => new Promise(r => setTimeout(r, gapMs || 0)).then(() => playOne(t, my)).then(ok2 => ok || ok2));
+    });
+    return chain;
+  }
+  function setMuted(v){ muted = !!v; if (muted) stop(); try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (e) {} }
+  const has = t => !!(lines && lines[key(t)]);
+  load();
+  return {load, play, playSequence, stop, has, setMuted, isMuted: () => muted};
+})();

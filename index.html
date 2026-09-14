@@ -580,7 +580,14 @@ const TILE = {
   phone:      {em:'📱', free:false},
   barber:     {em:'💈', free:false},
   bank:       {em:'🏦', free:false},
-  bus:        {em:'🚌', free:false}
+  bus:        {em:'🚌', free:false},
+  mosque:     {em:'🕌', free:true},
+  bakery:     {em:'🥖', free:true},
+  office:     {em:'🏢', free:false},
+  tailor:     {em:'🧵', free:false},
+  laundry:    {em:'🧺', free:false},
+  garage:     {em:'🔧', free:false},
+  guesthouse: {em:'🛏️', free:false}
 };
 
 /* ---------- emergency set, reachable from the SOS chip ---------- */
@@ -653,7 +660,14 @@ const BLURB = {
   phone:      'Get a SIM and a data pack.',
   barber:     'Say how short, and when to stop.',
   bank:       'Change money and find the ATM.',
-  bus:        'Find the right bus across the bridge.'
+  bus:        'Find the right bus across the bridge.',
+  mosque:     'Prayer times, shoes, and where to sit.',
+  bakery:     'Warm roshi before the morning rush.',
+  office:     'Meetings, forms and the token queue.',
+  tailor:     'Take it in, take it up, pick it up.',
+  laundry:    'Washed, ironed, ready by afternoon.',
+  garage:     'When the scooter will not start.',
+  guesthouse: 'A room in Hulhumalé, Wi-Fi included.'
 };
 
 /* ---------- home ---------- */
@@ -712,13 +726,8 @@ function renderHome(){
     html += '<a class="explore" href="./city.html">'
       + '<span class="top"><span class="lab">Explore Malé · 3D</span><span class="badge">Experimental</span></span>'
       + '<span class="title"><span class="dv">މާލެ</span><span class="en">· Walk real Malé</span></span>'
-      + '<span class="sub">Malé and Hulhumalé on a busy morning — shops, scooters, buses. Walk in and talk.</span>'
-      + '</a>'
-      + '<a class="svcard" href="./world.html" style="text-decoration:none">'
-      + '<span class="ico">🌙</span><span><span class="lab">Night market</span>'
-      + '<span class="t">The Local Market after dark</span>'
-      + '<span class="s">A compact 3D market with eight practice stops</span></span>'
-      + '<span class="arrow">→</span></a>';
+      + '<span class="sub">Malé, Hulhumalé and the bridge on a busy morning — 1,000+ real places, traffic and masjids. Walk in and talk.</span>'
+      + '</a>';
 
     if (state.reviewCard){
       const n = state.saved.length + state.aiSaved.length;
@@ -856,7 +865,9 @@ function renderAbout(){
     + aiSettingsHTML()
     + '</section>'
     + '<section><h3>Audio</h3>'
-    + '<p>Listen uses your device speech synthesis. Almost no device ships a Dhivehi voice, so it will tell you so rather than read the line out in the wrong language — recorded audio is what a real build would ship.</p></section>'
+    + '<p>Every curated line has a Dhivehi recording, generated with <b>OmniVoice</b> (k2-fsa), an open multilingual speech model, using its Dhivehi training data. It is synthetic speech from a model trained on under 40 hours of Dhivehi, so rhythm and stress can be off — treat it as a guide, not a native speaker. Recordings: CC-BY-NC, non-commercial use.</p>'
+    + '<button class="rowlink" data-toggle-mute>Sound'
+    + '<span class="arrow">' + (DhivehiAudio.isMuted() ? 'Off' : 'On') + '</span></button></section>'
     + '<section><div class="warn"><p class="eyebrow">Check the Dhivehi before shipping</p>'
     + '<p>This is a demonstration build. The Thaana has not been reviewed by a native speaker — spelling, fili placement and the naturalness of the longer sentences all need checking before it goes in front of anyone learning from it.</p></div></section>'
     + '</div>';
@@ -980,16 +991,15 @@ async function askAI(id, q){
   }
 }
 
-/* ---------- speech ---------- */
+/* ---------- speech: pre-generated Dhivehi recordings (data.js) ---------- */
 function speak(text){
-  if (!('speechSynthesis' in window)){ toast('This device has no speech synthesis.'); return; }
-  const dv = (speechSynthesis.getVoices() || []).find(v => /^dv(-|_|$)/i.test(v.lang || ''));
-  if (!dv){ toast('No Dhivehi voice on this device — a real build ships recorded audio.'); return; }
-  const u = new SpeechSynthesisUtterance(text);
-  u.voice = dv; u.lang = dv.lang; u.rate = 0.9;
-  speechSynthesis.cancel(); speechSynthesis.speak(u);
+  DhivehiAudio.play(text).then(ok => {
+    if (ok) return;
+    if (DhivehiAudio.isMuted()) toast('Sound is off — turn it back on in Settings.');
+    else if (!DhivehiAudio.has(text)) toast('No recording for this line. AI answers aren’t voiced yet.');
+    else toast('Couldn’t play the recording — check your volume and try again.');
+  });
 }
-if ('speechSynthesis' in window) speechSynthesis.getVoices();
 
 /* ---------- routing ---------- */
 let route = 'home';
@@ -1054,6 +1064,10 @@ document.addEventListener('click', e => {
     state.reviewCard = false; saveState(); renderHome();
     toast('Review hidden. Your saved lines are kept — turn it back on any time in Settings.', 5000);
     return;
+  }
+  if (t.closest('[data-toggle-mute]')){
+    DhivehiAudio.setMuted(!DhivehiAudio.isMuted()); renderAbout();
+    toast(DhivehiAudio.isMuted() ? 'Sound off.' : 'Sound on.'); return;
   }
   if (t.closest('[data-toggle-review]')){
     state.reviewCard = !state.reviewCard; saveState(); renderAbout();
@@ -1155,7 +1169,7 @@ renderHome();
 renderSaved();
 renderAbout();
 (function openFromHash(){
-  // city.html and world.html link straight to a situation: index.html#sit=teashop
+  // city.html links straight to a situation: index.html#sit=teashop
   const m = location.hash.match(/sit=([\w-]+)/);
   if (m && m[1] !== 'sos' && sitById(m[1])){ renderSituation(m[1]); show('situation', {title: sitById(m[1]).en}); }
 })();

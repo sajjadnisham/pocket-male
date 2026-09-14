@@ -1,0 +1,61 @@
+{
+ "engine": "OmniVoice (k2-fsa/OmniVoice) via VoiceStudio",
+ "language": "dv",
+ "license": "Generated with CC-BY-NC model weights — non-commercial use",
+ "voices": {
+  "learner": "female, moderate pitch",
+  "seller": "male, moderate pitch"
+ },
+ "lines": {
+  "ހެދިކާ ހުރިތަ؟": {
+   "file": "681d9dc6f52750.mp3",
+   "voice": "learner",
+   "seconds": 1.32
+  },
+  "ގުޅަ، ބަޖިޔާ، ބިސް ކީމިޔާ ހުރި": {
+   "file": "e928df2ed4fbc4.mp3",
+   "voice": "seller",
+   "seconds": 1.99
+  },
+  "ދެ ގުޅަ އަދި ކަޅު ސައި": {
+   "file": "5cade2c6c10c7a.mp3",
+   "voice": "learner",
+   "seconds": 1.41
+  },
+  "ގެންދަނީތަ؟": {
+   "file": "e92d94a1420df7.mp3",
+   "voice": "seller",
+   "seconds": 1.19
+  },
+  "ނޫން، މިތާ ކާނީ": {
+   "file": "6f694ece16c4e8.mp3",
+   "voice": "learner",
+   "seconds": 1.48
+  },
+  "ބިލް ދެއްވަބަލަ": {
+   "file": "f242a5e04b0e5c.mp3",
+   "voice": "learner",
+   "seconds": 1.27
+  },
+  "މީގެ އަގަކީ ކޮބާ؟": {
+   "file": "85b9df5af3b0e7.mp3",
+   "voice": "learner",
+   "seconds": 1.42
+  },
+  "ކިލޯއެއް ފަންސާސް ރުފިޔާ": {
+   "file": "7258a96d259347.mp3",
+   "voice": "seller",
+   "seconds": 1.92
+  },
+  "އަގުހެޔޮ ކޮށްދީބަލަ": {
+   "file": "e6d66a14d00eac.mp3",
+   "voice": "learner",
+   "seconds": 1.45
+  },
+  "ކިހާ ވަރެއް ބޭނުމީ؟": {
+   "file": "6d4cc4c25bc53b.mp3",
+   "voice": "seller",
+   "seconds": 1.67
+  }
+ }
+}
