@@ -1,0 +1,15 @@
+{
+  "appId": "app.pocketmale.dhivehi",
+  "appName": "Pocket Malé",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "backgroundColor": "#faf7f1",
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "never"
+  }
+}

@@ -90,12 +90,18 @@ def main():
     if args.limit: todo = todo[:args.limit]
     print(f'{len(todo)} to synthesize, {already} already done', flush=True)
 
+    # encode each reference voice once; re-encoding it for every line was most of the time on CPU
+    prompts = {}
+    if 'voice_clone_prompt' in params and hasattr(model, 'create_voice_clone_prompt'):
+        prompts = {name: model.create_voice_clone_prompt(str(REFS / f'{name}.wav'), spec['text']) for name, spec in REF.items()}
+
     done = 0
     for l in todo:
         voice = ROLE_VOICE.get(l['role'], 'learner')
         t = time.time()
         try:
-            audio = synth(text=l['dv'], ref_audio=str(REFS / f'{voice}.wav'), ref_text=REF[voice]['text'])
+            clone = {'voice_clone_prompt': prompts[voice]} if voice in prompts else {'ref_audio': str(REFS / f'{voice}.wav'), 'ref_text': REF[voice]['text']}
+            audio = synth(text=l['dv'], **clone)
         except Exception as e:  # keep going; a single bad line shouldn't lose the batch
             print(f'  FAILED {l["dv"]!r}: {e}', flush=True)
             continue

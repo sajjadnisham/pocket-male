@@ -6,7 +6,10 @@
 <title>Pocket Malé</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="./icon.svg">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<meta name="apple-mobile-web-app-title" content="Pocket Malé">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Thaana:wght@400;600&display=swap">
@@ -331,6 +334,25 @@ a.explore{text-decoration:none}
 .krow{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
 .about .klink{font-size:.78rem;color:var(--muted)}
 .klink a{color:var(--red)}
+.plan{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--paper-2);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:.84rem}
+.plan b{font-weight:600}
+.plan .tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;border-radius:5px;padding:2px 6px;background:var(--card);color:var(--lagoon);border:1px solid var(--rule)}
+.plan .tag.plus{background:var(--red);color:#fdf4ea;border-color:var(--red)}
+.upgrade{background:var(--navy);color:#eef1f6;border-radius:14px;padding:14px 16px;margin:0 0 16px}
+.upgrade .eyebrow{color:#f3c77a}
+.upgrade h3{font-family:var(--display);font-weight:600;font-size:1.15rem;margin:4px 0 6px;color:#fff}
+.upgrade p{font-size:.86rem;color:#cdd3de;margin:0 0 10px}
+.upgrade ul{margin:0 0 12px;padding-left:18px;font-size:.84rem;color:#dfe4ec;line-height:1.55}
+.upgrade .krow .chip{background:#fdf4ea;color:var(--navy);border-color:transparent}
+.upgrade .krow .chip.ghost{background:transparent;color:#eef1f6;border:1px solid rgba(255,255,255,.35)}
+.upgrade .kin{background:#fff;margin-top:6px;width:100%}
+.install{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--rule);border-radius:13px;padding:10px 12px;margin:0 0 14px;font-size:.84rem}
+.install .ic{width:34px;height:34px;border-radius:8px;flex:none}
+.install .tx{flex:1;line-height:1.35}
+.install .tx b{display:block;font-weight:600}
+.install .tx span{color:var(--muted);font-size:.76rem}
+.install .x{color:var(--muted);padding:4px 6px}
+.freehint{font-size:.74rem;color:var(--muted);margin:-2px 0 10px}
 
 .walk3d{display:flex;align-items:center;gap:12px;width:100%;background:var(--navy);color:#e8ecf4;border-radius:14px;padding:13px 16px;margin-top:18px;box-shadow:var(--lift);text-decoration:none}
 .walk3d .ico{font-size:1.4rem}
@@ -377,6 +399,11 @@ html{scroll-behavior:smooth}
 
 <div class="toast" id="toast" hidden></div>
 
+<script>
+/* installable app: offline cache on the web; the Android/iOS shells bundle the files instead */
+if ('serviceWorker' in navigator && location.protocol === 'https:' && !window.Capacitor) addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+</script>
+<script src="./config.js"></script>
 <script src="./data.js"></script>
 <script>
 /* ---------- scene art ---------- */
@@ -779,6 +806,7 @@ function renderSituation(id){
     + '<label class="search ask"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>'
     + '<input id="sq" type="search" enterkeyhint="search" placeholder="Search this situation, or ask ChatGPT…" aria-label="Search this situation or ask ChatGPT" data-sit-id="' + id + '"></label>'
     + '<button class="askbtn" data-ask="' + id + '">Ask ChatGPT</button></div>'
+    + '<p class="freehint" id="freeHint">' + planHint() + '</p>'
     + '<p class="asknote" id="askNote" hidden></p>'
     + '<div id="aiOut"></div>'
     + '<div class="turns">'
@@ -861,55 +889,105 @@ function renderAbout(){
     + '<span class="arrow">' + (state.saved.length + state.aiSaved.length) + '</span></button>'
     + '</section>'
     + '<section><h3>ChatGPT</h3>'
-    + '<p>Ask questions inside any situation — “how do I ask for less sugar?” — and get Dhivehi lines back. It uses <b>your own OpenAI API key</b>, stored only in this browser and sent only to api.openai.com. This site has no server, so there is no shared key to put here.</p>'
-    + aiSettingsHTML()
+    + '<p>Ask questions inside any situation — “how do I ask for less sugar?” — and get Dhivehi lines back. Your first question is free; <b>Pocket Malé Plus</b> unlocks the rest.</p>'
+    + planHTML()
     + '</section>'
     + '<section><h3>Audio</h3>'
-    + '<p>Every curated line has a Dhivehi recording, generated with <b>OmniVoice</b> (k2-fsa), an open multilingual speech model, using its Dhivehi training data. It is synthetic speech from a model trained on under 40 hours of Dhivehi, so rhythm and stress can be off — treat it as a guide, not a native speaker. Recordings: CC-BY-NC, non-commercial use.</p>'
+    + '<p>Curated lines have Dhivehi recordings, generated with <b>OmniVoice</b> (k2-fsa), an open multilingual speech model, using its Dhivehi training data. It is synthetic speech from a model trained on under 40 hours of Dhivehi, so rhythm and stress can be off — treat it as a guide, not a native speaker. Recordings: CC-BY-NC, non-commercial use.</p>'
     + '<button class="rowlink" data-toggle-mute>Sound'
-    + '<span class="arrow">' + (DhivehiAudio.isMuted() ? 'Off' : 'On') + '</span></button></section>'
+    + '<span class="arrow">' + (DhivehiAudio.isMuted() ? 'Off' : 'On') + '</span></button>'
+    + '<button class="rowlink" data-audio-rate>Speaking speed'
+    + '<span class="arrow">' + DhivehiAudio.rateLabel() + '</span></button></section>'
     + '<section><div class="warn"><p class="eyebrow">Check the Dhivehi before shipping</p>'
     + '<p>This is a demonstration build. The Thaana has not been reviewed by a native speaker — spelling, fili placement and the naturalness of the longer sentences all need checking before it goes in front of anyone learning from it.</p></div></section>'
     + '</div>';
 }
 
-/* ---------- ChatGPT (bring your own key) ----------
-   The key lives in this browser's localStorage and is only ever sent to
-   api.openai.com. There is no server; a key baked into a public static site
-   would be readable by anyone who opens the page source. */
-const AIKEY = 'pocketmale.openai';
-function aiCfg(){ try { return JSON.parse(localStorage.getItem(AIKEY) || 'null'); } catch (e) { return null; } }
-function setAiCfg(c){ try { localStorage.setItem(AIKEY, JSON.stringify(c)); } catch (e) { toast('This browser won’t let the page store the key.'); } }
-function aiErr(code){
-  if (code === 401) return 'OpenAI rejected this key (401). Check it in Settings.';
-  if (code === 429) return 'This key is rate-limited or out of credit (429).';
-  if (code === 404) return 'That model isn’t available to this key (404). Change the model in Settings.';
-  return 'OpenAI returned an error (' + code + ').';
+/* ---------- ChatGPT via the Pocket Malé AI worker (server/worker.js) ----------
+   The OpenAI key lives in the worker, never in the app. The worker grants one
+   free question per device and checks Plus licences; the app only mirrors the
+   plan it reports so the UI can say what's left. */
+const CFG = window.POCKET_CONFIG || {};
+const AI_URL = String(CFG.aiEndpoint || '').replace(/\/+$/, '');
+const AIPLAN = 'pocketmale.plan', LICKEY = 'pocketmale.license', DEVKEY = 'pocketmale.device';
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v){ try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+};
+function deviceId(){
+  let d = store.get(DEVKEY);
+  if (!d || !/^[a-zA-Z0-9-]{16,64}$/.test(d)){
+    d = crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
+    store.set(DEVKEY, d);
+  }
+  return d;
 }
-function aiSettingsHTML(){
-  const c = aiCfg(), has = !!(c && c.key);
-  return '<div class="keybox">'
-    + '<label class="klab" for="aiKey">API key</label>'
-    + '<input id="aiKey" class="kin" type="password" autocomplete="off" spellcheck="false" placeholder="' + (has ? 'Saved · ends …' + esc(c.key.slice(-4)) : 'sk-…') + '">'
-    + '<label class="klab" for="aiModel">Model</label>'
-    + '<input id="aiModel" class="kin" type="text" autocomplete="off" spellcheck="false" value="' + esc((c && c.model) || 'gpt-4o-mini') + '">'
-    + '<div class="krow"><button class="chip" data-ai-save>Save</button><button class="chip" data-ai-test>Test key</button>'
-    + (has ? '<button class="chip" data-ai-remove>Remove key</button>' : '') + '</div>'
-    + '<p class="rom" id="aiStatus">' + (has ? 'Key saved on this device.' : 'No key saved — ChatGPT is off.') + '</p>'
-    + '<p class="klink">Get a key at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">platform.openai.com/api-keys</a>. Usage is billed to your OpenAI account.</p>'
+function cachedPlan(){ try { return JSON.parse(store.get(AIPLAN) || 'null'); } catch (e) { return null; } }
+function rememberPlan(p){ if (p) store.set(AIPLAN, JSON.stringify(p)); }
+async function aiPost(path, body){
+  const r = await fetch(AI_URL + path, {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(Object.assign({device: deviceId(), license: store.get(LICKEY) || undefined}, body || {}))});
+  const j = await r.json().catch(() => ({}));
+  if (j && j.plan && (r.ok || r.status === 402)) rememberPlan(j.plan);
+  return {status: r.status, ok: r.ok, data: j};
+}
+function planHint(){
+  if (!AI_URL) return '';
+  const p = cachedPlan();
+  if (!p) return '1 free ChatGPT question · then Plus';
+  if (p.plus) return 'Plus · ' + p.left + ' ChatGPT questions left this month';
+  return p.left > 0 ? p.left + ' free ChatGPT question' + (p.left === 1 ? '' : 's') + ' left' : 'Free question used · upgrade to Plus to keep asking';
+}
+function refreshHints(){ const h = $('#freeHint'); if (h) h.textContent = planHint(); }
+function planHTML(){
+  if (!AI_URL) return '<div class="plan"><span class="tag">Off</span><span>ChatGPT isn’t switched on in this build yet.</span></div>';
+  const p = cachedPlan(), lic = store.get(LICKEY);
+  let h = '<div class="plan">'
+    + (p && p.plus ? '<span class="tag plus">Plus</span><span><b>' + p.left + '</b> of ' + p.limit + ' questions left this month</span>'
+                   : '<span class="tag">Free</span><span>' + (p ? '<b>' + p.left + '</b> free question' + (p.left === 1 ? '' : 's') + ' left' : '1 free question') + '</span>')
+    + '</div>';
+  if (!(p && p.plus)) h += upgradeHTML(false);
+  else h += '<div class="krow" style="margin-top:8px"><button class="chip" data-lic-remove>Remove licence from this device</button></div>'
+    + (lic ? '<p class="klink">Licence ends …' + esc(lic.slice(-4)) + '. It works on up to 3 devices.</p>' : '');
+  return h;
+}
+function upgradeHTML(card){
+  const price = CFG.plusPrice ? ' · ' + esc(CFG.plusPrice) : '';
+  return '<div class="upgrade"' + (card ? '' : ' style="margin:10px 0 0"') + '>'
+    + '<p class="eyebrow">Pocket Malé Plus' + price + '</p>'
+    + (card ? '<h3>You’ve used your free question</h3><p>Upgrade to keep asking ChatGPT inside every situation.</p>' : '<h3>Keep asking ChatGPT</h3>')
+    + '<ul><li>Up to 300 ChatGPT questions a month, in any situation</li><li>Answers in Thaana with romanisation and meaning</li><li>Use it on up to 3 devices</li></ul>'
+    + '<div class="krow">' + (CFG.upgradeUrl ? '<button class="chip" data-upgrade>Upgrade to Plus</button>' : '')
+    + '<button class="chip ghost" data-lic-show>I have a licence key</button></div>'
+    + '<div data-lic-box hidden><input class="kin" data-lic-input type="text" autocomplete="off" spellcheck="false" placeholder="Paste the licence key from your receipt">'
+    + '<div class="krow"><button class="chip" data-lic-activate>Activate</button></div><p class="klink" data-lic-status></p></div>'
+    + (CFG.upgradeUrl ? '' : '<p class="klink" style="color:#cdd3de">Purchases aren’t open yet.</p>')
     + '</div>';
 }
-async function testAI(){
-  const c = aiCfg(), st = $('#aiStatus');
-  const typed = (($('#aiKey') || {}).value || '').trim();
-  const key = typed || (c && c.key);
-  if (!key){ st.textContent = 'Paste a key first.'; return; }
-  st.textContent = 'Testing…';
-  try {
-    const r = await fetch('https://api.openai.com/v1/models', {headers:{'Authorization':'Bearer ' + key}});
-    st.textContent = r.ok ? 'Key works ✓' + (typed ? ' — press Save to keep it.' : '') : aiErr(r.status);
-  } catch (e) { st.textContent = 'Couldn’t reach OpenAI — check your connection.'; }
+function openUpgrade(){
+  if (!CFG.upgradeUrl) return;
+  const inApp = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser;
+  if (inApp) inApp.open({url: CFG.upgradeUrl});
+  else { const w = window.open(CFG.upgradeUrl, '_blank', 'noopener'); if (!w) location.href = CFG.upgradeUrl; }
+  toast('After paying, your licence key arrives by email — paste it under “I have a licence key”.', 6000);
 }
+async function activateLicense(box){
+  const input = box.querySelector('[data-lic-input]'), st = box.querySelector('[data-lic-status]');
+  const key = (input.value || '').trim();
+  if (!key){ st.textContent = 'Paste your licence key first.'; return; }
+  st.textContent = 'Checking…';
+  try {
+    const r = await aiPost('/activate', {license: key});
+    if (r.ok && r.data.plan && r.data.plan.plus){
+      store.set(LICKEY, key); rememberPlan(r.data.plan);
+      toast('Plus is on ✓ Ask away.'); renderAbout(); refreshHints();
+      const out = $('#aiOut'); if (out && out.querySelector('.upgrade')) out.innerHTML = '';
+      return;
+    }
+    st.textContent = r.data.reason === 'too-many-devices' ? 'This licence is already active on 3 devices.' : 'That licence key wasn’t accepted. Check it against your receipt.';
+  } catch (e) { st.textContent = 'Couldn’t reach the server — check your connection.'; }
+}
+function syncPlan(){ if (AI_URL) aiPost('/status').then(() => { refreshHints(); if (route === 'about') renderAbout(); }).catch(() => {}); }
 
 function filterTurns(q){
   q = q.trim().toLowerCase();
@@ -928,67 +1006,39 @@ function filterTurns(q){
 let lastAI = [];
 async function askAI(id, q){
   const out = $('#aiOut'); if (!out) return;
-  const c = aiCfg();
-  if (!c || !c.key){
-    out.innerHTML = '<div class="ai-card"><p class="eyebrow">ChatGPT</p>'
-      + '<p class="ai-p">Add your OpenAI API key in Settings to ask questions inside a situation. It stays on this device.</p>'
-      + '<button class="chip" data-go="about">Open Settings</button></div>';
+  if (!AI_URL){
+    out.innerHTML = '<div class="ai-card"><p class="eyebrow">ChatGPT</p><p class="ai-p">ChatGPT isn’t switched on in this build yet.</p></div>';
     return;
   }
+  const p0 = cachedPlan();
+  if (p0 && !p0.plus && p0.left <= 0){ out.innerHTML = upgradeHTML(true); syncPlan(); return; }
   const x = sitById(id);
   out.innerHTML = '<div class="ai-card"><p class="eyebrow">ChatGPT · thinking…</p><p class="ai-p">“' + esc(q) + '”</p></div>';
-  const sys = 'You help people who live in Malé, Maldives, speak everyday Dhivehi. '
-    + 'Use the spoken Malé register (for example "ahuren", not the formal "alhugandu"), written in Thaana script with correct fili. '
-    + 'Situation: ' + x.en + ' (' + x.rom + ').\n'
-    + 'Lines the learner already has:\n' + x.turns.map(t => '- ' + t.rom + ' — ' + t.en).join('\n') + '\n'
-    + 'Local context: ' + x.note + '\n'
-    + 'Answer the learner\'s question with 1 to 3 short, natural phrases they could actually say or hear in this situation. '
-    + 'Reply ONLY with JSON in exactly this shape: {"phrases":[{"dhivehi":"Thaana script","romanisation":"latin letters","english":"meaning"}],"tip":"one or two sentences of practical Malé context"}. '
-    + 'If you are not confident about the Dhivehi, say so plainly in "tip" instead of sounding certain.';
+  let r;
   try {
-    const r = await fetch('https://api.openai.com/v1/chat/completions', {
-      method:'POST',
-      headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + c.key},
-      body: JSON.stringify({
-        model: c.model || 'gpt-4o-mini', temperature: .3,
-        response_format: {type:'json_object'},
-        messages: [{role:'system', content:sys}, {role:'user', content:q}]
-      })
-    });
-    if (!r.ok) throw new Error(aiErr(r.status));
-    const j = await r.json();
-    let data;
-    try { data = JSON.parse((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '{}'); }
-    catch (e) { throw new Error('ChatGPT replied in an unexpected format. Try asking again.'); }
-    const phrases = (Array.isArray(data.phrases) ? data.phrases : []).filter(p => p && p.dhivehi).slice(0, 3);
-    lastAI = phrases.map(p => ({dv:String(p.dhivehi), rom:String(p.romanisation || ''), en:String(p.english || ''), sit:id}));
-    if (!lastAI.length && !data.tip) throw new Error('ChatGPT didn’t return any phrases. Try rephrasing the question.');
-    out.innerHTML = '<div class="ai-card">'
-      + '<div class="ai-top"><p class="eyebrow">ChatGPT · “' + esc(q) + '”</p><span class="ai-badge">AI · unverified</span></div>'
-      + '<div class="turns">' + lastAI.map((p, k) =>
-          '<div class="turn you ai"><span class="who">You could say</span>'
-          + '<span class="dv">' + esc(p.dv) + '</span><span class="rom">' + esc(p.rom) + '</span><span class="en">' + esc(p.en) + '</span>'
-          + '<span class="acts"><button class="chip" data-say="' + esc(p.dv) + '">Listen</button>'
-          + '<button class="chip" data-ai-keep="' + k + '">♡ Save</button></span></div>').join('') + '</div>'
-      + (data.tip ? '<p class="ai-tip">' + esc(String(data.tip)) + '</p>' : '')
-      + '<p class="ai-foot">Generated by ChatGPT (' + esc(c.model || 'gpt-4o-mini') + '). It can get Dhivehi wrong — check with a speaker before relying on it.</p>'
-      + '</div>';
-  } catch (err) {
-    let msg = (err && err.message) || 'Something went wrong.';
-    if (err instanceof TypeError){
-      // OpenAI's error responses on /chat/completions carry no CORS header, so a
-      // bad key, wrong model or empty balance all surface here as a bare network
-      // failure. /v1/models does send the header — ask it what is actually wrong.
-      try {
-        const probe = await fetch('https://api.openai.com/v1/models', {headers:{'Authorization':'Bearer ' + c.key}});
-        msg = probe.ok
-          ? 'OpenAI accepted the key but refused the request — usually the model name is wrong or the account is out of credit. Check both in Settings.'
-          : aiErr(probe.status);
-      } catch (e2) { msg = 'Couldn’t reach OpenAI — check your connection.'; }
-    }
-    out.innerHTML = '<div class="ai-card err"><p class="eyebrow">ChatGPT</p><p class="ai-p">' + esc(msg) + '</p>'
-      + '<button class="chip" data-go="about">Open Settings</button></div>';
+    r = await aiPost('/ask', {question: q, situation: {en: x.en, rom: x.rom, note: x.note, turns: x.turns.map(t => ({rom: t.rom, en: t.en}))}});
+  } catch (e) {
+    out.innerHTML = '<div class="ai-card err"><p class="eyebrow">ChatGPT</p><p class="ai-p">Couldn’t reach ChatGPT — check your connection and try again.</p></div>';
+    return;
   }
+  refreshHints();
+  if (r.status === 402){ out.innerHTML = upgradeHTML(true); return; }
+  if (!r.ok){
+    out.innerHTML = '<div class="ai-card err"><p class="eyebrow">ChatGPT</p><p class="ai-p">' + esc(r.data.message || 'Something went wrong. Try again.') + '</p></div>';
+    return;
+  }
+  const data = r.data, p = data.plan || {};
+  lastAI = (data.phrases || []).map(ph => ({dv:String(ph.dhivehi), rom:String(ph.romanisation || ''), en:String(ph.english || ''), sit:id}));
+  out.innerHTML = '<div class="ai-card">'
+    + '<div class="ai-top"><p class="eyebrow">ChatGPT · “' + esc(q) + '”</p><span class="ai-badge">AI · unverified</span></div>'
+    + (lastAI.length ? '<div class="turns">' + lastAI.map((ph, k) =>
+        '<div class="turn you ai"><span class="who">You could say</span>'
+        + '<span class="dv">' + esc(ph.dv) + '</span><span class="rom">' + esc(ph.rom) + '</span><span class="en">' + esc(ph.en) + '</span>'
+        + '<span class="acts"><button class="chip" data-ai-keep="' + k + '">♡ Save</button></span></div>').join('') + '</div>' : '')
+    + (data.tip ? '<p class="ai-tip">' + esc(String(data.tip)) + '</p>' : '')
+    + '<p class="ai-foot">Generated by ChatGPT (' + esc(data.model || '') + '). It can get Dhivehi wrong — check with a speaker before relying on it. AI answers aren’t voiced.</p>'
+    + (!p.plus && p.left <= 0 ? '<p class="ai-foot">That was your free question. <button class="chip" data-upgrade-card>Upgrade for more</button></p>' : '')
+    + '</div>';
 }
 
 /* ---------- speech: pre-generated Dhivehi recordings (data.js) ---------- */
@@ -996,7 +1046,7 @@ function speak(text){
   DhivehiAudio.play(text).then(ok => {
     if (ok) return;
     if (DhivehiAudio.isMuted()) toast('Sound is off — turn it back on in Settings.');
-    else if (!DhivehiAudio.has(text)) toast('No recording for this line. AI answers aren’t voiced yet.');
+    else if (!DhivehiAudio.has(text)) toast('No recording for this line yet.');
     else toast('Couldn’t play the recording — check your volume and try again.');
   });
 }
@@ -1090,19 +1140,14 @@ document.addEventListener('click', e => {
     return;
   }
 
-  if (t.closest('[data-ai-save]')){
-    const k = (($('#aiKey') || {}).value || '').trim(), m = (($('#aiModel') || {}).value || '').trim() || 'gpt-4o-mini';
-    const c = aiCfg() || {};
-    if (k){
-      if (!/^sk-/.test(k)){ $('#aiStatus').textContent = 'That doesn’t look like an OpenAI key — they start with “sk-”.'; return; }
-      c.key = k;
-    }
-    if (!c.key){ $('#aiStatus').textContent = 'Paste a key first.'; return; }
-    c.model = m; setAiCfg(c); renderAbout(); toast('ChatGPT key saved on this device.');
-    return;
-  }
-  if (t.closest('[data-ai-remove]')){ try { localStorage.removeItem(AIKEY); } catch (e) {} renderAbout(); toast('Key removed from this device.'); return; }
-  if (t.closest('[data-ai-test]')){ testAI(); return; }
+  if (t.closest('[data-upgrade]')){ openUpgrade(); return; }
+  if (t.closest('[data-upgrade-card]')){ const out = $('#aiOut'); if (out) out.innerHTML = upgradeHTML(true); return; }
+  const licShow = t.closest('[data-lic-show]');
+  if (licShow){ const box = licShow.closest('.upgrade').querySelector('[data-lic-box]'); box.hidden = !box.hidden; if (!box.hidden) box.querySelector('input').focus(); return; }
+  const licAct = t.closest('[data-lic-activate]');
+  if (licAct){ activateLicense(licAct.closest('[data-lic-box]')); return; }
+  if (t.closest('[data-lic-remove]')){ store.set(LICKEY, null); store.set(AIPLAN, null); renderAbout(); refreshHints(); syncPlan(); toast('Licence removed from this device.'); return; }
+  if (t.closest('[data-audio-rate]')){ toast('Speaking speed: ' + DhivehiAudio.nextRate()); renderAbout(); return; }
   const ask = t.closest('[data-ask]');
   if (ask){
     const q = (($('#sq') || {}).value || '').trim();
@@ -1150,6 +1195,7 @@ document.addEventListener('input', e => {
 });
 
 document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-lic-input]')){ e.preventDefault(); activateLicense(e.target.closest('[data-lic-box]')); return; }
   if (e.key === 'Enter' && e.target.id === 'sq'){
     e.preventDefault();
     const q = e.target.value.trim();
@@ -1168,9 +1214,42 @@ document.addEventListener('keydown', e => {
 renderHome();
 renderSaved();
 renderAbout();
+syncPlan();
+
+/* ---------- install as an app ---------- */
+const INSTALL_HIDE = 'pocketmale.installHidden';
+let installEvt = null;
+const standalone = () => window.Capacitor || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+function installCard(){
+  if (standalone() || store.get(INSTALL_HIDE) === '1') return '';
+  const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (ua.includes('Mac') && 'ontouchend' in document), android = /Android/.test(ua);
+  let how = '';
+  if (installEvt) how = '<button class="chip" data-install>Install</button>';
+  else if (ios) how = '';
+  else if (!android) return '';
+  const sub = ios ? 'Tap <b style="display:inline">Share</b> then <b style="display:inline">Add to Home Screen</b>.'
+    : installEvt ? 'Opens full-screen, works offline.'
+    : 'Chrome menu ⋮ → <b style="display:inline">Install app</b>' + (CFG.androidApk ? ', or <a href="' + esc(CFG.androidApk) + '" style="color:var(--red)">download the Android app</a>' : '') + '.';
+  return '<div class="install" id="installCard"><img class="ic" src="./icons/icon-192.png" alt=""><span class="tx"><b>Get Pocket Malé on your phone</b><span>' + sub + '</span></span>' + how
+    + '<button class="x" data-install-hide aria-label="Dismiss">✕</button></div>';
+}
+function placeInstallCard(){
+  const old = $('#installCard'); if (old) old.remove();
+  const html = installCard(); if (!html || route !== 'home') return;
+  const home = $('#v-home'); if (home) home.insertAdjacentHTML('afterbegin', html);
+}
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; placeInstallCard(); });
+addEventListener('appinstalled', () => { installEvt = null; placeInstallCard(); toast('Installed ✓ Find Pocket Malé on your home screen.'); });
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-install]') && installEvt){ installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; placeInstallCard(); }); }
+  if (e.target.closest('[data-install-hide]')){ store.set(INSTALL_HIDE, '1'); placeInstallCard(); }
+});
+const _renderHome = renderHome;
+renderHome = function(){ _renderHome(); placeInstallCard(); };
+placeInstallCard();
 (function openFromHash(){
   // city.html links straight to a situation: index.html#sit=teashop
   const m = location.hash.match(/sit=([\w-]+)/);
-  if (m && m[1] !== 'sos' && sitById(m[1])){ renderSituation(m[1]); show('situation', {title: sitById(m[1]).en}); }
+  if (m && sitById(m[1])){ renderSituation(m[1]); show('situation', {title: sitById(m[1]).en}); }
 })();
 </script>

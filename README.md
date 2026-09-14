@@ -6,7 +6,8 @@ A situation-based Dhivehi phrasebook for Malé, Maldives, with an offline vector
 Malé and Hulhumalé in 3D, where you can walk into each situation and have the
 conversation.
 
-Static site. No build step, no dependencies, no API keys.
+A static site that installs as a phone app, with Android and iPhone app shells
+(Capacitor) and a small server for ChatGPT (`server/`).
 
 ## Contents
 
@@ -18,7 +19,11 @@ Static site. No build step, no dependencies, no API keys.
 | `data.js` | Situations, phrases and the Dhivehi audio player, shared by both pages. |
 | `audio/` | Pre-generated Dhivehi recordings and `manifest.json`. |
 | `about.html` | The marketing landing page. |
-| `manifest.json`, `icon.svg` | Web app manifest, so it installs to a phone home screen. |
+| `config.js` | Deployment settings: ChatGPT server URL, Plus checkout link and price, Android download link. |
+| `manifest.json`, `sw.js`, `icons/` | Web app manifest, offline service worker and app icons, so it installs to a phone home screen. |
+| `server/` | **Pocket Malé AI** — the Cloudflare Worker that holds the OpenAI key, gives one free question and checks Plus licences. See `server/README.md`. |
+| `package.json`, `capacitor.config.json`, `tools/build-www.js` | The Android and iPhone app shells. |
+| `.github/workflows/android.yml` | Builds the Android APK on every push. |
 
 ## Run locally
 
@@ -34,6 +39,10 @@ words you can tap in the 3D city, 147 lines in all — gets a recording in
 chosen line and the other person's reply play in turn, each speech bubble has
 a 🔊 button, tapped words speak, and 🔊/🔇 mutes. Lines without a recording yet
 fall back to text only.
+
+Recordings play a little slower than recorded, at **0.85×** with the pitch kept,
+so learners can follow. *Settings → Speaking speed* cycles Slow (0.85×), Normal
+(1×) and Slower (0.75×); the choice also applies in the 3D city.
 
 The recordings are synthetic, generated with
 [OmniVoice](https://github.com/k2-fsa/OmniVoice), the default engine of
@@ -104,23 +113,55 @@ and people are instanced and only simulated within ~200 m of you.
     node tools/build-city-data.js           # uses tools/.osm-cache if present
     node tools/build-city-data.js --fresh   # re-download from Overpass
 
+## Phone apps (Android and iPhone)
+
+**Install from the website (both platforms, works today).** The site is an
+installable web app: it opens full-screen from the home screen, has its own
+icon, and keeps working offline once opened (pages, the 3D city data and
+three.js are cached; audio needs a connection the first time).
+
+- **iPhone:** open the site in Safari → Share → *Add to Home Screen*.
+- **Android:** open it in Chrome → *Install app* (the home page offers a button).
+
+**Android app (APK).** Every push to `main` builds a native Android app with
+Capacitor on GitHub Actions and publishes it at a fixed link:
+
+<https://github.com/sajjadnisham/pocket-male/releases/download/android-latest/pocket-male.apk>
+
+It bundles everything, including all audio and three.js, so it runs offline.
+It is debug-signed for testing and side-loading. For the Play Store you need a
+Google Play developer account ($25 once), a release signing key, and Play
+Billing for Plus (see *App store rules* in `server/README.md`).
+
+**iPhone app.** The same Capacitor project builds for iOS, but Apple only
+allows that on a Mac with Xcode, and installing it on phones or publishing
+needs an Apple Developer account ($99/year):
+
+```bash
+npm install
+```
+```bash
+npm run ios
+```
+
+Until then, iPhone users install the web app from Safari as above.
+
 ## ChatGPT inside a situation
 
 Each situation has a search field that filters its own lines instantly, and an
 **Ask ChatGPT** button for anything that isn't there.
 
-This is a static site with no server, so there is **no shared API key** — one
-committed here would be readable by anyone. Each user adds their own OpenAI key
-in *Settings*; it is stored in that browser's `localStorage` and sent only to
-`api.openai.com`. Model defaults to `gpt-4o-mini` and can be changed.
+- **One free question** per device. After that the app shows the **Pocket Malé
+  Plus** upgrade card; Plus gives up to 300 questions a month on up to 3 devices.
+- Buying Plus opens a Gumroad or Lemon Squeezy checkout. The receipt email
+  contains a licence key, which the user pastes under *I have a licence key*.
+- The OpenAI key lives only in the worker (`server/`), never in the app, and the
+  worker enforces the limits — clearing app data doesn't reset them.
+- Answers are labelled **AI · unverified** and can be saved separately from the
+  curated phrases.
 
-Answers are labelled **AI · unverified** and can be saved separately from the
-curated phrases.
-
-One quirk worth knowing if you debug this: OpenAI's error responses on
-`/v1/chat/completions` carry no CORS header, so in a browser a rejected key
-looks like a network failure. The app probes `/v1/models` (which does send the
-header) to report the real reason.
+Until the worker is deployed and `config.js` filled in, the app says ChatGPT
+isn't switched on yet. Setup steps, costs and limits: `server/README.md`.
 
 ## Known limitations
 
@@ -129,3 +170,5 @@ header) to report the real reason.
   this is used by anyone actually learning the language.
 - The Dhivehi audio is synthetic (OmniVoice, CC-BY-NC) — see *Dhivehi audio*.
 - ChatGPT's Dhivehi is unreviewed too, and is labelled as such in the app.
+- Plus is sold through a web checkout; the Play Store and App Store would require
+  their own in-app purchase systems instead.

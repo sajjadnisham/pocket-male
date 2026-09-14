@@ -1,0 +1,25 @@
+name = "pocket-male-ai"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+# Create the namespace once with:  npx wrangler kv namespace create PM
+# then paste the id it prints here.
+[[kv_namespaces]]
+binding = "PM"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+[vars]
+MODEL = "gpt-4o-mini"
+# The web app, the Android/iOS app shells (Capacitor) and local testing
+ALLOWED_ORIGINS = "https://sajjadnisham.github.io,https://localhost,capacitor://localhost,http://localhost:8123"
+FREE_QUESTIONS = "1"
+FREE_PER_IP_PER_DAY = "5"
+FREE_TOTAL_PER_DAY = "300"
+PLUS_MONTHLY_LIMIT = "300"
+MAX_DEVICES = "3"
+# "gumroad" or "lemonsqueezy"
+LICENSE_PROVIDER = "gumroad"
+GUMROAD_PRODUCT_ID = ""
+LEMONSQUEEZY_PRODUCT_ID = ""
+
+# Secret, never committed:  npx wrangler secret put OPENAI_API_KEY

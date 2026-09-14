@@ -1,1 +1,7 @@
 tools/.osm-cache/
+node_modules/
+www/
+android/
+ios/
+assets/
+*.apk

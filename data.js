@@ -246,9 +246,12 @@ const SITUATIONS = [
    Playback starts synchronously inside the tap handler once the manifest is
    loaded, because mobile Safari refuses audio started after an await. */
 const DhivehiAudio = (() => {
-  const MUTE_KEY = 'pocketmale.mute';
+  const MUTE_KEY = 'pocketmale.mute', RATE_KEY = 'pocketmale.rate';
+  const RATES = [{v:.75, label:'Slower'}, {v:.85, label:'Slow'}, {v:1, label:'Normal'}];
   let lines = null, loading = null, current = null, token = 0;
   let muted = false; try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (e) {}
+  // learners hear the recordings a little slower by default; pitch is kept
+  let rate = .85; try { const r = parseFloat(localStorage.getItem(RATE_KEY)); if (RATES.some(x => x.v === r)) rate = r; } catch (e) {}
   const key = t => String(t || '').trim();
   function load(){
     return loading || (loading = fetch('./audio/manifest.json')
@@ -261,6 +264,8 @@ const DhivehiAudio = (() => {
     const f = lines && lines[key(text)];
     if (!f || muted || my !== token) return Promise.resolve(false);
     const a = new Audio('./audio/' + f.file);
+    a.preservesPitch = a.mozPreservesPitch = a.webkitPreservesPitch = true;
+    a.defaultPlaybackRate = a.playbackRate = rate;
     current = a;
     const done = new Promise(res => { a.onended = () => res(true); a.onerror = () => res(false); });
     return a.play().then(() => done, () => false);
@@ -280,7 +285,12 @@ const DhivehiAudio = (() => {
     return chain;
   }
   function setMuted(v){ muted = !!v; if (muted) stop(); try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (e) {} }
+  function setRate(v){ if (!RATES.some(x => x.v === v)) return; rate = v; if (current) current.playbackRate = v; try { localStorage.setItem(RATE_KEY, String(v)); } catch (e) {} }
+  // cycles Slow → Normal → Slower → Slow
+  function nextRate(){ const i = RATES.findIndex(x => x.v === rate); setRate(RATES[(i + 1) % RATES.length].v); return rateLabel(); }
+  const rateLabel = () => (RATES.find(x => x.v === rate) || RATES[1]).label + ' · ' + rate + '×';
   const has = t => !!(lines && lines[key(t)]);
+  const count = () => lines ? Object.keys(lines).length : 0;
   load();
-  return {load, play, playSequence, stop, has, setMuted, isMuted: () => muted};
+  return {load, play, playSequence, stop, has, count, setMuted, isMuted: () => muted, setRate, nextRate, rateLabel, getRate: () => rate};
 })();

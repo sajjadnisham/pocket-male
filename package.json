@@ -1,0 +1,22 @@
+{
+  "name": "pocket-male",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pocket Malé — Dhivehi phrasebook and 3D city, as a web app and Android/iOS app shells",
+  "scripts": {
+    "www": "node tools/build-www.js",
+    "android": "node tools/build-www.js && npx cap sync android && npx cap open android",
+    "ios": "node tools/build-www.js && npx cap sync ios && npx cap open ios",
+    "test:server": "node server/test.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/browser": "^7.0.0",
+    "@capacitor/core": "^7.4.0",
+    "@capacitor/ios": "^7.4.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.4.0"
+  }
+}

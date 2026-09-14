@@ -1,14 +1,24 @@
 {
+  "id": "./",
   "name": "Pocket Malé — Dhivehi phrasebook",
   "short_name": "Pocket Malé",
-  "description": "Situation-based Dhivehi for Malé, with street-level panoramas of the places the phrases belong to.",
-  "start_url": "./index.html",
+  "description": "Situation-based Dhivehi for Malé and Hulhumalé, with a walkable 3D city, Dhivehi audio and ChatGPT.",
+  "lang": "en",
+  "start_url": "./index.html?source=app",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#f6f1e7",
-  "theme_color": "#f6f1e7",
+  "orientation": "any",
+  "background_color": "#faf7f1",
+  "theme_color": "#faf7f1",
+  "categories": ["education", "travel"],
   "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
     { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Walk Malé in 3D", "short_name": "3D city", "url": "./city.html", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Emergency phrases", "short_name": "SOS", "url": "./index.html#sit=sos", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] }
   ]
 }
