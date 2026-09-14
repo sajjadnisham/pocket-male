@@ -258,48 +258,6 @@ a{color:inherit}
 }
 .sos-note b{font-family:var(--mono);font-size:.8rem;color:var(--red)}
 
-/* ---------------- offline vector map ---------------- */
-.mapwrap{border:1px solid var(--rule);border-radius:13px;overflow:hidden;background:var(--card);margin-bottom:8px;box-shadow:var(--lift)}
-.map{display:block;width:100%;aspect-ratio:4/3;height:auto}
-.map .sea{fill:var(--sea)}
-.map .m-land{fill:var(--card);stroke:none}
-.map .m-coast{fill:none;stroke:var(--ink);stroke-width:1.5px;stroke-linejoin:round;stroke-linecap:round}
-.map .m-main{fill:none;stroke:var(--ink-2);stroke-width:1.2px;stroke-linecap:round;opacity:.75}
-.map .m-minor{fill:none;stroke:var(--muted);stroke-width:.8px;stroke-linecap:round;opacity:.8}
-.map .m-island{fill:var(--muted);font-family:var(--mono);letter-spacing:.18em;text-anchor:middle;dominant-baseline:middle}
-.map .m-pin{cursor:pointer}
-.map .m-pin .halo{fill:var(--red);opacity:.16}
-.map .m-pin .dot{fill:var(--red);stroke:var(--card);stroke-width:1px;vector-effect:non-scaling-stroke}
-.map .m-pin text{fill:var(--ink);font-family:var(--sans);font-weight:500;paint-order:stroke;stroke:var(--sea);stroke-width:3px;vector-effect:non-scaling-stroke}
-.map .m-pin:hover .halo,.map .m-pin:focus-visible .halo{opacity:.3}
-.map .m-pin.on .halo{fill:var(--ochre);opacity:.42}
-.map .m-pin.on .dot{fill:var(--ochre)}
-.map .m-scale path{stroke:var(--ink-2);stroke-width:1px;fill:none}
-.map .m-scale text{fill:var(--muted);font-family:var(--mono)}
-.mapcap{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;color:var(--muted);margin:0 0 18px;padding:0 2px;line-height:1.7}
-
-.seg{display:flex;gap:5px;background:var(--paper-2);padding:4px;border-radius:999px;margin:4px 0 14px}
-.seg button{flex:1;padding:8px 10px;border-radius:999px;font-size:.84rem;color:var(--ink-2);text-align:center}
-.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:var(--lift)}
-
-.spots{display:flex;flex-direction:column;gap:13px}
-.spot{background:var(--card);border:1px solid var(--rule);border-radius:13px;overflow:hidden;box-shadow:var(--lift)}
-.spot.on{border-color:var(--ochre);box-shadow:0 0 0 3px color-mix(in srgb,var(--ochre) 18%,transparent)}
-.spot .head{padding:13px 15px 0;display:flex;align-items:flex-start;gap:12px}
-.spot .head h3{font-size:1.04rem}
-.spot .head .rom{display:block;margin-top:3px}
-.spot .head .dv{font-size:1.24rem;color:var(--red);margin-left:auto;white-space:nowrap}
-.spot .desc{padding:8px 15px 13px;font-size:.85rem;color:var(--ink-2)}
-.spot .pano{position:relative;background:var(--navy);aspect-ratio:16/10;border-top:1px solid var(--rule)}
-.spot .pano iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
-.pano-cta{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#e8ecf4;text-align:center;padding:20px}
-.pano-cta .big{display:inline-flex;align-items:center;gap:8px;background:var(--ochre);color:#1a1814;border-radius:999px;padding:9px 18px;font-size:.85rem;font-weight:500}
-.pano-cta .sub{font-family:var(--mono);font-size:.62rem;letter-spacing:.07em;color:#9aa4b8;max-width:38ch;line-height:1.7}
-.pano-cta a{color:var(--ochre)}
-.spot .foot{padding:11px 15px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:var(--muted)}
-.spot .foot a{color:var(--red);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--red) 40%,transparent)}
-.sv-disclaimer{margin-top:18px;padding:13px 15px;border:1px dashed var(--rule);border-radius:11px;font-size:.79rem;color:var(--muted)}
-
 /* ---------------- saved ---------------- */
 .saved-list{display:flex;flex-direction:column;gap:10px}
 .saved-item{background:var(--card);border:1px solid var(--rule);border-radius:13px;padding:12px 15px;box-shadow:var(--lift)}
@@ -339,7 +297,7 @@ a{color:inherit}
 .scene .ln{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .scene .lnm{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round}
 
-/* ---------------- world + street view cards ---------------- */
+/* ---------------- 3D world cards ---------------- */
 a.explore{text-decoration:none}
 .svcard{display:flex;align-items:center;gap:12px;width:100%;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:12px 15px;margin-bottom:10px;box-shadow:var(--lift)}
 .svcard:hover{border-color:var(--muted)}
@@ -374,17 +332,12 @@ a.explore{text-decoration:none}
 .about .klink{font-size:.78rem;color:var(--muted)}
 .klink a{color:var(--red)}
 
-/* ---------------- street view inside a situation ---------------- */
-.svblock{background:var(--card);border:1px solid var(--rule);border-radius:13px;overflow:hidden;margin-top:18px;box-shadow:var(--lift)}
-.svhead{display:flex;align-items:baseline;gap:8px;padding:12px 15px 0}
-.svhead .eyebrow{color:var(--lagoon)}
-.svname{margin-left:auto;font-family:var(--display);font-size:1rem}
-.svdesc{font-size:.84rem;color:var(--ink-2);padding:6px 15px 12px}
-.svblock .pano{position:relative;background:var(--navy);aspect-ratio:16/10}
-.svblock .pano iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
-.svfoot{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:11px 15px;border-top:1px solid var(--rule);font-size:.8rem}
-.svfoot a{color:var(--red);text-decoration:none}
-.svfoot button{color:var(--lagoon);margin-left:auto}
+.walk3d{display:flex;align-items:center;gap:12px;width:100%;background:var(--navy);color:#e8ecf4;border-radius:14px;padding:13px 16px;margin-top:18px;box-shadow:var(--lift);text-decoration:none}
+.walk3d .ico{font-size:1.4rem}
+.walk3d .lab{display:block;font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:#c9a86a}
+.walk3d .t{display:block;font-size:.96rem;font-weight:500;margin-top:2px}
+.walk3d .s{display:block;font-size:.8rem;color:#9aa4b8}
+.walk3d .arrow{margin-left:auto;color:#c9a86a}
 
 /* ---------------- toast ---------------- */
 .toast{
@@ -417,7 +370,6 @@ html{scroll-behavior:smooth}
   <main>
     <section class="view on" id="v-home"></section>
     <section class="view" id="v-situation"></section>
-    <section class="view" id="v-walk"></section>
     <section class="view" id="v-saved"></section>
     <section class="view" id="v-about"></section>
   </main>
@@ -613,130 +565,6 @@ const SCENES = {
 
 
 
-/* ------------------------------------------------------------
-   Offline vector map of Malé, Hulhumalé, Villimalé and the
-   airport island. Geometry is real OpenStreetMap data (coastline
-   + trunk/primary/secondary/tertiary roads) queried from the
-   Overpass API, projected equirectangular about 4.21°N and
-   simplified with Ramer–Douglas–Peucker, then baked in here.
-   Nothing is fetched at runtime, so this renders everywhere —
-   including hosts whose CSP blocks Google frames.
-   1 map unit = 10.8 m.  © OpenStreetMap contributors (ODbL).
-   ------------------------------------------------------------ */
-const MAP = {
-  mPerUnit: 10.803,
-  views: {
-    male:      {vb:'427 666 268 201', ar:'4/3',   label:'Malé'},
-    hulhumale: {vb:'782 296 268 201', ar:'4/3',   label:'Hulhumalé'},
-    both:      {vb:'435 80 580 795',  ar:'58/79', label:'Malé, the airport and Hulhumalé'}
-  },
-  islands: [
-    {n:'MALÉ',      x:512, y:640},
-    {n:'HULHUMALÉ', x:806, y:150},
-    {n:'AIRPORT',   x:646, y:560}
-  ],
-  coast:"M576.2 736.9L569.8 733.1L571.6 728.9L580.8 731.1L556 723.3L567 727.6L565.4 732.4L560.1 732.3L543.7 738.5L540.6 727.7L541.6 725.7L553.6 723.7L536.8 725.2L539.4 733.9L534.7 735.3L532.4 725.6L529 726.5L528.7 725.3L519.2 729.1L519.8 730.5L506.3 739.3L510.5 737L514.4 747.3L507.7 749.8L501.9 745.3L503.8 741.7L489.9 761.1L483.6 774.9L485.1 778.6L482.6 783.2L482.8 788.2L478.9 793.6L476.5 793.4L473.6 804.5L477.7 824.9L479.2 819L497.4 820.9L496.9 826.9L489.6 826.4L489.3 829.1L496.5 830.1L495.3 841.1L482.6 840.8L477.2 829.9L476.9 832.7L474.4 833L472.8 824.3L471.6 841.3L472.9 848L475.1 851.5L480.7 854L512.1 854.1M878.9 518.2L879.3 523.2L876.1 527.9L874.8 527.6L873.2 532.9L876.4 533.6L875.8 536.5L880.1 538.7L884.5 525.2L888 533.5L887 539.9L867.7 582.4L843.9 643.2L828.6 643.9L828.7 624.2L830.8 622.8L829.3 615L815.3 615.2L815.2 635.8L810.4 635.9L810.4 638.5L803 638.4L802.8 632.9L800.3 631.9L800.2 576.9L810.4 576.1L810.2 552.7L807.7 552L807.2 554.8L800.3 554.8L800.1 392.3L789.6 360.8L800.9 335.4L792.4 330.8M827.8 243.5L823.5 254.5L822.2 254L821.5 255.8L796.4 320.3L803.1 323.1L809.3 322.5L816.2 325.1L824.7 325.1L833 297.2L842.7 290.2L848 276.1L869.4 279.9L866.8 288M866.8 288L843 373L840.3 372.2L836.4 387.1L833.4 386.3L828.8 402.8L834.1 404.5L831 415.6L832.6 416L831.3 420.4L829.8 420.1L822.5 446.7M822.5 446.7L828.8 457.2L832.8 459.8L878.9 518.2M751.4 773.4L758 775.1L758.4 777.9L756 780.8L758.5 783.1L769.7 776.4M769.7 776.4L788.3 765.5L789.9 757.4L809 736.6L826.9 708.1L851.3 662.2L863.3 633.4L892.1 539.5L891.4 530.1L886.3 521.4M792.4 330.8L789.7 332.3L783.5 355.4L779.1 363.2L747.5 461.2L748.3 481.6L743.7 487.2L738.5 507.1L738.5 520.5L734.2 547.9L731.6 559.4L729.6 560.9L732.6 559.2L733.6 552.4L739.1 552.3L739.5 570L730 570.1L729.7 589.2L726.8 588.9L727.4 576.9L726 591.9L724.1 594.9L727.3 595.2L726.3 606.5L725 606.8L726.8 606.9L727.4 597.3L741.4 596.9L742.1 639L735.1 645.1L734.3 674.3L733.3 675.9L727.3 675.9L725.5 677.7L730.9 704.7L744.8 755.2L744.1 759.9L746.6 760.2L751.4 773.4M562.3 845.3L575.2 845.7L601 841.5M512.1 854.1L522.1 853.6L526.7 850.5L536.1 850.5L535.4 854.2L538 849.7L525.3 848.9L525.4 844.5L562.3 845.3M601 841.5L608.5 840.3L614.3 842.9L653 832.4L653.1 830.9L649.1 830.4L649.1 813.5L653.1 806L659 802.8L659.6 796.6L658.2 797.7L656.1 796.4L655.7 791.8L658.8 789.2L660 791.5L662.8 773L666.3 770.7L662.4 769.6L657.7 760.3L649.7 755.4L637.9 751.3L638.5 753.1L642.1 754.1L641.1 757.5L628.7 753.4L629.8 749.5L635.5 751.1L630 748.8L617.7 745.7L626.3 748.5L625.2 752.3L612.3 748.7L613 746.2L603.8 743.6L603 746.1L580.3 739.6L576.2 736.9M886.3 521.4L926.9 396L960 266.2L993.1 176.5L998.9 153.9L999.9 126.7L996.9 117.6L989.4 110.2L982.3 105.6L973.9 103.3L970.5 106.5L970.5 112.6L958.5 110.2L954.9 103.5L951.2 102.4L906 114.3L901.5 121.4L905.5 116.5L916.1 128L907.9 135.8L892 120.9L895.3 119.7L895 118.1L887.1 122.2L879 130.7L873.2 140.8L865.8 164.2L841.4 210.7L827.8 243.5",
-  main:"M474.3 842.6L499.7 843.2M885.1 522.3L889.6 532L889.6 541.3M842.8 672L847 657.6L864.9 616.5M865.6 616.7L861.3 631.7L843.7 672.4M525.1 843.4L575.7 844.6L628.3 835.9M758.8 780.5L765.1 776.3M759.2 781.2L721.9 805.4L699.7 817L671.6 827.4L642.9 833.7M642.8 833L671.4 826.6L699.3 816.3L721.5 804.7L758.8 780.5M765.6 776.8L759.2 781.2M772.8 770.3L787.9 755.8L813.9 724.1L828.9 700.6L842.8 672M843.7 672.4L829.5 701L812.2 727.6L788.4 756.3L765.6 776.8M767.4 774.6L772.8 770.3M499.1 843.7L474.3 843.2M888.8 541.2L887.4 527.5L875.6 512.6M499.7 843.2L525.1 843.4M864.9 616.5L888.8 541.2M889.6 541.3L865.6 616.7M877.7 510.5L877.6 513.4L885.1 522.3M477.7 797.8L491.3 799.4M486.9 776.3L484.3 788.1L477.7 797.8M628.6 753.9L641.2 757.9M489.9 814L476.9 812.2M502.3 815.3L499.7 843.2M639.2 811.3L647.9 811.7M491.3 799.4L489.9 814M641.2 757.9L648.4 764.4M650.3 792.7L652 777L650.5 768.2M486.9 776.3L491 761.9L495.8 757M495.8 757L544.1 739.3M637.1 829.7L639.2 811.3M628.6 753.9L587.7 742M476.9 812.2L475.2 804L477.7 797.8M502.3 815.3L489.9 814M647.9 811.7L649.5 798.9M649.5 798.9L650.3 792.7M582 740.4L575.9 737.8M544.1 739.3L560.8 733.1L571.8 735.5",
-  minor:"M617.6 789.3L560.1 783.2M608.8 826.7L502.3 815.3M614 808.4L617.6 789.3M894.9 456.8L877.7 510.5M875.6 512.6L855.4 487M902 343L911.6 309.1M844.5 401.5L875.7 290.5M875.7 290.5L913.7 302.1M938.5 318.3L924.7 364.8M881.5 369.3L870.1 362.7L867.9 349.5M647.2 767.9L640.4 763.4M877.1 409.3L881.5 369.3M530.2 773.2L542.1 758.6L563.1 746.2M569.9 755L554.6 758.6L530.9 773.9M617.6 789.3L623.5 758.3M573.7 744.1L586.1 747.7M835.2 458.6L849.7 403M735.6 677.6L737.1 654.3M495.4 760.7L493.8 776.1M933.1 230.1L939.5 206.1M940.3 207.8L934.1 230.3M955.2 149.1L942.6 144.7L937 145.4L909.5 171L938.8 204.3M563.1 746.2L573.7 744.1M640.4 763.4L626.9 759.5M591.6 749.2L603.8 752.6M603.8 752.6L623.5 758.3M573.7 744.1L569.9 755M493.8 776.1L491.3 799.4M939.5 206.1L908.7 170.9L936.7 144.7L942.9 144L955.9 148.7M744 747.4L749.3 759.6L759.4 770.5M759.4 770.5L749 760.7L744 747.4M855.4 487L865.6 448.7M929.2 306.8L913.7 302.1M929.2 306.8L940.3 310.2M650.3 792.7L617.6 789.3M525.5 779.5L493.8 776.1M877.7 510.5L875.1 510.7L855.6 486M901.6 344.5L898 357.1M560.1 783.2L525.5 779.5M633.5 829.3L621.2 828M621.2 828L608.8 826.7M940.6 309.3L942.8 300.9M943.4 301L941.3 309.5M941.1 310.4L938.5 318.3M942.9 300.4L921.2 293.8M727.9 681.9L735.6 677.6M836.9 463.2L853.8 484L856.1 483.8M855.4 487L836.9 463.2M891.8 366.5L881.5 369.3M919.4 282.8L916.7 292.4M922.3 272.6L919.4 282.8M744 747.4L734 709.5M730.6 697.3L727.9 681.9M734 709.5L730.6 697.3M730.6 697.3L727.9 681.9M737.1 654.3L736.8 677.6M736.8 677.6L736.8 704M949.5 171.8L955.2 149.1M955.9 148.7L950.4 171.9M915.4 253.2L916.3 263.4L922.5 271.3M884.1 338.2L900.2 342.5M907 419.7L894.9 456.8M866.6 446.8L876.1 412.7M923.5 368.7L907 419.7M923.5 365.6L900 358.8M921.6 271.8L915.6 263.7L915 248M916 292.2L921.6 272.1M940.2 204.7L944 191.5M944.7 191.8L941 205M867.9 349.5L873.7 341.1L882.8 338.1M897.6 358.1L891.8 366.5M933.4 231.4L924.2 235.2L916.5 247.2M915.5 246.5L923.8 234.6L932.9 230.3M944.4 190.5L949.3 172.8M950.3 173L945 190.6",
-  pins:{
-    'majeedhee':[562.7,780.7], 'market':[577.1,750.6], 'sultan-park':[575.3,763.2],
-    'male-south':[578.1,790.5], 'hulhu-centre':[877.3,410.4], 'hulhu-beach':[933.7,363.2]
-  }
-};
-
-/* OSM coastline arrives as separate ways that share end nodes. Chain them
-   back into rings so the islands can be filled as land rather than left as
-   outlines on an undifferentiated tint. */
-let LAND = '';
-function stitchLand(d){
-  const chains = d.split('M').filter(Boolean).map(sub =>
-    sub.split('L').map(pt => pt.trim().split(/\s+/).map(Number))
-  );
-  const k = p => p[0].toFixed(1) + ',' + p[1].toFixed(1);
-  let merged = true;
-  while (merged){
-    merged = false;
-    outer:
-    for (let i = 0; i < chains.length; i++){
-      const a = chains[i];
-      if (!a) continue;
-      if (k(a[0]) === k(a[a.length - 1])) continue;       // already a ring
-      for (let j = 0; j < chains.length; j++){
-        const b = chains[j];
-        if (i === j || !b) continue;
-        if      (k(a[a.length-1]) === k(b[0]))            chains[i] = a.concat(b.slice(1));
-        else if (k(a[a.length-1]) === k(b[b.length-1]))    chains[i] = a.concat(b.slice(0,-1).reverse());
-        else if (k(a[0])          === k(b[b.length-1]))    chains[i] = b.concat(a.slice(1));
-        else if (k(a[0])          === k(b[0]))             chains[i] = b.slice().reverse().concat(a.slice(1));
-        else continue;
-        chains[j] = null; merged = true;
-        break outer;
-      }
-    }
-  }
-  return chains.filter(c => c && c.length > 8)
-    .map(c => 'M' + c.map(p => p[0] + ' ' + p[1]).join('L') + 'Z')
-    .join('');
-}
-
-function niceDistance(m){
-  const steps = [100,200,250,500,1000,2000,5000];
-  for (const s of steps) if (m <= s) return s;
-  return 5000;
-}
-
-function mapSvg(view, activeKey){
-  const v = MAP.views[view] || MAP.views.both;
-  const [vx, vy, vw, vh] = v.vb.split(' ').map(Number);
-  const r  = vw * 0.0135;
-  const fs = vw * 0.026;
-  const overview = view === 'both';
-
-  // scale bar: about a quarter of the visible width, rounded to a sensible number
-  const barM = niceDistance(vw * MAP.mPerUnit / 4);
-  const barU = barM / MAP.mPerUnit;
-  const bx = vx + vw * 0.62, by = vy + vh * 0.93;
-
-  const keys = Object.keys(MAP.pins).filter(k => overview || SPOTS[k].island === view);
-
-  return '<svg class="map" viewBox="' + v.vb + '" preserveAspectRatio="xMidYMid meet" '
-    + 'style="aspect-ratio:' + (v.ar || '4/3') + '" '
-    + 'role="img" aria-label="Map of ' + esc(v.label) + ' showing the panorama locations">'
-    + '<rect class="sea" x="' + vx + '" y="' + vy + '" width="' + vw + '" height="' + vh + '"/>'
-    + '<path class="m-land" d="' + LAND + '"/>'
-    + '<path class="m-minor" d="' + MAP.minor + '" vector-effect="non-scaling-stroke"/>'
-    + '<path class="m-main" d="' + MAP.main + '" vector-effect="non-scaling-stroke"/>'
-    + '<path class="m-coast" d="' + MAP.coast + '" vector-effect="non-scaling-stroke"/>'
-    + (overview ? MAP.islands.map(i =>
-        '<text class="m-island" x="' + i.x + '" y="' + i.y + '" font-size="' + (vw * 0.019) + '">'
-        + esc(i.n) + '</text>').join('') : '')
-    + keys.map(k => {
-        const [x, y] = MAP.pins[k];
-        const on = k === activeKey;
-        return '<g class="m-pin' + (on ? ' on' : '') + '" data-pin="' + k + '" tabindex="0" role="button" '
-          + 'aria-label="' + esc(SPOTS[k].name) + '">'
-          + '<circle class="halo" cx="' + x + '" cy="' + y + '" r="' + (r * 2.2) + '"/>'
-          + '<circle class="dot" cx="' + x + '" cy="' + y + '" r="' + r + '"/>'
-          + (overview ? '' : (() => {
-              const flip = x > vx + vw * 0.55;
-              return '<text x="' + (flip ? x - r * 1.9 : x + r * 1.9) + '" y="' + (y + fs * 0.34)
-                + '" font-size="' + fs + '" text-anchor="' + (flip ? 'end' : 'start') + '">'
-                + esc(SPOTS[k].short) + '</text>';
-            })())
-          + '</g>';
-      }).join('')
-    + '<g class="m-scale">'
-    + '<path d="M' + bx + ' ' + by + 'h' + barU + '" vector-effect="non-scaling-stroke"/>'
-    + '<path d="M' + bx + ' ' + (by - vh * 0.014) + 'v' + (vh * 0.028)
-    + 'M' + (bx + barU) + ' ' + (by - vh * 0.014) + 'v' + (vh * 0.028) + '" vector-effect="non-scaling-stroke"/>'
-    + '<text x="' + bx + '" y="' + (by - vh * 0.028) + '" font-size="' + (vw * 0.018) + '">'
-    + (barM >= 1000 ? (barM / 1000) + ' km' : barM + ' m') + '</text>'
-    + '</g></svg>';
-}
-
-
-LAND = stitchLand(MAP.coast);
-
 /* ---------- which situations are free, and their tile emoji ---------- */
 const TILE = {
   teashop:  {em:'☕', free:true},
@@ -884,18 +712,13 @@ function renderHome(){
     html += '<a class="explore" href="./city.html">'
       + '<span class="top"><span class="lab">Explore Malé · 3D</span><span class="badge">Experimental</span></span>'
       + '<span class="title"><span class="dv">މާލެ</span><span class="en">· Walk real Malé</span></span>'
-      + '<span class="sub">Every street from OpenStreetMap, 14 situations in their real places — go inside and talk</span>'
+      + '<span class="sub">Malé and Hulhumalé on a busy morning — shops, scooters, buses. Walk in and talk.</span>'
       + '</a>'
       + '<a class="svcard" href="./world.html" style="text-decoration:none">'
       + '<span class="ico">🌙</span><span><span class="lab">Night market</span>'
       + '<span class="t">The Local Market after dark</span>'
       + '<span class="s">A compact 3D market with eight practice stops</span></span>'
-      + '<span class="arrow">→</span></a>'
-      + '<button class="svcard" data-go="walk">'
-      + '<span class="ico">🌐</span><span><span class="lab">Street View</span>'
-      + '<span class="t">Real Malé &amp; Hulhumalé</span>'
-      + '<span class="s">Six 360° panoramas on a map you can tap</span></span>'
-      + '<span class="arrow">→</span></button>';
+      + '<span class="arrow">→</span></a>';
 
     if (state.reviewCard){
       const n = state.saved.length + state.aiSaved.length;
@@ -933,7 +756,6 @@ function renderHome(){
 function renderSituation(id){
   const x = sitById(id);
   if (!x) return;
-  const spot = x.spot ? SPOTS[x.spot] : null;
   const isSos = id === 'sos';
 
   $('#v-situation').innerHTML =
@@ -966,57 +788,11 @@ function renderSituation(id){
           + '</span></div>';
       }).join('')
     + '</div>'
-    + (spot ? '<div class="svblock">'
-        + '<div class="svhead"><span class="eyebrow">🌐 Street View</span><span class="svname">' + esc(spot.name) + '</span></div>'
-        + '<p class="svdesc">Where this conversation happens. ' + esc(spot.desc) + '</p>'
-        + '<div class="pano" data-pano="' + x.spot + '"><div class="pano-cta">'
-        + '<button class="big" data-load="' + x.spot + '">Open Street View</button>'
-        + '<span class="sub">360° photosphere · ' + spot.lat.toFixed(4) + ', ' + spot.lng.toFixed(4) + '</span></div></div>'
-        + '<div class="svfoot"><a href="' + panoLink(spot) + '" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a>'
-        + '<a href="./city.html#place=' + id + '">Walk here in 3D →</a>'
-        + '<button data-goto-spot="' + x.spot + '">See it on the map →</button></div>'
-        + '</div>' : '');
-}
-
-/* ---------- walk ---------- */
-let walkView = 'male', activePin = null;
-
-function renderWalk(island, pin){
-  walkView = island || walkView || 'male';
-  island = walkView;
-  if (pin !== undefined) activePin = pin;
-  const list = Object.keys(SPOTS).filter(k => island === 'both' || SPOTS[k].island === island);
-
-  $('#v-walk').innerHTML =
-    '<p class="eyebrow">Explore Malé · experimental</p>'
-    + '<h2 style="font-size:1.5rem;margin-top:6px">Stand where you would say it.</h2>'
-    + '<p style="font-size:.89rem;color:var(--ink-2);margin-top:8px">Tap a pin on the map, then open the panorama and drag to look around.</p>'
-    + '<div class="seg" role="tablist">'
-    + '<button role="tab" data-island="male" aria-selected="' + (island === 'male') + '">Malé</button>'
-    + '<button role="tab" data-island="hulhumale" aria-selected="' + (island === 'hulhumale') + '">Hulhumalé</button>'
-    + '<button role="tab" data-island="both" aria-selected="' + (island === 'both') + '">Both</button>'
-    + '</div>'
-    + '<div class="mapwrap">' + mapSvg(island, activePin) + '</div>'
-    + '<p class="mapcap"><span>' + esc(MAP.views[island].label) + ' · ' + list.length
-    + ' panorama' + (list.length === 1 ? '' : 's') + '</span>'
-    + '<span>Map data © OpenStreetMap contributors</span></p>'
-    + '<div class="spots">'
-    + list.map(k => {
-        const s = SPOTS[k];
-        return '<article class="spot' + (k === activePin ? ' on' : '') + '" id="spot-' + k + '">'
-          + '<div class="head"><div><h3>' + esc(s.name) + '</h3><span class="rom">' + esc(s.rom) + '</span></div>'
-          + '<span class="dv">' + s.dv + '</span></div>'
-          + '<p class="desc">' + esc(s.desc) + '</p>'
-          + '<div class="pano" data-pano="' + k + '"><div class="pano-cta">'
-          + '<button class="big" data-load="' + k + '">Open panorama</button>'
-          + '<span class="sub">Google Street View · ' + s.lat.toFixed(4) + ', ' + s.lng.toFixed(4) + '</span>'
-          + '</div></div>'
-          + '<div class="foot"><span>Pano ' + esc(s.pano.slice(0, 12)) + '…</span>'
-          + '<a href="' + panoLink(s) + '" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a></div>'
-          + '</article>';
-      }).join('')
-    + '</div>'
-    + '<p class="sv-disclaimer">The map is drawn from OpenStreetMap coastline and road data baked into this page — no network needed. The panoramas are separate: Malé has no continuous Street View car coverage, so these are user-contributed 360° photospheres, each pinned by its own panorama ID. Imagery © Google and its contributors. If a panel stays empty, this page is served somewhere that blocks Google frames — the link under each one always works.</p>';
+    + '<a class="walk3d" href="./city.html#place=' + id + '">'
+    + '<span class="ico">🏙️</span><span><span class="lab">Walk it in 3D</span>'
+    + '<span class="t">Find the ' + esc(x.en.toLowerCase()) + ' on a real street in Malé</span>'
+    + '<span class="s">Go inside and have this conversation at the counter</span></span>'
+    + '<span class="arrow">→</span></a>';
 }
 
 /* ---------- saved ---------- */
@@ -1058,7 +834,7 @@ function renderAbout(){
     '<p class="eyebrow">About</p>'
     + '<h2 style="font-size:1.5rem;margin-top:6px">Pocket Malé</h2>'
     + '<div class="about">'
-    + '<section><p>A situation-based Dhivehi phrasebook for the city, with street-level panoramas of the places the phrases belong to.</p></section>'
+    + '<section><p>A situation-based Dhivehi phrasebook for the city, with Malé and Hulhumalé in 3D, where you can walk into each situation and have the conversation.</p></section>'
     + '<section><h3>Reading the fili</h3>'
     + '<p>Thaana is twenty-four letters and ten <em>fili</em> — the vowel marks that ride above and below them. A letter on its own is only a consonant; the fili tells you what to say.</p>'
     + '<div class="fn-row"><span class="base">ސ</span><span class="op">+ abafili =</span><span class="made">ސަ</span><span class="say"><b>sa</b> · <span class="dv">ސައި</span>, tea</span></div>'
@@ -1217,7 +993,7 @@ if ('speechSynthesis' in window) speechSynthesis.getVoices();
 
 /* ---------- routing ---------- */
 let route = 'home';
-const TITLES = {walk:'Explore Malé', saved:'Saved', about:'About'};
+const TITLES = {saved:'Saved', about:'About'};
 
 function show(r, opts){
   route = r;
@@ -1252,8 +1028,7 @@ document.addEventListener('click', e => {
   const go = t.closest('[data-go]');
   if (go){
     const r = go.dataset.go;
-    if (r === 'walk'){ renderWalk(walkView, null); show('walk'); }
-    else show(r);
+    show(r);
     return;
   }
 
@@ -1330,50 +1105,6 @@ document.addEventListener('click', e => {
   const unsave = t.closest('[data-ai-unsave]');
   if (unsave){ state.aiSaved.splice(+unsave.dataset.aiUnsave, 1); saveState(); renderSaved(); toast('Removed.'); return; }
 
-  const island = t.closest('[data-island]');
-  if (island){ renderWalk(island.dataset.island, null); return; }
-
-  const pin = t.closest('[data-pin]');
-  if (pin){
-    const k = pin.dataset.pin;
-    renderWalk(SPOTS[k].island === walkView || walkView === 'both' ? walkView : SPOTS[k].island, k);
-    const el = document.getElementById('spot-' + k);
-    if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
-    return;
-  }
-
-  const goto = t.closest('[data-goto-spot]');
-  if (goto){
-    const k = goto.dataset.gotoSpot;
-    renderWalk(SPOTS[k].island, k);
-    show('walk', {keepScroll:true});
-    const el = document.getElementById('spot-' + k);
-    if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
-    return;
-  }
-
-  const load = t.closest('[data-load]');
-  if (load){
-    const k = load.dataset.load, s = SPOTS[k];
-    const box = load.closest('.pano');
-    box.innerHTML = '<iframe title="Street View — ' + esc(s.name) + '" src="' + panoEmbed(s)
-      + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>';
-    // A working Google embed builds nested subframes; one blocked by a strict
-    // frame-src policy stays at about:blank with none.
-    setTimeout(() => {
-      const fr = box.querySelector('iframe');
-      if (!fr) return;
-      let nested = 1;
-      try { nested = fr.contentWindow ? fr.contentWindow.length : 0; } catch (err) { nested = 1; }
-      if (nested === 0){
-        box.innerHTML = '<div class="pano-cta">'
-          + '<span class="sub">This page is served somewhere that blocks Google frames. The panorama opens fine in a new tab.</span>'
-          + '<a class="big" href="' + panoLink(s) + '" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a></div>';
-      }
-    }, 4000);
-    return;
-  }
-
   const say = t.closest('[data-say]');
   if (say){ speak(say.dataset.say); return; }
 
@@ -1421,7 +1152,6 @@ document.addEventListener('keydown', e => {
 
 /* ---------- boot ---------- */
 renderHome();
-renderWalk('male');
 renderSaved();
 renderAbout();
 (function openFromHash(){

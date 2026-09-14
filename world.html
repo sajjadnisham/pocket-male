@@ -183,7 +183,7 @@ a{color:inherit}
     <button class="pill" id="placesBtn">📍 Places</button>
   </div>
   <div class="br">
-    <button class="pill" id="svBtn">🌐 Street View</button>
+    <a class="pill" href="./city.html">🏙️ Real Malé in 3D</a>
   </div>
   <div class="bc">
     <div class="seg" role="group" aria-label="Mode">
@@ -199,7 +199,6 @@ a{color:inherit}
 <div class="word" id="word" hidden></div>
 <div class="toast" id="toast" hidden></div>
 <div class="sheet" id="talk" hidden></div>
-<div class="sheet" id="svSheet" hidden></div>
 
 <div class="intro" id="intro">
   <div class="card">
@@ -244,21 +243,21 @@ const saveW = () => { try { localStorage.setItem(WKEY, JSON.stringify(W)); } cat
 
 /* ---------- places, goals, words ---------- */
 const PLACES = [
-  {id:'gate',     em:'🚪', dv:'ލޯކަލް މާރުކޭޓް', en:'West entrance',  x:-39, z:-1,   yaw:-Math.PI/2, spot:'market'},
-  {id:'fish',     em:'🐟', dv:'މަސް',           en:'Fish stall',     x:-24, z:5.0,  yaw:Math.PI, sit:'market',   spot:'market'},
-  {id:'fruit',    em:'🍌', dv:'ތަރުކާރީ',        en:'Fruit & veg',    x:-14, z:5.0,  yaw:Math.PI, sit:'market',   spot:'market'},
-  {id:'mosque',   em:'🕌', dv:'މިސްކިތް',        en:'Mosque',         x:-6,  z:5.0,  yaw:Math.PI, pitch:.3,       spot:'sultan-park'},
-  {id:'tea',      em:'☕', dv:'ސައި ހޮޓާ',        en:'Tea shop',       x:0,   z:5.0,  yaw:Math.PI, sit:'teashop',  spot:'majeedhee'},
-  {id:'shop',     em:'🏪', dv:'ފިހާރަ',          en:'Corner shop',    x:12,  z:5.0,  yaw:Math.PI, sit:'shop',     spot:'majeedhee'},
-  {id:'taxi',     em:'🚕', dv:'ޓެކްސީ',          en:'Taxi stand',     x:16,  z:-4.2, yaw:0,       sit:'taxi',     spot:'majeedhee'},
-  {id:'pharmacy', em:'💊', dv:'ބޭސްފިހާރަ',       en:'Pharmacy',       x:24,  z:5.0,  yaw:Math.PI, sit:'pharmacy', spot:'sultan-park'},
-  {id:'ferry',    em:'⛴️', dv:'ފެރީ',            en:'Ferry terminal', x:33,  z:-7.9, yaw:0,       sit:'ferry',    spot:'hulhu-centre'},
-  {id:'kurumba',  em:'🥥', dv:'ކުރުނބާ',          en:'Coconut cart',   x:-12, z:-6.2, yaw:0,       sit:'kurumba',  spot:'market'},
-  {id:'restaurant',em:'🍛', dv:'ރެސްޓޯރަންޓް',     en:'Restaurant',     x:36,  z:5.0,  yaw:Math.PI, sit:'restaurant', spot:'majeedhee'},
-  {id:'phone',    em:'📱', dv:'ފޯނު ފިހާރަ',       en:'Phone shop',     x:48,  z:5.0,  yaw:Math.PI, sit:'phone',    spot:'majeedhee'},
-  {id:'bus',      em:'🚌', dv:'ބަސް',             en:'Bus stop',       x:50,  z:-6.2, yaw:0,       sit:'bus',      spot:'hulhu-centre'},
-  {id:'barber',   em:'💈', dv:'ބާބަރ',            en:'Barber',         x:60,  z:5.0,  yaw:Math.PI, sit:'barber',   spot:'male-south'},
-  {id:'bank',     em:'🏦', dv:'ބޭންކް',            en:'Bank',           x:72,  z:5.0,  yaw:Math.PI, sit:'bank',     spot:'market'}
+  {id:'gate',     em:'🚪', dv:'ލޯކަލް މާރުކޭޓް', en:'West entrance',  x:-39, z:-1,   yaw:-Math.PI/2},
+  {id:'fish',     em:'🐟', dv:'މަސް',           en:'Fish stall',     x:-24, z:5.0,  yaw:Math.PI, sit:'market'},
+  {id:'fruit',    em:'🍌', dv:'ތަރުކާރީ',        en:'Fruit & veg',    x:-14, z:5.0,  yaw:Math.PI, sit:'market'},
+  {id:'mosque',   em:'🕌', dv:'މިސްކިތް',        en:'Mosque',         x:-6,  z:5.0,  yaw:Math.PI, pitch:.3},
+  {id:'tea',      em:'☕', dv:'ސައި ހޮޓާ',        en:'Tea shop',       x:0,   z:5.0,  yaw:Math.PI, sit:'teashop'},
+  {id:'shop',     em:'🏪', dv:'ފިހާރަ',          en:'Corner shop',    x:12,  z:5.0,  yaw:Math.PI, sit:'shop'},
+  {id:'taxi',     em:'🚕', dv:'ޓެކްސީ',          en:'Taxi stand',     x:16,  z:-4.2, yaw:0,       sit:'taxi'},
+  {id:'pharmacy', em:'💊', dv:'ބޭސްފިހާރަ',       en:'Pharmacy',       x:24,  z:5.0,  yaw:Math.PI, sit:'pharmacy'},
+  {id:'ferry',    em:'⛴️', dv:'ފެރީ',            en:'Ferry terminal', x:33,  z:-7.9, yaw:0,       sit:'ferry'},
+  {id:'kurumba',  em:'🥥', dv:'ކުރުނބާ',          en:'Coconut cart',   x:-12, z:-6.2, yaw:0,       sit:'kurumba'},
+  {id:'restaurant',em:'🍛', dv:'ރެސްޓޯރަންޓް',     en:'Restaurant',     x:36,  z:5.0,  yaw:Math.PI, sit:'restaurant'},
+  {id:'phone',    em:'📱', dv:'ފޯނު ފިހާރަ',       en:'Phone shop',     x:48,  z:5.0,  yaw:Math.PI, sit:'phone'},
+  {id:'bus',      em:'🚌', dv:'ބަސް',             en:'Bus stop',       x:50,  z:-6.2, yaw:0,       sit:'bus'},
+  {id:'barber',   em:'💈', dv:'ބާބަރ',            en:'Barber',         x:60,  z:5.0,  yaw:Math.PI, sit:'barber'},
+  {id:'bank',     em:'🏦', dv:'ބޭންކް',            en:'Bank',           x:72,  z:5.0,  yaw:Math.PI, sit:'bank'}
 ];
 const PLACE = Object.fromEntries(PLACES.map(p => [p.id, p]));
 
@@ -293,7 +292,7 @@ const WORDS = {
 let toastT;
 function toast(msg, ms){
   const t = $('#toast'); t.textContent = msg; t.hidden = false;
-  t.classList.toggle('top', !$('#talk').hidden || !$('#svSheet').hidden);
+  t.classList.toggle('top', !$('#talk').hidden);
   clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, ms || 2600);
 }
 function pop(txt){
@@ -739,7 +738,7 @@ addEventListener('keydown', e => {
   if (e.target.closest && e.target.closest('input,textarea')) return;
   keys[e.key.toLowerCase()] = true;
   if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) cancelAuto();
-  if (e.key === 'Escape'){ closeTalk(); closeSV(); closePanels(); }
+  if (e.key === 'Escape'){ closeTalk(); closePanels(); }
   if (e.key === 'e' || e.key === 'Enter'){ const a = $('#act'); if (!a.hidden) a.click(); }
 });
 addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
@@ -847,7 +846,7 @@ function openTalk(placeId, goalTurn){
   const pl = PLACE[placeId];
   if (!pl || !pl.sit) return;
   const sit = sitById(pl.sit);
-  closePanels(); closeSV(); $('#word').hidden = true;
+  closePanels(); $('#word').hidden = true;
   let i = 0;
   if (goalTurn == null && W.mode === 'guided' && W.goal < GOALS.length){
     const g = GOALS[W.goal];
@@ -892,7 +891,7 @@ function renderTalk(){
   }
   h += '<div class="ft">'
     + (t.options ? '' : '<button class="btn primary" data-again>Again</button>')
-    + (t.pl.spot ? '<button class="btn sv" data-sv="' + t.pl.id + '">🌐 See the real place</button>' : '')
+    + '<a class="btn sv" href="./city.html#place=' + t.pl.sit + '">🏙️ Walk the real street</a>'
     + '<a class="btn" href="./index.html">Open in phrasebook ↗</a>'
     + '<button class="btn" data-close-talk>Done</button></div>';
   s.innerHTML = h; s.hidden = false;
@@ -920,22 +919,6 @@ function chooseOpt(k, btn){
 }
 function closeTalk(){ talk = null; $('#talk').hidden = true; }
 
-/* ---------- street view ---------- */
-function openSV(placeId){
-  const pl = PLACE[placeId] || nearestPlace();
-  const sp = pl && SPOTS[pl.spot];
-  if (!sp){ toast('No panorama for this spot yet.'); return; }
-  closeTalk(); closePanels();
-  $('#svSheet').innerHTML = '<div class="hd"><span>🌐</span><h3>' + esc(sp.name) + '</h3><span class="dv">' + sp.dv + '</span>'
-    + '<button class="x" data-close-sv aria-label="Close">✕</button></div>'
-    + '<div class="pano"><iframe title="Street View — ' + esc(sp.name) + '" src="' + panoEmbed(sp) + '" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>'
-    + '<p class="small">The real place near “' + esc(pl.en) + '”: a user-contributed 360° photosphere. Drag inside it to look around. Imagery © Google and its contributors.</p>'
-    + '<div class="ft"><a class="btn sv" href="' + panoLink(sp) + '" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a>'
-    + '<button class="btn" data-close-sv>Back to the market</button></div>';
-  $('#svSheet').hidden = false;
-}
-function closeSV(){ const s = $('#svSheet'); s.hidden = true; s.innerHTML = ''; }
-
 /* ---------- places panel ---------- */
 function renderPlaces(){
   const p = $('#places');
@@ -948,9 +931,7 @@ function renderPlaces(){
     + '<h4>Around the market</h4>' + PLACES.filter(pl => !GOALS.some(g => g.place === pl.id)).map(pl =>
       '<button class="it" data-go="' + pl.id + '"><span class="em">' + pl.em + '</span>' + esc(pl.en)
       + '<span class="dv">' + pl.dv + '</span></button>').join('')
-    + '<h4>Real places</h4>' + PLACES.filter(pl => pl.spot).filter((pl, i, a) => a.findIndex(q => q.spot === pl.spot) === i).map(pl =>
-      '<button class="it" data-sv="' + pl.id + '"><span class="em">🌐</span>' + esc(SPOTS[pl.spot].name)
-      + '<span class="sv">Street View</span></button>').join('');
+    + '<h4>Real Malé</h4><a class="it" href="./city.html" style="text-decoration:none"><span class="em">🏙️</span>Walk Malé &amp; Hulhumalé in 3D</a>';
 }
 function closePanels(){ $('#places').hidden = true; }
 
@@ -959,7 +940,6 @@ document.addEventListener('click', e => {
   const t = e.target;
   if (t.closest('#placesBtn')){ const p = $('#places'); if (p.hidden){ renderPlaces(); p.hidden = false; } else p.hidden = true; return; }
   if (t.closest('#stopsBtn')){ renderPlaces(); $('#places').hidden = false; return; }
-  if (t.closest('#svBtn')){ openSV(); return; }
   if (t.closest('#mGuided')){ W.mode = 'guided'; saveW(); hud(); if (talk) renderTalk(); return; }
   if (t.closest('#mFree')){ W.mode = 'free'; saveW(); hud(); if (talk) renderTalk(); return; }
   if (t.closest('#goal')){
@@ -971,18 +951,16 @@ document.addEventListener('click', e => {
     return;
   }
   const act = t.closest('#act');
-  if (act){ const id = act.dataset.place; if (PLACE[id].sit) openTalk(id); else if (id === 'mosque') showWord('mosque'); else openSV(id); return; }
+  if (act){ const id = act.dataset.place; if (PLACE[id].sit) openTalk(id); else if (id === 'mosque') showWord('mosque'); return; }
   const go = t.closest('[data-go]');
   if (go){
     const id = go.dataset.go, gk = go.dataset.goal;
     goTo(id, () => { if (PLACE[id].sit) openTalk(id, gk != null && +gk === W.goal ? GOALS[+gk].turn : undefined); });
     return;
   }
-  const sv = t.closest('[data-sv]'); if (sv){ openSV(sv.dataset.sv); return; }
   const opt = t.closest('[data-opt]'); if (opt){ chooseOpt(+opt.dataset.opt, opt); return; }
   if (t.closest('[data-again]')){ if (talk){ talk.i = 0; talk.log = []; advanceTalk(); } return; }
   if (t.closest('[data-close-talk]')){ closeTalk(); return; }
-  if (t.closest('[data-close-sv]')){ closeSV(); return; }
 });
 
 /* ---------- loop ---------- */
@@ -1036,7 +1014,7 @@ function frame(now){
   if (np && np !== frame.lastNear){ frame.lastNear = np; $('#where').innerHTML = '<span class="dv">' + np.dv + '</span>· ' + esc(np.en); }
   const near = nearestPlace(3.2);
   const a = $('#act');
-  const busy = !$('#talk').hidden || !$('#svSheet').hidden || !$('#intro').hidden;
+  const busy = !$('#talk').hidden || !$('#intro').hidden;
   if (near && !busy && !auto && (near.sit || near.id === 'mosque')){
     if (a.dataset.place !== near.id){
       a.dataset.place = near.id;

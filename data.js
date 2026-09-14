@@ -4,7 +4,7 @@
 /* ---------- situations ---------- */
 const SITUATIONS = [
   {
-    id:'teashop', dv:'ސައި ހޮޓާ', rom:'sai hotaa', en:'Tea shop', spot:'majeedhee',
+    id:'teashop', dv:'ސައި ހޮޓާ', rom:'sai hotaa', en:'Tea shop',
     note:'Short eats (ހެދިކާ) are priced per piece, usually MVR 3–8, and you help yourself from the tray with tongs, then tell them what you took. "Sai" on its own means black tea. Most shops pull the shutter halfway for about fifteen minutes at each prayer time.',
     turns:[
       {s:'you', dv:'ހެދިކާ ހުރިތަ؟', rom:'hedhikaa hurritha?', en:"Have you got any short eats?"},
@@ -16,7 +16,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'market', dv:'މާރުކޭޓް', rom:'maarukeyt', en:'Local Market', spot:'market',
+    id:'market', dv:'މާރުކޭޓް', rom:'maarukeyt', en:'Local Market',
     note:'Fish is sold by the kilo at the fish market; fruit and veg next door go by the pile, not by weight. Cash only, and the price softens a little if you buy more than one. Ask them to cut and clean it for you — they will, at no extra charge.',
     turns:[
       {s:'you', dv:'މީގެ އަގަކީ ކޮބާ؟', rom:'meege agakee kobaa?', en:"What's the price of this?"},
@@ -28,7 +28,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'ferry', dv:'ފެރީ', rom:'feri', en:'Ferry', spot:'hulhu-centre',
+    id:'ferry', dv:'ފެރީ', rom:'feri', en:'Ferry',
     note:'MTCC ferries run Malé–Hulhumalé and Malé–Villimalé every ten to fifteen minutes, and cost a few rufiyaa. Since the bridge opened, buses are faster to Hulhumalé, but the ferry still wins for Villimalé. Tap your card at the gate — most people use the RaajjeTransport card.',
     turns:[
       {s:'you', dv:'ހުޅުމާލެއަށް ފެރީ ކޮންއިރަކު؟', rom:'hulhumaleah feri kon-iraku?', en:"When's the ferry to Hulhumalé?"},
@@ -39,7 +39,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'taxi', dv:'ޓެކްސީ', rom:'teksee', en:'Taxi', spot:'majeedhee',
+    id:'taxi', dv:'ޓެކްސީ', rom:'teksee', en:'Taxi',
     note:'Fares inside Malé are flat, not metered — around MVR 30, more if you cross the bridge to Hulhumalé or the airport. Plenty of drivers still take cash only, and you phone a taxi centre or use an app rather than hailing one on the street.',
     turns:[
       {s:'you', dv:'މަޖީދީ މަގަށް ދެވިދާނެތަ؟', rom:'majeedhee magah dhevidhaanetha?', en:'Can you take me to Majeedhee Magu?'},
@@ -50,7 +50,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'pharmacy', dv:'ބޭސްފިހާރަ', rom:'beysfihaara', en:'Pharmacy', spot:'sultan-park',
+    id:'pharmacy', dv:'ބޭސްފިހާރަ', rom:'beysfihaara', en:'Pharmacy',
     note:'Aasandha is the national health insurance scheme — say whether you are using it, and have your ID card out. STO pharmacies keep the longest hours and there is usually one open near IGMH through the night.',
     turns:[
       {s:'you', dv:'މި ބޭސް ސިޓީ', rom:'mi beys sitee', en:'This prescription, please.'},
@@ -61,7 +61,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'landlord', dv:'ގޭގެ ވެރިޔާ', rom:'geyge veriyaa', en:'Landlord', spot:'male-south',
+    id:'landlord', dv:'ގޭގެ ވެރިޔާ', rom:'geyge veriyaa', en:'Landlord',
     note:'Rent is quoted per month, and the deposit is usually one or two months on top, plus an agent fee. Water and electricity are almost never included — ask, because Malé bills can be a real surprise in the hot months.',
     turns:[
       {s:'you', dv:'ކުލި ކިހާ ވަރެއް؟', rom:'kuli kihaa vareh?', en:'How much is the rent?'},
@@ -72,7 +72,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'shop', dv:'ފިހާރަ', rom:'fihaara', en:'Corner shop', spot:'majeedhee',
+    id:'shop', dv:'ފިހާރަ', rom:'fihaara', en:'Corner shop',
     note:'Card is widely taken now, but the machine goes down often enough that you should keep a couple of hundred rufiyaa in small notes. If you want something held while you fetch cash, the word that makes it happen is ބަހައްޓާ.',
     turns:[
       {s:'you', dv:'ކާޑުން ދެއްކިދާނެތަ؟', rom:'kaadun dhekkidhaanetha?', en:'Can I pay by card?'},
@@ -82,7 +82,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'clinic', dv:'ހޮސްޕިޓަލް', rom:'hospital', en:'Clinic', spot:'sultan-park',
+    id:'clinic', dv:'ހޮސްޕިޓަލް', rom:'hospital', en:'Clinic',
     note:'IGMH is the public hospital and ADK the main private one. You take a number and wait, sometimes a long while — going early matters more than anything you can say at the desk.',
     turns:[
       {s:'you', dv:'ޑޮކްޓަރަށް ދައްކަން ބޭނުން', rom:'doctor-ah dhakkan beynun', en:"I'd like to see a doctor."},
@@ -93,7 +93,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'kurumba', dv:'ކުރުނބާ', rom:'kurumba', en:'Coconut cart', spot:'market',
+    id:'kurumba', dv:'ކުރުނބާ', rom:'kurumba', en:'Coconut cart',
     note:'Young coconuts (kurumba) are sold chilled from carts and small stalls near the harbour. The seller opens the top for you; when you have finished drinking, hand it back and ask them to split it so you can eat the soft flesh inside.',
     turns:[
       {s:'you', dv:'ކުރުނބާ ހުރިތަ؟', rom:'kurumba hurritha?', en:'Do you have young coconuts?'},
@@ -104,7 +104,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'restaurant', dv:'ރެސްޓޯރަންޓް', rom:'restoarant', en:'Restaurant', spot:'majeedhee',
+    id:'restaurant', dv:'ރެސްޓޯރަންޓް', rom:'restoarant', en:'Restaurant',
     note:'Mas huni — tuna, grated coconut, onion and chilli — eaten with roshi and black tea is the classic Malé breakfast. At busy times you share a table; nobody minds.',
     turns:[
       {s:'you', dv:'މަސްހުނި ހުރިތަ؟', rom:'mashuni hurritha?', en:'Do you have mas huni?'},
@@ -115,7 +115,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'phone', dv:'ފޯނު ފިހާރަ', rom:'foanu fihaara', en:'Phone & SIM', spot:'majeedhee',
+    id:'phone', dv:'ފޯނު ފިހާރަ', rom:'foanu fihaara', en:'Phone & SIM',
     note:'Both mobile networks have shops along Majeedhee Magu. Visitors need a passport to register a SIM, residents an ID card or work-permit card. Top-ups are sold in almost every corner shop.',
     turns:[
       {s:'you', dv:'ސިމް ކާޑެއް ބޭނުން', rom:'sim kaadeh beynun', en:'I need a SIM card.'},
@@ -126,7 +126,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'barber', dv:'ބާބަރ', rom:'baabar', en:'Barber', spot:'male-south',
+    id:'barber', dv:'ބާބަރ', rom:'baabar', en:'Barber',
     note:'Most barbers are walk-in: sit on the bench and wait your turn. Like other shops they close for about fifteen minutes at each prayer time, so check the clock before you sit down.',
     turns:[
       {s:'you', dv:'ބޮލު ކޮށާލަން ބޭނުން', rom:'bolu koshaalan beynun', en:"I'd like a haircut."},
@@ -137,7 +137,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'bank', dv:'ބޭންކް', rom:'baenk', en:'Bank', spot:'market',
+    id:'bank', dv:'ބޭންކް', rom:'baenk', en:'Bank',
     note:'Queues at the main banks run on ticket numbers, so take one as soon as you walk in. Bring your passport or ID for anything beyond a cash withdrawal. US dollars are widely accepted in Malé, but change usually comes back in rufiyaa.',
     turns:[
       {s:'you', dv:'ފައިސާ ބަދަލުކުރަން ބޭނުން', rom:'faisaa badhalukuran beynun', en:"I'd like to change money."},
@@ -148,7 +148,7 @@ const SITUATIONS = [
     ]
   },
   {
-    id:'bus', dv:'ބަސް', rom:'bas', en:'Bus stop', spot:'hulhu-centre',
+    id:'bus', dv:'ބަސް', rom:'bas', en:'Bus stop',
     note:'Buses cross the bridge between Malé, the airport and Hulhumalé every few minutes, and most riders tap a transport card. The route numbers in these lines are illustrative — check the sign on the front of the bus.',
     turns:[
       {s:'you', dv:'ހުޅުމާލެއަށް ދާ ބަސް ކޮބާ؟', rom:'hulhumaleah dhaa bas kobaa?', en:"Where's the bus to Hulhumalé?"},
@@ -159,35 +159,3 @@ const SITUATIONS = [
     ]
   }
 ];
-
-/* ---------- street view spots (verified pano IDs) ---------- */
-const SPOTS = {
-  'majeedhee':   {island:'male',  name:'Majeedhee Magu',      short:'Majeedhee Magu', dv:'މަޖީދީ މަގު',            rom:'majeedhee magu',
-                  desc:"Malé's main east–west street. Tea shops, phone shops and the densest scooter traffic in the country.",
-                  pano:'CIHM0ogKEICAgICE2K2-Yw', lat:4.1754959, lng:73.5093474, heading:69},
-  'market':      {island:'male',  name:'Local Market waterfront', short:'Local Market', dv:'ލޯކަލް މާރުކޭޓް',    rom:'local maarukeyt',
-                  desc:'The north harbour road, with the fish market and the produce market side by side and the dhonis tied up behind.',
-                  pano:'CIHM0ogKEICAgIDqvf7-9wE', lat:4.1784198, lng:73.5107529, heading:300},
-  'sultan-park': {island:'male',  name:'Sultan Park',          short:'Sultan Park', dv:'ސުލްޠާން ޕާކް',          rom:'sultan park',
-                  desc:'Green space beside the Old Friday Mosque, in the government quarter — ministries, the hospital and the pharmacies are all within a few minutes.',
-                  pano:'CIHM0ogKEICAgICFpffqXw', lat:4.177195, lng:73.510573, heading:4},
-  'male-south':  {island:'male',  name:'Southern Malé',        short:'Southern Malé', dv:'މާލެ ދެކުނު',            rom:'maale dhekunu',
-                  desc:'The residential grid south of Majeedhee Magu — narrow lanes, tall blocks, and where most of the rooms for rent actually are.',
-                  pano:'CIHM0ogKEICAgIDcx7S5rAE', lat:4.1745498, lng:73.5108431, heading:0},
-  'hulhu-centre':{island:'hulhumale', name:'Hulhumalé centre', short:'Hulhumalé centre', dv:'ހުޅުމާލެ',               rom:'hulhumale',
-                  desc:'Wide planned streets on reclaimed land, twenty minutes from Malé by bridge or ferry. Everything here was sea in 1997.',
-                  pano:'CIHM0ogKEICAgIDa0eeFyQE', lat:4.2114331, lng:73.5399576, heading:238},
-  'hulhu-beach': {island:'hulhumale', name:'Hulhumalé beach',  short:'The beach', dv:'ހުޅުމާލެ ބީޗް',          rom:'hulhumale beach',
-                  desc:'The east-facing artificial beach. Where Malé goes in the evening when the city gets too hot to sit in.',
-                  pano:'CIHM0ogKEICAgIDa0f-0XA', lat:4.216018, lng:73.5454479, heading:175}
-};
-
-function panoEmbed(s){
-  return 'https://www.google.com/maps/embed?pb=!4v1!6m8!1m7!1s' + s.pano
-       + '!2m2!1d' + s.lat + '!2d' + s.lng
-       + '!3f' + s.heading + '!4f0!5f0.7820865974627469';
-}
-function panoLink(s){
-  return 'https://www.google.com/maps/@?api=1&map_action=pano&pano=' + s.pano
-       + '&heading=' + s.heading + '&pitch=0&fov=90';
-}
