@@ -516,6 +516,36 @@
    "file": "4c416dc389baaa.mp3",
    "voice": "learner",
    "seconds": 0.93
+  },
+  "ނާސްތާ ހިމެނޭ": {
+   "file": "3dc1b45a2e8fae.mp3",
+   "voice": "seller",
+   "seconds": 1.51
+  },
+  "ވައިފައި ޕާސްވޯޑަކީ ކޮބާ؟": {
+   "file": "35df57e5e9e34b.mp3",
+   "voice": "learner",
+   "seconds": 1.77
+  },
+  "އެހީވެދީ!": {
+   "file": "696e06270395f9.mp3",
+   "voice": "learner",
+   "seconds": 1.4
+  },
+  "ޕޮލިސް ގުޅާ!": {
+   "file": "59ff007db00f11.mp3",
+   "voice": "learner",
+   "seconds": 1.1
+  },
+  "ޑޮކްޓަރ ބޭނުން": {
+   "file": "7af69b1e26e24a.mp3",
+   "voice": "learner",
+   "seconds": 1.04
+  },
+  "ހޮސްޕިޓަލް ކޮބާ؟": {
+   "file": "ae0a0a9063610c.mp3",
+   "voice": "learner",
+   "seconds": 1.3
   }
  }
 }
