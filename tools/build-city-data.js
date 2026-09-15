@@ -7,6 +7,9 @@
  * Sinamalé Bridge between them. Local frame in metres around Majeedhee Magu:
  * x = east, z = south. Coordinates are stored as integer decimetres.
  *
+ * Places OpenStreetMap doesn't have yet can be added by hand in
+ * tools/extra-places.json (name, situation, lat, lon).
+ *
  * Map data © OpenStreetMap contributors, ODbL. */
 const fs = require('fs');
 const path = require('path');
@@ -74,12 +77,23 @@ const DRIVABLE = new Set(['trunk', 'primary', 'primary_link', 'secondary', 'seco
 // Only the outer ring roads and main avenues are tarred; the rest of Malé is interlocking pavers.
 const TAR_NAME = /boduthakurufaanu|midhili|airport main|nirolhu magu$|sinamal|ސިނަމާލެ/i;
 const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
+const SIT_TAGS = {teashop:{amenity:'cafe'}, restaurant:{amenity:'restaurant'}, shop:{shop:'convenience'}, phone:{shop:'mobile_phone'}, barber:{shop:'hairdresser'},
+  bakery:{shop:'bakery'}, tailor:{shop:'tailor'}, laundry:{shop:'laundry'}, garage:{shop:'motorcycle_repair'}, bank:{amenity:'bank'}, pharmacy:{amenity:'pharmacy'},
+  clinic:{amenity:'clinic'}, guesthouse:{tourism:'guest_house'}, office:{office:'company'}};
+// colour family for real shop signs: 0 food, 1 health, 2 shopping, 3 services, 4 lodging, 5 civic
+const SIGN_CAT = t => /cafe|restaurant|fast_food|ice_cream|bar/.test(t.amenity || '') || t.shop === 'bakery' ? 0
+  : /pharmacy|hospital|clinic|doctors|dentist/.test(t.amenity || '') || t.healthcare || t.shop === 'optician' ? 1
+  : t.shop ? 2 : t.tourism ? 4 : /police|townhall|courthouse|school|library|community_centre/.test(t.amenity || '') ? 5 : 3;
 
 (async () => {
   console.log('fetching coastline…');  const coast = await overpass('way["natural"="coastline"]' + BBOX + ';out geom;');
   console.log('fetching roads…');      const roadsRaw = await overpass('way["highway"]' + BBOX + ';out geom tags;');
   console.log('fetching buildings…');  const bldRaw = await overpass('way["building"]' + BBOX + ';out geom tags;');
-  console.log('fetching parks…');      const parkRaw = await overpass('(way["leisure"~"^(park|playground|pitch|garden)$"]' + BBOX + ';way["landuse"~"^(grass|recreation_ground)$"]' + BBOX + ';);out geom;');
+  console.log('fetching open spaces…'); const parkRaw = await overpass('(way["leisure"~"^(park|playground|pitch|garden|stadium|sports_centre|swimming_pool)$"]' + BBOX + ';way["landuse"~"^(grass|recreation_ground|cemetery|village_green)$"]' + BBOX + ';way["natural"~"^(beach|sand|scrub|wood|water)$"]' + BBOX + ';);out geom tags;');
+  console.log('fetching piers…');      const pierRaw = await overpass('way["man_made"~"^(pier|breakwater|groyne)$"]' + BBOX + ';out geom tags;');
+  console.log('fetching trees…');      const treeRaw = await overpass('node["natural"="tree"]' + BBOX + ';out;');
+  console.log('fetching crossings…');  const crossRaw = await overpass('node["highway"~"^(crossing|traffic_signals)$"]' + BBOX + ';out;');
+  console.log('fetching named places…'); const namedRaw = await overpass('nwr[~"^(amenity|shop|tourism|office|healthcare|craft|leisure)$"~"."]["name"]' + BBOX + ';out tags center;');
   console.log('fetching airport…');    const aeroRaw = await overpass('way["aeroway"~"^(aerodrome|runway|taxiway|apron)$"]' + BBOX + ';out geom tags;');
   console.log('fetching businesses…'); const poiRaw = await overpass(
     '(nwr["amenity"~"^(marketplace|ferry_terminal|pharmacy|bank|hospital|clinic|doctors|bus_station|cafe|restaurant|fast_food|taxi|place_of_worship)$"]' + BBOX +
@@ -124,15 +138,19 @@ const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
   for (const w of roadsRaw){
     const hw = w.tags.highway, width = ROAD_W[hw]; if (!width) continue;
     let pts = w.geometry.map(g => toXZ(g.lat, g.lon));
+    // one-way streets are stored in their direction of travel
+    const ow = w.tags.oneway === 'yes' || w.tags.oneway === '1' ? 1 : w.tags.oneway === '-1' ? -1 : 0;
+    if (ow === -1){ pts = pts.reverse(); w.geometry = w.geometry.slice().reverse(); }
     const nm = w.tags['name:en'] || w.tags.name || '';
     const isMainBridge = !!w.tags.bridge && w.tags.bridge !== 'no' && /sinamal/i.test((w.tags['name:en'] || '') + (w.tags.old_name || '') + (w.tags['name:de'] || ''));
     const isl = pts.map(p => islandOf(p[0], p[1])).find(Boolean);
     if (!isl && !isMainBridge) continue;
     const tar = isMainBridge || TAR_NAME.test(nm) || hw === 'trunk' || hw === 'primary' || hw === 'primary_link';
-    keptWays.push({w, pts, width, tar, bridge:isMainBridge, isl, hw});
+    const oneway = ow !== 0 && DRIVABLE.has(hw);
+    keptWays.push({w, pts, width, tar, bridge:isMainBridge, isl, hw, oneway});
     if (isMainBridge && (!bridgeWay || polyLen(pts) > polyLen(bridgeWay))) bridgeWay = pts;
     const sp = simplify(pts, .5);
-    roads.push([dm(width), (isMainBridge ? 1 : 0) | (tar ? 2 : 0), ...sp.flatMap(p => [dm(p[0]), dm(p[1])])]);
+    roads.push([dm(width), (isMainBridge ? 1 : 0) | (tar ? 2 : 0) | (oneway ? 4 : 0), ...sp.flatMap(p => [dm(p[0]), dm(p[1])])]);
     for (let i = 1; i < sp.length; i++) segs.push({ax:sp[i - 1][0], az:sp[i - 1][1], bx:sp[i][0], bz:sp[i][1], w:width});
     if (nm && width >= 5 && !isMainBridge){
       (byName[nm] = byName[nm] || {isl, parts:[]}).parts.push(sp);
@@ -162,7 +180,7 @@ const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
   const nIndex = (id, p) => { if (!nodeIdx.has(id)){ nodeIdx.set(id, gNodes.length); gNodes.push(p); } return nodeIdx.get(id); };
   for (const k of drive){
     const ids = k.ids; let start = 0;
-    const oneway = k.w.tags.oneway === 'yes';
+    const oneway = k.oneway;
     for (let i = 1; i < ids.length; i++){
       if (i === ids.length - 1 || nodeUse.get(ids[i]) >= 2){
         const pts = simplify(k.pts.slice(start, i + 1), .6);
@@ -176,7 +194,7 @@ const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
   }
 
   /* ---------- mapped buildings ---------- */
-  const buildings = [], solids = [];
+  const buildings = [], solids = [], bldMeta = [];
   const solidGrid = grid(25);
   for (const w of bldRaw){
     let pts = w.geometry.map(g => toXZ(g.lat, g.lon));
@@ -192,13 +210,20 @@ const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
     const idx = solids.length;
     solids.push({pts, cx, cz, lv, isl, shops: lv >= 3 && kind !== 'roof' && kind !== 'hangar' && kind !== 'mosque'});
     buildings.push([lv, tagged ? 1 : 0, ...pts.flatMap(p => [dm(p[0]), dm(p[1])])]);
+    const bname = w.tags['name:en'] || w.tags.name || null, colour = w.tags['building:colour'] || null;
+    if (bname || colour) bldMeta.push({b:buildings.length - 1, name:bname, colour, pts, lv, kind, cx, cz, isl, amenity:w.tags.amenity || ''});
     const xs = pts.map(p => p[0]), zs = pts.map(p => p[1]);
     solidGrid.add(Math.min(...xs), Math.min(...zs), Math.max(...xs), Math.max(...zs), idx);
   }
   const mappedCount = solids.length;
   const inSolid = (x, z) => { for (const i of solidGrid.near(x, z, 0)){ if (pointInPoly(x, z, solids[i].pts)) return true; } return false; };
   const nearMapped = (x, z, r) => { for (const i of solidGrid.near(x, z, Math.ceil(r / 25))){ const s = solids[i]; if (i < mappedCount && Math.hypot(s.cx - x, s.cz - z) < r) return true; } return false; };
-  const parks = parkRaw.map(w => w.geometry.map(g => toXZ(g.lat, g.lon))).filter(p => p.length > 3 && p.some(q => islandOf(q[0], q[1])));
+  // open spaces: 0 park/grass, 1 pitch, 2 playground, 3 beach/sand, 4 scrub/wood, 5 water/pool, 6 cemetery, 7 stadium
+  const AREA_OF = t => /^(pitch)$/.test(t.leisure || '') ? 1 : t.leisure === 'playground' ? 2 : /^(beach|sand)$/.test(t.natural || '') ? 3 : /^(scrub|wood)$/.test(t.natural || '') ? 4
+    : (t.natural === 'water' || t.leisure === 'swimming_pool') ? 5 : t.landuse === 'cemetery' ? 6 : /^(stadium|sports_centre)$/.test(t.leisure || '') ? 7 : 0;
+  const areas = parkRaw.map(w => ({code:AREA_OF(w.tags || {}), name:(w.tags && (w.tags['name:en'] || w.tags.name)) || null, pts:w.geometry.map(g => toXZ(g.lat, g.lon))}))
+    .filter(a => a.pts.length > 3 && a.pts.some(q => islandOf(q[0], q[1])) || (a.pts.length > 3 && a.code === 3));
+  const parks = areas.filter(a => a.code !== 5 && a.code !== 3).map(a => a.pts);
   const inPark = (x, z) => parks.some(p => pointInPoly(x, z, p));
 
   /* ---------- filler blocks inside built-up areas ---------- */
@@ -281,7 +306,9 @@ const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
     if (/^(motorcycle|motorcycle_repair|car_repair)$/.test(s || '')) return 'garage';
     if (a === 'bank') return 'bank';
     if (a === 'pharmacy') return 'pharmacy';
-    if (/^(hospital|clinic|doctors)$/.test(a || '')) return 'clinic';
+    if (/drug agency|residence tower/i.test(t.name || '') || t.healthcare === 'sample_collection') return null;
+    if (/^(hospital|clinic|doctors|dentist)$/.test(a || '') || t.healthcare) return 'clinic';
+    if (a === 'ice_cream') return 'teashop';
     if (a === 'place_of_worship') return 'mosque';
     if (a === 'marketplace') return /fish/i.test(t.name || '') ? 'market' : 'kurumba';
     if (a === 'ferry_terminal') return 'ferry';
@@ -291,14 +318,20 @@ const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
     if (o) return 'office';
     return null;
   };
-  const PUBLIC = new Set(['mosque', 'market', 'kurumba', 'ferry', 'bus', 'clinic']);   // names shown; businesses stay unnamed
+  const HOSPITAL = /hospital/i, NOT_HOSPITAL = /drug agency|lobby|canteen|pharmacy|bus stop/i;
   const usedUnits = new Set(), places = [];
-  const pois = poiRaw.map(e => {
+  const extra = fs.existsSync(path.join(__dirname, 'extra-places.json')) ? JSON.parse(fs.readFileSync(path.join(__dirname, 'extra-places.json'), 'utf8')).places || [] : [];
+  const seenPoi = new Set();
+  const pois = poiRaw.concat(namedRaw.filter(e => !poiRaw.some(q => q.type === e.type && q.id === e.id)))
+    .concat(extra.filter(x => typeof x.lat === 'number' && typeof x.lon === 'number').map((x, i) => ({type:'extra', id:i, lat:x.lat, lon:x.lon, tags:Object.assign({name:x.name}, SIT_TAGS[x.situation] || {})})))
+    .map(e => {
     const lat = e.lat != null ? e.lat : e.center && e.center.lat, lon = e.lon != null ? e.lon : e.center && e.center.lon;
     if (lat == null) return null;
+    const key = e.type + e.id; if (seenPoi.has(key)) return null; seenPoi.add(key);
     const [x, z] = toXZ(lat, lon), isl = islandOf(x, z), sit = SIT_OF(e.tags);
-    return isl && sit ? {x, z, isl, sit, tags:e.tags} : null;
+    return isl ? {x, z, isl, sit, tags:e.tags, extra:e.type === 'extra'} : null;
   }).filter(Boolean);
+  const skippedExtra = extra.filter(x => typeof x.lat !== 'number' || typeof x.lon !== 'number').map(x => x.name);
   const nameOf = t => t['name:en'] || t.name || null;
 
   function placeAtUnit(i, sit, realName, isl){
@@ -317,7 +350,7 @@ const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
   }
   // mosques stand in their own buildings: the entrance is the nearest street in front
   const mosqueSeen = [];
-  for (const p of pois.filter(q => q.sit === 'mosque')){
+  for (const p of pois.filter(q => q.sit === 'mosque' && (q.tags.religion || 'muslim') === 'muslim')){
     if (mosqueSeen.some(m => Math.hypot(m[0] - p.x, m[1] - p.z) < 25)) continue;
     mosqueSeen.push([p.x, p.z]);
     const r = nearRoad(p.x, p.z, 3, 4); if (!isFinite(r.d)) continue;
@@ -326,12 +359,48 @@ const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
     places.push({sit:'mosque', isl:p.isl, kind:'building', ux:+p.x.toFixed(2), uz:+p.z.toFixed(2), nx:+nx.toFixed(3), nz:+nz.toFixed(3), uw:4,
                  ex:+ex.toFixed(2), ez:+ez.toFixed(2), yaw:+Math.atan2(nx, nz).toFixed(3), name:nameOf(p.tags), big:/auzam|islamic cent|grand friday|hukuru/i.test(nameOf(p.tags) || '') ? 1 : 0});
   }
+  const hospSeen = [];
+  const hospCands = pois.filter(q => q.tags.amenity === 'hospital' && HOSPITAL.test(nameOf(q.tags) || '') && !NOT_HOSPITAL.test(nameOf(q.tags) || ''))
+    .sort((a, b) => (b.tags.name === 'Dharumavantha Hospital') - (a.tags.name === 'Dharumavantha Hospital'));
+  for (const p of hospCands){
+    if (hospSeen.some(h => Math.hypot(h[0] - p.x, h[1] - p.z) < 80)) continue;
+    hospSeen.push([p.x, p.z]);
+    // the building footprint that contains (or is nearest to) the hospital point gets the name board
+    let best = null, bd = 60;
+    for (const i of solidGrid.near(p.x, p.z, 3)){ if (i >= mappedCount) continue; const q = solids[i], d = pointInPoly(p.x, p.z, q.pts) ? 0 : Math.hypot(q.cx - p.x, q.cz - p.z); if (d < bd){ bd = d; best = q; } }
+    const cx = best ? best.cx : p.x, cz = best ? best.cz : p.z;
+    const r = nearRoad(cx, cz, 4, 4); if (!isFinite(r.d)) continue;
+    const d = r.d || 1, nx = (r.cx - cx) / d, nz = (r.cz - cz) / d;
+    const ex = r.cx - nx * Math.min(r.w / 2 - .5, 2), ez = r.cz - nz * Math.min(r.w / 2 - .5, 2);
+    const nm = p.tags.name === 'Dharumavantha Hospital' ? 'Dharumavantha Hospital (IGMH)' : nameOf(p.tags);
+    // the street-facing wall, for the name board and the projecting red-cross sign
+    let wall = null;
+    if (best) for (let i = 0; i < best.pts.length; i++){
+      const [ax, az] = best.pts[i], [bx, bz] = best.pts[(i + 1) % best.pts.length], wdx = bx - ax, wdz = bz - az, len = Math.hypot(wdx, wdz); if (len < 5) continue;
+      let wnx = -wdz / len, wnz = wdx / len; const mx = (ax + bx) / 2, mz = (az + bz) / 2;
+      if (wnx * (mx - best.cx) + wnz * (mz - best.cz) < 0){ wnx = -wnx; wnz = -wnz; }
+      const rr = nearRoad(mx + wnx * 3, mz + wnz * 3, 1), score = len - (isFinite(rr.clear) ? rr.clear * 4 : 80);
+      if (!wall || score > wall.score) wall = {score, mx, mz, wnx, wnz, len};
+    }
+    places.push({sit:'clinic', isl:p.isl, kind:'building', hosp:1, wall:wall ? [+wall.mx.toFixed(2), +wall.mz.toFixed(2), +wall.wnx.toFixed(3), +wall.wnz.toFixed(3), +wall.len.toFixed(1)] : null, ux:+cx.toFixed(2), uz:+cz.toFixed(2), nx:+nx.toFixed(3), nz:+nz.toFixed(3), uw:6,
+                 ex:+ex.toFixed(2), ez:+ez.toFixed(2), yaw:+Math.atan2(nx, nz).toFixed(3), name:nm, lv:best ? best.lv : 5});
+  }
   for (const p of pois){
-    if (p.sit === 'mosque') continue;
+    if (!p.sit || p.sit === 'mosque') continue;
+    if (p.tags.amenity === 'hospital' && hospSeen.some(h => Math.hypot(h[0] - p.x, h[1] - p.z) < 120)) continue;
     if (p.tags.highway === 'bus_stop' && places.some(q => q.sit === 'bus' && Math.hypot(q.ux - p.x, q.uz - p.z) < 350)) continue;
     const i = nearestFreeUnit(p.x, p.z, p.isl, p.sit === 'bus' || p.sit === 'ferry' ? 120 : 70);
     if (i == null) continue;
-    placeAtUnit(i, p.sit, PUBLIC.has(p.sit) ? nameOf(p.tags) : null);
+    placeAtUnit(i, p.sit, nameOf(p.tags));
+    if (p.extra) places[places.length - 1].extra = 1;
+  }
+  // named businesses with no situation still get their real name on a shopfront
+  const signs = [];
+  for (const p of pois){
+    if (p.sit || p.tags.highway || p.tags.leisure || p.tags.healthcare === 'sample_collection') continue;
+    const nm = nameOf(p.tags); if (!nm || nm.length < 3 || /^\d+$|^flat |bus stop/i.test(nm)) continue;
+    const i = nearestFreeUnit(p.x, p.z, p.isl, 45); if (i == null) continue;
+    usedUnits.add(i); signs.push([i, nm.slice(0, 40), SIGN_CAT(p.tags)]);
   }
   // make sure every situation exists on both islands, spread across town
   const MIN = {male:{laundry:10, tailor:10, garage:12, bakery:8, office:10, guesthouse:4, landlord:8, taxi:4, phone:8, barber:8, bank:5, pharmacy:6, shop:25, teashop:20, restaurant:15, clinic:3, kurumba:3, market:1, ferry:1, bus:2},
@@ -375,14 +444,62 @@ const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
   const bridge = bridgeWay ? {pts:simplify(bridgeWay, .5).flatMap(p => [dm(p[0]), dm(p[1])]), L:Math.round(polyLen(bridgeWay))} : null;
 
   const labels = Object.entries(named).filter(([, v]) => v.L > 40).map(([n, v]) => [n, dm(v.x), dm(v.z), +v.a.toFixed(3)]);
+
+  /* ---------- name boards on named buildings (on the wall that faces the street) ---------- */
+  const COLOURS = {white:'#f4f2ec', grey:'#b9bcbf', gray:'#b9bcbf', blue:'#8fb3d9', red:'#c96b5a', yellow:'#ecd58a', green:'#9cc49a', brown:'#a98468', beige:'#e5d7bb', orange:'#e8a868', pink:'#eab9c0'};
+  const boards = [], bcolours = [];
+  for (const m of bldMeta){
+    if (m.colour){ const c = COLOURS[m.colour.toLowerCase()] || (/^#[0-9a-f]{6}$/i.test(m.colour) ? m.colour : null); if (c) bcolours.push([m.b, c]); }
+    if (!m.name || /^\d+$/.test(m.name) || Math.abs(area(m.pts)) < 60) continue;
+    let best = null;
+    for (let i = 0; i < m.pts.length; i++){
+      const [ax, az] = m.pts[i], [bx, bz] = m.pts[(i + 1) % m.pts.length], dx = bx - ax, dz = bz - az, len = Math.hypot(dx, dz); if (len < 6) continue;
+      let nx = -dz / len, nz = dx / len; const mx = (ax + bx) / 2, mz = (az + bz) / 2;
+      if (nx * (mx - m.cx) + nz * (mz - m.cz) < 0){ nx = -nx; nz = -nz; }
+      const r = nearRoad(mx + nx * 3, mz + nz * 3, 1); const score = len - (isFinite(r.clear) ? r.clear * 3 : 60);
+      if (!best || score > best.score) best = {score, mx, mz, nx, nz, len};
+    }
+    if (!best) continue;
+    const top = m.lv * 3.2;
+    const type = /hospital|clinic/i.test(m.name) || m.amenity === 'hospital' ? 1 : /masjid|mosque|miskiy/i.test(m.name) ? 2 : /school|college|university/i.test(m.name) ? 3 : /ferry|terminal|port|jetty/i.test(m.name) ? 4 : /hotel|inn|lodge|residence/i.test(m.name) ? 5 : 0;
+    if (/indira gandhi memorial/i.test(m.name)) m.name = 'Dharumavantha Hospital (IGMH)';
+    boards.push([dm(best.mx + best.nx * .15), dm(best.mz + best.nz * .15), Math.round(best.nx * 1000), Math.round(best.nz * 1000), dm(Math.min(best.len * .8, 26)), dm(Math.max(3.4, top - 1.2)), m.name.slice(0, 48), type]);
+  }
+
+  /* ---------- trees, crossings, piers ---------- */
+  const trees = [];
+  for (const n of treeRaw){ const [x, z] = toXZ(n.lat, n.lon); if (islandOf(x, z) && !inSolid(x, z)) trees.push([dm(x), dm(z), 0]); }
+  for (const a of areas){
+    if (!(a.code === 0 || a.code === 4 || a.code === 6)) continue;
+    const xs = a.pts.map(q => q[0]), zs = a.pts.map(q => q[1]), ar = Math.abs(area(a.pts));
+    const n = Math.min(80, Math.floor(ar / (a.code === 4 ? 45 : 110)));
+    for (let k = 0, tries = 0; k < n && tries < n * 6; tries++){
+      const x = Math.min(...xs) + rand() * (Math.max(...xs) - Math.min(...xs)), z = Math.min(...zs) + rand() * (Math.max(...zs) - Math.min(...zs));
+      if (!pointInPoly(x, z, a.pts) || inSolid(x, z) || nearRoad(x, z, 1).clear < 1.5) continue;
+      if (trees.some(t => Math.abs(t[0] / 10 - x) < 3 && Math.abs(t[1] / 10 - z) < 3)) continue;
+      trees.push([dm(x), dm(z), a.code === 4 ? 1 : ri(3) === 0 ? 1 : 0]); k++;
+    }
+  }
+  const crossings = [];
+  for (const n of crossRaw){
+    const [x, z] = toXZ(n.lat, n.lon); if (!islandOf(x, z)) continue;
+    const r = nearRoad(x, z, 1); if (!isFinite(r.d) || r.d > 3 || r.w < 4) continue;
+    crossings.push([dm(r.cx), dm(r.cz), Math.round(Math.atan2(r.sdz, r.sdx) * 1000), dm(r.w), n.tags.highway === 'traffic_signals' ? 1 : 0]);
+  }
+  const piers = pierRaw.map(w => {
+    const pts = simplify(w.geometry.map(g => toXZ(g.lat, g.lon)), .4), kind = w.tags.man_made;
+    const closed = w.nodes && w.nodes[0] === w.nodes[w.nodes.length - 1] && pts.length > 3;
+    return [kind === 'pier' ? 1 : 0, closed ? 1 : 0, dm(parseFloat(w.tags.width) || (kind === 'pier' ? 4 : 6)), ...pts.flatMap(p => [dm(p[0]), dm(p[1])])];
+  }).filter(p => p.length > 6);
   const out = {
-    about:'Malé and Hulhumalé, Maldives, with the Sinamalé Bridge. OpenStreetMap coastline, streets (tar or interlocking pavers), buildings and businesses in local decimetres (x east, z south) around ' + LAT0 + ',' + LON0 + '. Unmapped blocks are filled with generic buildings; shopfronts, parked scooters and bus routes are generated from the street layout.',
+    about:'Malé and Hulhumalé, Maldives, with the Sinamalé Bridge. OpenStreetMap coastline, streets (tar or interlocking pavers, one-ways in travel direction), buildings with names, businesses, hospitals, open spaces, trees, crossings and piers in local decimetres (x east, z south) around ' + LAT0 + ',' + LON0 + '. Unmapped blocks are filled with generic buildings; shopfronts, parked scooters and bus routes are generated from the street layout.',
     attribution:'© OpenStreetMap contributors, ODbL', built:new Date().toISOString().slice(0, 10),
     origin:[LAT0, LON0], scale:[MX, MZ],
     islands: islands.map(I => ({id:I.id, name:I.name, ring:I.ring.flatMap(p => [dm(p[0]), dm(p[1])]), seed:[+I.seed[0].toFixed(1), +I.seed[1].toFixed(1)]})),
     roads, buildings,
     fill: fill.map(r => [dm(r.x + .5), dm(r.z + .5), dm(r.n * CELL - 1), dm(CELL - 1), r.lv]),
-    parks: parks.map(p => simplify(p, .5).flatMap(q => [dm(q[0]), dm(q[1])])),
+    areas: areas.map(a => [a.code, a.name || '', ...simplify(a.pts, .5).flatMap(q => [dm(q[0]), dm(q[1])])]),
+    boards, bcolours, signs, trees, crossings, piers,
     runways: runways.map(r => [dm(r.w), ...r.pts.flatMap(p => [dm(p[0]), dm(p[1])])]),
     units: units.map(u => [dm(u.x), dm(u.z), Math.round(u.nx * 1000), Math.round(u.nz * 1000), dm(u.w), u.sign, u.awn]),
     net:{nodes:gNodes.flatMap(p => [dm(p[0]), dm(p[1])]), edges:gEdges},
@@ -394,7 +511,10 @@ const SIGN_COUNT = 24, AWNING_COUNT = 8, SCOOTER_COLORS = 8;
   console.log('\nroads', roads.length, '(tar', roads.filter(r => r[1] & 2).length + ', bridge', roads.filter(r => r[1] & 1).length + ')',
               '| buildings', buildings.length, '| filler', fill.length, '| shop units', units.length, '| parked scooters', scooters.length);
   console.log('traffic network:', gNodes.length, 'nodes,', gEdges.length, 'edges | bridge', bridge ? bridge.L + ' m' : 'NOT FOUND', '| bus routes', routes.map(r => r.name).join(', '));
-  console.log('situations:', places.length);
+  console.log('situations:', places.length, '| hospitals', places.filter(p => p.hosp).map(p => p.name).join(', '));
+  console.log('named shop signs', signs.length, '| building name boards', boards.length, '| trees', trees.length, '| crossings', crossings.length, '| piers & breakwaters', piers.length,
+              '| one-way road ways', roads.filter(r => r[2 - 1] & 4).length, '| open spaces', areas.length);
+  if (skippedExtra.length) console.log('extra-places.json entries without coordinates (skipped):', skippedExtra.join(', '));
   Object.entries(count).sort((a, b) => (b[1].male + b[1].hulhumale) - (a[1].male + a[1].hulhumale)).forEach(([k, v]) => console.log('  ', k.padEnd(11), 'Malé', String(v.male).padStart(3), '  Hulhumalé', String(v.hulhumale).padStart(3)));
   console.log('\nwrote city-data.json', (fs.statSync(file).size / 1024).toFixed(0) + ' KB');
 })().catch(e => { console.error('FAILED:', e.message); process.exit(1); });

@@ -66,6 +66,9 @@ a{color:inherit}
 .panel .it .done{color:var(--lagoon);font-size:.8rem}
 .panel h4{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:8px 10px 4px}
 .panel .real{display:block;font-size:.68rem;color:var(--muted)}
+.panel .find{display:block;width:calc(100% - 12px);margin:6px;padding:9px 12px;border:1px solid var(--rule);border-radius:10px;font:inherit;font-size:.86rem;background:#fff;color:var(--ink);-webkit-user-select:text;user-select:text}
+.panel .find:focus{outline:2px solid var(--ochre);outline-offset:1px}
+.note.small{font-size:.72rem;border-left-color:var(--rule);margin-top:-6px}
 .mapview{position:fixed;inset:0;z-index:25;background:rgba(10,30,45,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px}
 .mapview canvas{max-width:100%;max-height:80vh;border-radius:14px;touch-action:none}
 .mapview p{color:#e6f0f5;font-size:.8rem;margin:0;text-align:center}
@@ -191,7 +194,7 @@ a{color:inherit}
     <div class="mark">ހަލޯ؟</div>
     <h1>Pocket Malé City</h1>
     <p class="lab">Malé &amp; Hulhumalé in 3D · morning · experimental</p>
-    <p class="body">A bright morning on real streets. The coastline, every road and the mapped buildings come from OpenStreetMap; the businesses, masjids and offices sit where OpenStreetMap puts them, scooters crowd the kerbs, people are out walking and the blue buses run Boduthakurufaanu Magu, Majeedhee Magu and Hulhumalé’s main roads.</p>
+    <p class="body">A bright morning on real streets. The coastline, every road and the mapped buildings come from OpenStreetMap; the businesses, hospitals, masjids and offices sit where OpenStreetMap puts them, with their real names, scooters crowd the kerbs, people are out walking and the blue buses run Boduthakurufaanu Magu, Majeedhee Magu and Hulhumalé’s main roads.</p>
     <ul>
       <li>Over a thousand real places are situations you can walk into — tea shops, restaurants, fihaara, bakeries, offices, tailors, garages and 29 masjids. Twenty-one kinds in all, each with its own conversation and Dhivehi audio.</li>
       <li>Bikes and a few cars weave through the traffic and stop for you. Interlocking-paver lanes inside, tarred ring roads outside, and the <b>Sinamalé Bridge</b> to <b>Hulhumalé</b> — walk it, or <b>Fly</b>.</li>
@@ -371,6 +374,36 @@ function instanced(geo, n, mat){
   city.add(m); return m;
 }
 
+/* props (trees, rocks, boats, lamp posts) merged into one mesh per tile per layer */
+const MERGE = new Map();
+function template(parts){ const g = mergeParts(parts); return {pos:g.attributes.position.array, nor:g.attributes.normal.array, col:g.attributes.color.array}; }
+function mergeAdd(layer, T, x, y, z, rotY, sx, sy, sz, tint){
+  const k = layer + '|' + Math.floor(x / TILE) + ',' + Math.floor(z / TILE); let b = MERGE.get(k);
+  if (!b){ b = {layer, pos:[], nor:[], col:[]}; MERGE.set(k, b); }
+  const c = Math.cos(rotY), sn = Math.sin(rotY), P = T.pos, N = T.nor, C = T.col;
+  for (let i = 0; i < P.length; i += 3){
+    const px = P[i] * sx, py = P[i + 1] * sy, pz = P[i + 2] * sz;
+    b.pos.push(x + px * c + pz * sn, y + py, z - px * sn + pz * c);
+    b.nor.push(N[i] * c + N[i + 2] * sn, N[i + 1], -N[i] * sn + N[i + 2] * c);
+    // parts modelled in white take the tint; coloured parts keep their colour
+    const white = C[i] > .98 && C[i + 1] > .98 && C[i + 2] > .98;
+    b.col.push(white && tint ? tint.r : C[i], white && tint ? tint.g : C[i + 1], white && tint ? tint.b : C[i + 2]);
+  }
+}
+function mergeFlush(mats){
+  for (const b of MERGE.values()){
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(b.pos, 3));
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(b.nor, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(b.col, 3));
+    g.computeBoundingSphere();
+    const m = new THREE.Mesh(g, mats[b.layer] || mats.prop);
+    if (SHADOWS){ m.castShadow = b.layer !== 'rock'; m.receiveShadow = true; }
+    city.add(m);
+  }
+  MERGE.clear();
+}
+
 /* ============================================================
    WORLD STATE
    ============================================================ */
@@ -379,6 +412,7 @@ const SOLIDS = [], GRID = new Map(), GCELL = 20;
 const SEGS = [], SEGGRID = new Map();
 const interactCity = [];
 let LABELS = [];
+const AREAS_N = [];
 let sky = null, sunSprite = null;
 
 function addSolid(s){ const i = SOLIDS.push(s) - 1; for (let gx = Math.floor(s.x0 / GCELL); gx <= Math.floor(s.x1 / GCELL); gx++) for (let gz = Math.floor(s.z0 / GCELL); gz <= Math.floor(s.z1 / GCELL); gz++){ const k = gx + ',' + gz; (GRID.get(k) || GRID.set(k, []).get(k)).push(i); } }
@@ -400,10 +434,22 @@ function bridgeProject(x, z){
 }
 function bridgeH(s){ const t = Math.max(0, Math.min(1, s / BR.L)); return .65 + 14 * Math.pow(Math.sin(Math.PI * t), 1.2); }
 function onBridgeDeck(x, z){ const b = bridgeProject(x, z); return b && b.d < BR.half && b.s > 1 && b.s < BR.L - 1 ? b : null; }
+const PIER_GRID = new Map(), PIER_SEGS = [], BEACHES = [];
+function pierY(x, z){
+  for (const i of PIER_GRID.get(Math.floor(x / 40) + ',' + Math.floor(z / 40)) || []){
+    const s = PIER_SEGS[i], dx = s.bx - s.ax, dz = s.bz - s.az, L2 = dx * dx + dz * dz || 1;
+    let t = ((x - s.ax) * dx + (z - s.az) * dz) / L2; t = Math.max(0, Math.min(1, t));
+    if (Math.hypot(x - s.ax - dx * t, z - s.az - dz * t) < s.w / 2) return s.y;
+  }
+  return null;
+}
 function groundY(x, z){
   const b = BR && Math.abs(x - BR.cx) < BR.rx && Math.abs(z - BR.cz) < BR.rz ? onBridgeDeck(x, z) : null;
   if (b) return bridgeH(b.s);
-  return islandAt(x, z) ? 0 : null;
+  if (islandAt(x, z)) return 0;
+  const py = pierY(x, z); if (py != null) return py;
+  for (const B of BEACHES) if (x >= B.x0 && x <= B.x1 && z >= B.z0 && z <= B.z1 && pointInPoly(x, z, B.pts)) return .02;
+  return null;
 }
 
 /* ============================================================
@@ -500,8 +546,21 @@ function buildCity(){
     const land = new THREE.Mesh(new THREE.ShapeGeometry(shape(I.ring)), std(0xd8cdb8, {roughness:.95}));
     land.rotation.x = -Math.PI / 2; land.receiveShadow = SHADOWS; city.add(land);
   }
-  const parkMat = std(0x6f9a4f, {roughness:1});
-  for (const p of D.parks){ const pts = ptsFrom(p); if (pts.length < 4) continue; const m = new THREE.Mesh(new THREE.ShapeGeometry(shape(pts)), parkMat); m.rotation.x = -Math.PI / 2; m.position.y = .012; m.receiveShadow = SHADOWS; city.add(m); }
+  // open spaces from OpenStreetMap: parks, football turfs, playgrounds, beaches, scrub, pools, cemeteries, stadiums
+  const AREA_COL = [0x6f9a4f, 0x3f8f4a, 0xb8553f, 0xeadcb2, 0x5b8440, 0x3fb0c8, 0x8d9a7c, 0x4f9a52];
+  const areaMats = AREA_COL.map((c, i) => std(c, {roughness:i === 5 ? .15 : 1, metalness:i === 5 ? .1 : 0}));
+  const AREA_Y = [.012, .016, .016, .008, .012, .02, .012, .016];
+  for (const a of D.areas){
+    const code = a[0], name = a[1], pts = ptsFrom(a, 2); if (pts.length < 4) continue;
+    const m = new THREE.Mesh(new THREE.ShapeGeometry(shape(pts)), areaMats[code]); m.rotation.x = -Math.PI / 2; m.position.y = AREA_Y[code]; m.receiveShadow = SHADOWS; city.add(m);
+    const xs = pts.map(q => q[0]), zs = pts.map(q => q[1]), bb = {x0:Math.min(...xs), x1:Math.max(...xs), z0:Math.min(...zs), z1:Math.max(...zs)};
+    if (code === 3) BEACHES.push(Object.assign({pts}, bb));
+    if (code === 1 || code === 7){   // pitch markings
+      const g = new THREE.BufferGeometry().setFromPoints(pts.map(q => new THREE.Vector3(q[0], AREA_Y[code] + .01, q[1])));
+      city.add(new THREE.LineLoop(g, new THREE.LineBasicMaterial({color:0xf4f4ee})));
+    }
+    if (name) AREAS_N.push(Object.assign({name, code, pts, cx:(bb.x0 + bb.x1) / 2, cz:(bb.z0 + bb.z1) / 2}, bb));
+  }
 
   buildBridgeCentreline();
 
@@ -523,6 +582,26 @@ function buildCity(){
   };
   const densify = (pts, step) => { const out = [pts[0]]; for (let i = 1; i < pts.length; i++){ const [ax, az] = pts[i - 1], [bx, bz] = pts[i], L = Math.hypot(bx - ax, bz - az), n = Math.max(1, Math.ceil(L / step)); for (let k = 1; k <= n; k++) out.push([ax + (bx - ax) * k / n, az + (bz - az) * k / n]); } return out; };
   const flat = y => () => y;
+  const along = (pts, step, start, fn) => {
+    let acc = 0, next = start;
+    for (let i = 1; i < pts.length; i++){
+      const [ax, az] = pts[i - 1], [bx, bz] = pts[i], L = Math.hypot(bx - ax, bz - az); if (L < .01) continue;
+      while (next <= acc + L){ const t = (next - acc) / L; fn(ax + (bx - ax) * t, az + (bz - az) * t, (bx - ax) / L, (bz - az) / L, L); next += step; }
+      acc += L;
+    }
+  };
+  // painted one-way arrows in the direction of travel
+  const oneWayArrows = (pts, w, tar) => {
+    const y = tar ? .168 : .09;
+    along(pts, w >= 6 ? 30 : 22, 9, (x, z, ux, uz, L) => {
+      if (L < 5) return;
+      const px = -uz, pz = ux, g = tb('line', x, z), P = (a, b) => [x + ux * a + px * b, y, z + uz * a + pz * b];
+      g.quad(P(-1.4, -.13), P(.35, -.13), P(.35, .13), P(-1.4, .13), null, cLine, true);
+      g.tri(P(.35, -.48), P(1.45, 0), P(.35, .48), [0, 0], [0, 0], [0, 0], cLine); g.tri(P(.35, .48), P(1.45, 0), P(.35, -.48), [0, 0], [0, 0], [0, 0], cLine);
+    });
+  };
+  const LAMP = template([{geo:new THREE.CylinderGeometry(.07, .1, 7.5, 6), color:0x8f969c, pos:[0, 3.75, 0]}, {geo:new THREE.BoxGeometry(1.5, .09, .12), color:0x8f969c, pos:[.7, 7.45, 0]},
+                        {geo:new THREE.BoxGeometry(.55, .16, .28), color:0xfff2cc, pos:[1.35, 7.36, 0]}]);
   for (const r of D.roads){
     const w = r[0] / 10, bridge = (r[1] & 1) === 1, tar = (r[1] & 2) === 2, pts = ptsFrom(r, 2);
     for (let i = 1; i < pts.length; i++){
@@ -545,6 +624,11 @@ function buildCity(){
         for (let d = 2; d < L - 2; d += 6){ const t0 = d / L, t1 = (d + 2.6) / L; ribbon('line', [[ax + (bx - ax) * t0, az + (bz - az) * t0], [ax + (bx - ax) * t1, az + (bz - az) * t1]], .14, flat(.16), cLine); }
       }
     } else ribbon('paver', pts, w, flat(w >= 4 ? .06 : .07), w >= 4 ? cPave : cFoot, 1.6);
+    if (r[1] & 4) oneWayArrows(pts, w, tar);
+    if (tar && w >= 7) for (const side of [-1, 1]) along(pts, 34, side > 0 ? 6 : 23, (x, z, ux, uz) => {
+      const nx = -uz * side, nz = ux * side, lx = x + nx * (w / 2 + 1.3), lz = z + nz * (w / 2 + 1.3);
+      if (islandAt(lx, lz)) mergeAdd('prop', LAMP, lx, .12, lz, Math.atan2(nz, -nx), 1, 1, 1);
+    });
   }
   if (BR){
     // one continuous concrete deck under both carriageways, parapets and a fascia on the outer edges only
@@ -560,6 +644,67 @@ function buildCity(){
   }
   for (const r of D.runways) ribbon('tar', ptsFrom(r, 1), r[0] / 10, flat(.05), cRun);
   buildBridgeStructure();
+
+  // zebra crossings (and the few traffic lights) where OpenStreetMap maps them
+  const SIGNAL = template([{geo:new THREE.CylinderGeometry(.08, .08, 3.4, 6), color:0x3a3f45, pos:[0, 1.7, 0]}, {geo:new THREE.BoxGeometry(.34, .95, .3), color:0x1d2126, pos:[0, 3.7, 0]},
+                          {geo:new THREE.SphereGeometry(.1, 6, 4), color:0xd94b3a, pos:[0, 4.0, .16]}, {geo:new THREE.SphereGeometry(.1, 6, 4), color:0x3fbf6a, pos:[0, 3.45, .16]}]);
+  for (const c of D.crossings){
+    const x = c[0] / 10, z = c[1] / 10, a = c[2] / 1000, w = c[3] / 10, ux = Math.cos(a), uz = Math.sin(a), px = -uz, pz = ux;
+    let tar = false; for (const i of SEGGRID.get(Math.floor(x / 50) + ',' + Math.floor(z / 50)) || []){ const sg = SEGS[i]; if (Math.min(Math.hypot(sg.ax - x, sg.az - z), Math.hypot(sg.bx - x, sg.bz - z)) < 80 && sg.tar){ tar = true; break; } }
+    const y = tar ? .17 : .092, g = tb('line', x, z);
+    for (let k = -w / 2 + .3; k < w / 2 - .4; k += 1.0){
+      const P = (al, ac) => [x + ux * al + px * ac, y, z + uz * al + pz * ac];
+      g.quad(P(-1.5, k), P(1.5, k), P(1.5, k + .5), P(-1.5, k + .5), null, cLine, true);
+    }
+    if (c[4]) for (const side of [-1, 1]) mergeAdd('prop', SIGNAL, x + px * side * (w / 2 + 1), .12, z + pz * side * (w / 2 + 1), Math.atan2(ux, uz) + (side > 0 ? Math.PI : 0), 1, 1, 1);
+  }
+
+  // piers you can walk along, breakwater rock, and dhonis moored at the harbour
+  const ROCK = template([{geo:new THREE.OctahedronGeometry(1, 0), color:0x9a958c, pos:[0, 0, 0]}]);
+  const DHONI = template([{geo:new THREE.BoxGeometry(7, .95, 2.3), color:0xffffff, pos:[0, .45, 0]}, {geo:new THREE.ConeGeometry(1.15, 2.4, 4), color:0xffffff, pos:[4.6, .55, 0], rot:[0, 0, -Math.PI / 2], scale:[1, 1, .7]},
+                         {geo:new THREE.BoxGeometry(7.05, .22, 2.35), color:0x1d5fd1, pos:[0, .82, 0]}, {geo:new THREE.BoxGeometry(3.1, 1.35, 1.9), color:0xf4f2ec, pos:[-.9, 1.6, 0]},
+                         {geo:new THREE.BoxGeometry(3.6, .12, 2.2), color:0x2f6f8f, pos:[-.9, 2.33, 0]}, {geo:new THREE.BoxGeometry(.9, .7, .9), color:0x3a4750, pos:[-2.4, 1.3, 0]}]);
+  const HULLS = ['#f4f2ec', '#f4f2ec', '#e8e2d0', '#3a86a8', '#2f7a58', '#e2b52f'].map(lin);
+  const deckC = lin(0xcfc8ba), edgeC = lin(0xa9a294);
+  for (const pr of D.piers){
+    const isPier = pr[0] === 1, w = pr[2] / 10, pts = ptsFrom(pr, 3);
+    if (isPier){
+      ribbon('conc', pts, w, flat(.45), deckC);
+      for (let i = 1; i < pts.length; i++){
+        const sg = {ax:pts[i - 1][0], az:pts[i - 1][1], bx:pts[i][0], bz:pts[i][1], w:w + .2, y:.45}, si = PIER_SEGS.push(sg) - 1;
+        for (let gx = Math.floor((Math.min(sg.ax, sg.bx) - w) / 40); gx <= Math.floor((Math.max(sg.ax, sg.bx) + w) / 40); gx++)
+          for (let gz = Math.floor((Math.min(sg.az, sg.bz) - w) / 40); gz <= Math.floor((Math.max(sg.az, sg.bz) + w) / 40); gz++){ const k = gx + ',' + gz; (PIER_GRID.get(k) || PIER_GRID.set(k, []).get(k)).push(si); }
+        const [ax, az] = pts[i - 1], [bx, bz] = pts[i], L = Math.hypot(bx - ax, bz - az) || 1, nx = -(bz - az) / L, nz = (bx - ax) / L;
+        for (const side of [-1, 1]){ const o = w / 2 * side, gg = tb('conc', ax, az); gg.quad([ax + nx * o, -.9, az + nz * o], [bx + nx * o, -.9, bz + nz * o], [bx + nx * o, .45, bz + nz * o], [ax + nx * o, .45, az + nz * o], null, edgeC, true); }
+      }
+      for (const side of [-1, 1]) along(pts, 13, 5 + rand() * 6, (x, z, ux, uz) => {
+        if (rand() < .45) return;
+        const nx = -uz * side, nz = ux * side, bx = x + nx * (w / 2 + 1.5), bz = z + nz * (w / 2 + 1.5);
+        if (islandAt(bx, bz) || pierY(bx, bz) != null) return;
+        mergeAdd('boat', DHONI, bx, -1.05, bz, Math.atan2(-uz, ux) + (rand() < .5 ? Math.PI : 0), 1, 1, 1, HULLS[(rand() * HULLS.length) | 0]);
+      });
+    } else {
+      ribbon('conc', pts, w * .8, flat(-.35), lin(0x7d786f));
+      along(pts, TOUCH ? 3.2 : 2.2, 0, (x, z, ux, uz) => {
+        const px = -uz, pz = ux;
+        for (const k of [-1, 1]){ const o = k * w / 4 + (rand() - .5) * .8; mergeAdd('rock', ROCK, x + px * o, -.3 + rand() * .4, z + pz * o, rand() * 6, 1 + rand() * .8, .7 + rand() * .6, 1 + rand() * .8, lin(rand() < .5 ? 0x9a958c : 0xb5afa4)); }
+      });
+    }
+  }
+
+  // trees: coconut palms and shade trees, from OpenStreetMap plus the parks
+  const PALM = template([{geo:new THREE.CylinderGeometry(.13, .21, 7.4, 6), color:0x8a7358, pos:[.18, 3.7, 0], rot:[0, 0, -.05]},
+    ...[0, 1, 2, 3, 4, 5, 6, 7].map(i => { const a = i / 8 * Math.PI * 2; return {geo:new THREE.PlaneGeometry(3.3, .7).rotateX(-Math.PI / 2), color:0xffffff, pos:[.36 + Math.cos(a) * 1.45, 7.05, Math.sin(a) * 1.45], rot:[0, -a, -.42]}; }),
+    {geo:new THREE.OctahedronGeometry(.32, 0), color:0x7a6a2a, pos:[.4, 6.8, 0]}]);
+  const SHADE = template([{geo:new THREE.CylinderGeometry(.16, .24, 3.2, 6), color:0x6f5642, pos:[0, 1.6, 0]}, {geo:new THREE.IcosahedronGeometry(2.3, 0), color:0xffffff, pos:[0, 4.3, 0], scale:[1, .82, 1]},
+                         {geo:new THREE.IcosahedronGeometry(1.5, 0), color:0xffffff, pos:[1.2, 3.6, .6]}]);
+  const LEAF = ['#4f8a3a', '#5d9a40', '#467f35', '#6aa447'].map(lin);
+  for (const t of D.trees){
+    const x = t[0] / 10, z = t[1] / 10; if (!islandAt(x, z) || (TOUCH && rand() < .45)) continue;
+    const sc = .8 + rand() * .45;
+    if (t[2] === 1) mergeAdd('prop', SHADE, x, 0, z, rand() * 6, sc, sc, sc, LEAF[(rand() * LEAF.length) | 0]);
+    else mergeAdd('prop', PALM, x, 0, z, rand() * 6, sc, .85 + rand() * .4, sc, LEAF[(rand() * LEAF.length) | 0]);
+  }
 
   // buildings
   const facade = ['#f3efe6', '#ece2cf', '#f2dcc9', '#dfe9e6', '#e3e8f0', '#f1e7b8', '#e6d8ea', '#d9e8d2', '#f6f3ee', '#e9d2bd', '#cfe0e8', '#f0cfc4'].map(lin);
@@ -582,12 +727,13 @@ function buildCity(){
     let faces; try { faces = THREE.ShapeUtils.triangulateShape(pts.map(p => new THREE.Vector2(p[0], p[1])), []); } catch (e) { faces = []; }
     for (const f of faces){ let p0 = pts[f[0]], p1 = pts[f[1]], p2 = pts[f[2]]; if ((p1[0] - p0[0]) * (p2[1] - p0[1]) - (p1[1] - p0[1]) * (p2[0] - p0[0]) > 0){ const t = p1; p1 = p2; p2 = t; } g.tri([p0[0], h, p0[1]], [p1[0], h, p1[1]], [p2[0], h, p2[1]], [.01, .01], [.01, .01], [.01, .01], roof); }
   };
-  for (const b of D.buildings){
-    const pts = ptsFrom(b, 2); if (pts.length < 3) continue;
+  const BCOL = new Map((D.bcolours || []).map(([i, c]) => [i, lin(c)]));
+  D.buildings.forEach((b, bi) => {
+    const pts = ptsFrom(b, 2); if (pts.length < 3) return;
     const xs = pts.map(p => p[0]), zs = pts.map(p => p[1]); const s = {x0:Math.min(...xs), x1:Math.max(...xs), z0:Math.min(...zs), z1:Math.max(...zs), pts};
     let lv = b[0]; if (nearMosque(s.x0, s.x1, s.z0, s.z1, pts) || inPlaza(s.x0, s.x1, s.z0, s.z1, 40)) lv = Math.min(lv, 2);
-    prism(pts, lv * 3.2, facade[(rand() * facade.length) | 0]); addSolid(s);
-  }
+    prism(pts, lv * 3.2, BCOL.get(bi) || facade[(rand() * facade.length) | 0]); addSolid(s);
+  });
   for (const f of D.fill){
     const x = f[0] / 10, z = f[1] / 10, w = f[2] / 10, d = f[3] / 10; let lv = f[4];
     if (inPlaza(x, x + w, z, z + d, 28)) continue;                 // open courtyard around the big masjids
@@ -679,6 +825,8 @@ function buildCity(){
     city.add(m);
   }
   tiles.clear();
+  mergeFlush({prop:new THREE.MeshStandardMaterial({vertexColors:true, roughness:.8, side:THREE.DoubleSide}), rock:new THREE.MeshStandardMaterial({vertexColors:true, roughness:1, flatShading:true}),
+              boat:new THREE.MeshStandardMaterial({vertexColors:true, roughness:.55})});
 
   // mosques: white halls with a dome and minaret; the big ones gold
   const mWhite = std(0xf6f3ec), gold = std(0xd9b25a, {metalness:.5, roughness:.35}), green = std(0x2f7a5a, {roughness:.5}), blue = std(0x3a86a8, {roughness:.5});
@@ -693,6 +841,41 @@ function buildCity(){
     const cres = new THREE.Mesh(new THREE.TorusGeometry(r * .12, r * .025, 6, 16, Math.PI * 1.4), gold); cres.position.set(0, base + 1.4 + r + r * .18, 0); g.add(cres);
     if (SHADOWS) g.traverse(o => { if (o.isMesh) o.castShadow = true; });
     g.userData.hit = {type:'word', w:'mosque'}; interactCity.push(g); city.add(g);
+  }
+
+  // real shop names (near the player, drawn on demand) and name boards on landmark buildings
+  const placeByUnit = new Map(D.places.filter(p => p.kind === 'shop' && p.name).map(p => [p.unit, p]));
+  for (const [ui, name, cat] of D.signs){
+    const u = D.units[ui]; if (!u) continue;
+    NAMED.push({x:u[0] / 10, z:u[1] / 10, nx:u[2] / 1000, nz:u[3] / 1000, w:Math.max(2.4, u[4] / 10 * .86), y:3.375, h:.62, out:.12, name, cat});
+  }
+  for (const [ui, p] of placeByUnit){
+    const u = D.units[ui]; if (!u) continue;
+    NAMED.push({x:u[0] / 10, z:u[1] / 10, nx:u[2] / 1000, nz:u[3] / 1000, w:Math.max(2.6, u[4] / 10 * .9), y:4.32, h:.6, out:.15, name:p.name, cat:SIT_CAT[p.sit] || 3});
+  }
+  for (const b of D.boards){
+    const w = b[4] / 10, h = Math.max(1, Math.min(2.4, w / 6.5));
+    BOARDS.push({x:b[0] / 10, z:b[1] / 10, nx:b[2] / 1000, nz:b[3] / 1000, w, y:b[5] / 10 - h / 2, h, out:.2, name:b[6], cat:10 + b[7]});
+  }
+  // hospitals: name board across the top of the street wall, a projecting red-cross sign, an ambulance at the door
+  for (const hp of D.places.filter(q => q.hosp)){
+    const tx = -hp.nz, tz = hp.nx, top = (hp.lv || 5) * 3.2;
+    if (hp.wall){
+      const [mx, mz, wnx, wnz, len] = hp.wall, bw = Math.min(len * .85, 22), bh = Math.max(1.2, Math.min(2.4, bw / 7));
+      if (!BOARDS.some(b => Math.hypot(b.x - mx, b.z - mz) < 12)) BOARDS.push({x:mx, z:mz, nx:wnx, nz:wnz, w:bw, y:top - bh / 2 - .4, h:bh, out:.22, name:hp.name.replace(/\s*\(.*\)/, ''), cat:11});
+      const g = new THREE.Group(), wtx = -wnz, wtz = wnx;
+      g.position.set(mx + wnx * .9 + wtx * (len * .35), Math.min(top - 1.5, 6.5), mz + wnz * .9 + wtz * (len * .35)); g.rotation.y = Math.atan2(wtx, wtz);
+      box(g, .12, 2.9, 1.9, 0, 0, 0, std(0xf4f4f2)); box(g, 1.1, .1, .1, -.6 * 0, 1.5, 0, std(0x8f969c));
+      for (const side of [-1, 1]){ const f = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 2.8), new THREE.MeshBasicMaterial({map:hospitalTex(hp.name)})); f.position.set(.07 * side, 0, 0); f.rotation.y = side * Math.PI / 2; g.add(f); }
+      g.userData.hit = {type:'word', w:'doctor'}; interactCity.push(g); city.add(g);
+    }
+    const amb = new THREE.Group(); amb.position.set(hp.ex - hp.nx * .6 + tx * -6, .12, hp.ez - hp.nz * .6 + tz * -6); amb.rotation.y = Math.atan2(-tz, tx);
+    box(amb, 5.2, 2.1, 2, 0, 1.35, 0, std(0xf8f8f6)); box(amb, 5.22, .3, 2.02, 0, 1.2, 0, std(0xd23a2a));
+    box(amb, .9, .16, .5, .6, 2.48, 0, glow(0x3a7bd5)); box(amb, 1.2, .75, 1.9, 2.05, 1.7, 0, std(0x22303a));
+    for (const [wx, wz] of [[-1.6, .95], [1.7, .95], [-1.6, -.95], [1.7, -.95]]){ const wh = cyl(amb, .38, .38, .26, wx, .38, wz, std(0x121212), 12); wh.rotation.x = Math.PI / 2; }
+    if (SHADOWS) amb.traverse(o => { if (o.isMesh) o.castShadow = true; });
+    amb.userData.hit = {type:'word', w:'doctor'}; interactCity.push(amb); city.add(amb);
+    AMBULANCES.push({x:amb.position.x, z:amb.position.z, a:amb.rotation.y});
   }
 
   // street names painted on the tarmac and pavers
@@ -775,6 +958,8 @@ const markerTex = new Map();
 let markers = [], rings = [];
 function buildPlaces(){
   PLACES = D.places.filter(p => sitById(p.sit)).map((p, i) => Object.assign({key:'p' + i, sitObj:sitById(p.sit), em:EMOJI[p.sit] || '•'}, p));
+  // bus stops are often named after the landmark beside them ("Tree Top Hospital") — say what they are
+  for (const p of PLACES) if (p.sit === 'bus' && p.name && !/bus|stop|terminal/i.test(p.name)) p.name += ' bus stop';
   PLACES.forEach((p, i) => { const k = Math.floor(p.ex / PGCELL) + ',' + Math.floor(p.ez / PGCELL); (PLACE_GRID.get(k) || PLACE_GRID.set(k, []).get(k)).push(i); });
   for (let i = 0; i < 10; i++){
     const spr = new THREE.Sprite(new THREE.SpriteMaterial({depthWrite:false})); spr.scale.set(1.3, 1.3, 1); spr.visible = false; city.add(spr); markers.push(spr);
@@ -808,6 +993,58 @@ function updateMarkers(){
     m.userData.p = p;
     rings[i].position.set(p.ex, .2, p.ez); rings[i].visible = true;
   });
+}
+
+/* ---------- real names: shop signs and building boards, drawn only near the player ---------- */
+const NAMED = [], BOARDS = [];
+const SIT_CAT = {teashop:0, restaurant:0, bakery:0, kurumba:0, market:0, pharmacy:1, clinic:1, shop:2, phone:2, tailor:2, barber:3, bank:3, laundry:3, garage:3, office:3, landlord:3, guesthouse:4, ferry:5, bus:5, taxi:5};
+const CAT_BG = ['#7e2f23', '#1f7a55', '#1f2535', '#34495e', '#6a3a5e', '#0d4f6b', '', '', '', '', '#1f2a3a', '#ffffff', '#1f5f48', '#1d4f8f', '#0d5f6b', '#6a2a3a'];
+const TEXCACHE = new Map();
+function nameTex(name, cat, wide){
+  const key = cat + '|' + name; if (TEXCACHE.has(key)){ const t = TEXCACHE.get(key); TEXCACHE.delete(key); TEXCACHE.set(key, t); return t; }
+  const W = wide ? 1024 : 512, H = wide ? 150 : 128, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  const bg = CAT_BG[cat] || '#1f2535', light = bg === '#ffffff';
+  x.fillStyle = bg; x.fillRect(0, 0, W, H);
+  x.strokeStyle = light ? '#c8322a' : 'rgba(255,255,255,.35)'; x.lineWidth = 6; x.strokeRect(6, 6, W - 12, H - 12);
+  let left = 20;
+  if (cat === 1 || cat === 11){ const cx = 26 + H * .32, cy = H / 2, a = H * .3, b = H * .1; x.fillStyle = cat === 11 ? '#d23a2a' : '#ffffff'; x.fillRect(cx - a, cy - b, a * 2, b * 2); x.fillRect(cx - b, cy - a, b * 2, a * 2); left = cx + a + 14; }
+  const thaana = /[ހ-ޱ]/.test(name);
+  x.fillStyle = light ? '#b3261e' : '#fdf6ea'; x.textBaseline = 'middle'; x.textAlign = 'center'; x.direction = thaana ? 'rtl' : 'ltr';
+  let size = H * .52;
+  const font = sz => (thaana ? '600 ' + sz + 'px "Noto Sans Thaana", sans-serif' : '600 ' + sz + 'px "Instrument Sans", sans-serif');
+  const text = thaana ? name : name.toUpperCase();
+  x.font = font(size); while (x.measureText(text).width > W - left - 24 && size > 14){ size -= 2; x.font = font(size); }
+  x.fillText(text, (left + W - 20) / 2, H / 2 + 2); x.direction = 'ltr';
+  const t = canvasTex(c); TEXCACHE.set(key, t);
+  if (TEXCACHE.size > 160){ const [k0, t0] = TEXCACHE.entries().next().value; t0.dispose(); TEXCACHE.delete(k0); }
+  return t;
+}
+function hospitalTex(name){
+  const c = document.createElement('canvas'); c.width = 256; c.height = 330; const x = c.getContext('2d');
+  x.fillStyle = '#ffffff'; x.fillRect(0, 0, 256, 330); x.fillStyle = '#d23a2a'; x.fillRect(98, 30, 60, 150); x.fillRect(53, 75, 150, 60);
+  x.fillStyle = '#1f2535'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  const words = name.replace(/\s*\(.*\)/, '').split(' '); let lines = [], cur = '';
+  x.font = '600 30px "Instrument Sans", sans-serif';
+  for (const wd of words){ const t = cur ? cur + ' ' + wd : wd; if (x.measureText(t).width > 230){ lines.push(cur); cur = wd; } else cur = t; } lines.push(cur);
+  lines.slice(0, 3).forEach((l, i) => x.fillText(l, 128, 222 + i * 34));
+  return canvasTex(c);
+}
+function makePool(n){ const out = []; for (let i = 0; i < n; i++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({})); m.visible = false; city.add(m); out.push(m); } return out; }
+let signPool = null, boardPool = null;
+function placeBoards(pool, list, radius, wide){
+  const near = [];
+  if (!inside) for (const b of list){ const d = Math.abs(b.x - P.x) + Math.abs(b.z - P.z); if (d < radius * 1.4){ const dd = Math.hypot(b.x - P.x, b.z - P.z); if (dd < radius) near.push([dd, b]); } }
+  near.sort((a, b) => a[0] - b[0]);
+  pool.forEach((m, i) => {
+    const e = near[i]; if (!e){ m.visible = false; return; }
+    const b = e[1];
+    if (m.userData.b !== b){ m.material.map = nameTex(b.name, b.cat, wide); m.material.needsUpdate = true; m.userData.b = b; }
+    m.position.set(b.x + b.nx * b.out, b.y, b.z + b.nz * b.out); m.rotation.set(0, Math.atan2(b.nx, b.nz), 0); m.scale.set(b.w, b.h, 1); m.visible = true;
+  });
+}
+function updateNamed(){
+  if (!signPool){ signPool = makePool(TOUCH ? 28 : 44); boardPool = makePool(TOUCH ? 14 : 24); }
+  placeBoards(signPool, NAMED, 60, false); placeBoards(boardPool, BOARDS, 260, true);
 }
 
 /* ============================================================
@@ -1006,7 +1243,9 @@ function updateBuses(dt){
     b.a += angDiff(b.a, -Math.atan2(fz, fx)) * Math.min(1, 5 * dt); b.x = cx; b.z = cz; b.g.position.set(cx, .14, cz); b.g.rotation.y = b.a;
   }
 }
-function busBlocks(x, z){ for (const b of BUSES){ const dx = x - b.x, dz = z - b.z; if (dx * dx + dz * dz > 64) continue; const c = Math.cos(b.a), s = Math.sin(b.a), lx = dx * c - dz * s, lz = dx * s + dz * c; if (Math.abs(lx) < 5.9 && Math.abs(lz) < 1.6) return true; } return false; }
+const AMBULANCES = [];
+function busBlocks(x, z){
+  for (const m of AMBULANCES){ const dx = x - m.x, dz = z - m.z; if (dx * dx + dz * dz > 16) continue; const c = Math.cos(m.a), sn = Math.sin(m.a), lx = dx * c - dz * sn, lz = dx * sn + dz * c; if (Math.abs(lx) < 2.8 && Math.abs(lz) < 1.2) return true; } for (const b of BUSES){ const dx = x - b.x, dz = z - b.z; if (dx * dx + dz * dz > 64) continue; const c = Math.cos(b.a), s = Math.sin(b.a), lx = dx * c - dz * s, lz = dx * s + dz * c; if (Math.abs(lx) < 5.9 && Math.abs(lz) < 1.6) return true; } return false; }
 
 /* ============================================================
    INTERIORS
@@ -1201,6 +1440,7 @@ function exitBuilding(instant){
    ============================================================ */
 const el = renderer.domElement; el.tabIndex = 0;
 addEventListener('keydown', e => {
+  if (e.target && e.target.matches && e.target.matches('input, textarea')){ if (e.key === 'Escape') e.target.blur(); return; }
   const k = e.key.toLowerCase(); keys[k] = true;
   if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)) auto = null;
   if (k === 'shift' && !fly) run = true;
@@ -1291,7 +1531,7 @@ function renderTalk(){
   const t = talk, s = $('#talk'); if (!t){ s.hidden = true; return; }
   const guided = C.mode === 'guided', onGoal = currentGoal() === t.p.sit && t.i === TASK[t.p.sit].turn;
   let h = '<div class="hd"><span>' + t.p.em + '</span><h3>' + esc(t.p.name || t.sit.en) + '</h3><span class="dv">' + t.sit.dv + '</span><button class="x" data-close-talk aria-label="Close">✕</button></div>';
-  if (!t.log.length && t.i === 0) h += '<p class="note">' + esc(t.sit.note) + '</p>';
+  if (!t.log.length && t.i === 0) h += '<p class="note">' + esc(t.sit.note) + '</p>' + (t.p.name && !['mosque', 'bus', 'ferry', 'market'].includes(t.p.sit) ? '<p class="note small">A practice conversation set at ' + esc(t.p.name) + ' — the business isn’t involved, and prices and details are examples.</p>' : '');
   h += '<div class="log">' + t.log.map(x => '<div class="b ' + x.s + '"><span class="who">' + (x.s === 'you' ? 'You' : 'They say') + '</span><span class="dv">' + x.dv + '</span><span class="rom">' + esc(x.rom) + '</span>' + ((guided || x.s === 'them') ? '<span class="en">' + esc(x.en) + '</span>' : '') + '<button class="say" data-say="' + esc(x.dv) + '" aria-label="Play">🔊</button></div>').join('') + '</div>';
   if (t.options){
     const task = TASK[t.p.sit].text;
@@ -1324,7 +1564,11 @@ function closeTalk(){ talk = null; $('#talk').hidden = true; DhivehiAudio.stop()
 function drawIslands(ctx, tx, tz, lw){
   ctx.fillStyle = '#e3d9c6';
   for (const I of ISL){ ctx.beginPath(); I.ring.forEach((p, i) => i ? ctx.lineTo(tx(p[0]), tz(p[1])) : ctx.moveTo(tx(p[0]), tz(p[1]))); ctx.closePath(); ctx.fill(); }
+  const AC = ['#a9cf8e', '#8cc47f', '#e3a08c', '#f2e6c4', '#9dbf84', '#7fd0e0', '#c5cbb9', '#8cc47f'];
+  for (const a of D.areas){ ctx.fillStyle = AC[a[0]]; ctx.beginPath(); for (let i = 2; i < a.length; i += 2){ const x = tx(a[i] / 10), z = tz(a[i + 1] / 10); i === 2 ? ctx.moveTo(x, z) : ctx.lineTo(x, z); } ctx.closePath(); ctx.fill(); }
   ctx.lineCap = 'round';
+  ctx.strokeStyle = '#d8d2c4';
+  for (const pr of D.piers){ ctx.lineWidth = Math.max(lw, pr[2] / 10 * lw * .5); ctx.beginPath(); for (let i = 3; i < pr.length; i += 2){ const x = tx(pr[i] / 10), z = tz(pr[i + 1] / 10); i === 3 ? ctx.moveTo(x, z) : ctx.lineTo(x, z); } ctx.stroke(); }
   for (const r of D.roads){ const w = r[0] / 10; if (w < 4) continue; ctx.strokeStyle = (r[1] & 2) ? '#6f6c66' : '#aaa497'; ctx.lineWidth = Math.max(lw, w * lw * .5); ctx.beginPath(); for (let i = 2; i < r.length; i += 2){ const x = tx(r[i] / 10), z = tz(r[i + 1] / 10); i === 2 ? ctx.moveTo(x, z) : ctx.lineTo(x, z); } ctx.stroke(); }
 }
 function drawMini(){
@@ -1383,12 +1627,34 @@ function renderPlaces(){
     const all = PLACES.filter(p => p.sit === id), near = nearestOfType(id, P.x, P.z);
     return {id, n:all.length, near, d:near ? Math.hypot(near.ex - P.x, near.ez - P.z) : Infinity};
   }).filter(r => r.n).sort((a, b) => a.d - b.d);
-  $('#places').innerHTML = '<h4>Situations · nearest first</h4>' + rows.map(r => {
+  $('#places').innerHTML = '<input class="find" id="placeFind" type="search" autocomplete="off" placeholder="Search: ADK Hospital, Sultan Park, a café…" aria-label="Search places"><div id="placeHits"></div>'
+    + '<h4>Situations · nearest first</h4>' + rows.map(r => {
     const s = sitById(r.id), done = C.done.indexOf(r.id) !== -1;
     return '<button class="it" data-go="' + r.id + '"><span class="em">' + EMOJI[r.id] + '</span><span>' + esc(s.en) + '<span class="real">' + r.n + ' in town' + (r.near && r.near.name ? ' · nearest: ' + esc(r.near.name) : '') + '</span></span><span class="meta">' + (done ? '<span class="done">✓</span>' : '') + '<span class="dist">' + distTxt(r.d) + '</span></span></button>';
   }).join('') + '<h4>Map</h4><button class="it" data-bigmap><span class="em">🗺️</span>Open the full map</button>';
 }
 function closePanels(){ $('#places').hidden = true; }
+let FIND = null;
+function findIndex(){
+  if (FIND) return FIND;
+  FIND = [];
+  const isl = (x, z) => { const I = islandAt(x, z); return I ? I.name : ''; };
+  for (const p of PLACES) if (p.name) FIND.push({name:p.name, em:p.em, sub:p.sitObj.en + (p.hosp ? ' · hospital' : ''), x:p.ex, z:p.ez, yaw:p.yaw, place:p});
+  const seen = new Set(FIND.map(f => f.name.toLowerCase()));
+  for (const n of NAMED){ const k = n.name.toLowerCase(); if (seen.has(k)) continue; seen.add(k); FIND.push({name:n.name, em:['🍽️', '💊', '🛍️', '🏢', '🛏️', '🏛️'][n.cat] || '📍', sub:'Shop · ' + isl(n.x, n.z), x:n.x + n.nx * 2.6, z:n.z + n.nz * 2.6, yaw:Math.atan2(n.nx, n.nz)}); }
+  for (const b of BOARDS){ const k = b.name.toLowerCase(); if (seen.has(k)) continue; seen.add(k); FIND.push({name:b.name, em:'🏙️', sub:'Building · ' + isl(b.x, b.z), x:b.x + b.nx * 5, z:b.z + b.nz * 5, yaw:Math.atan2(b.nx, b.nz)}); }
+  for (const a of AREAS_N){ const k = a.name.toLowerCase(); if (seen.has(k)) continue; seen.add(k); FIND.push({name:a.name, em:['🌳', '⚽', '🛝', '🏖️', '🌿', '🏊', '🪦', '🏟️'][a.code], sub:['Park', 'Football turf', 'Playground', 'Beach', 'Green', 'Pool', 'Cemetery', 'Stadium'][a.code] + ' · ' + isl(a.cx, a.cz), x:a.cx, z:a.cz, yaw:P.yaw}); }
+  for (const l of LABELS){ const k = l.name.toLowerCase(); if (seen.has(k)) continue; seen.add(k); FIND.push({name:l.name, em:'🛣️', sub:'Street', x:l.x, z:l.z, yaw:P.yaw}); }
+  return FIND;
+}
+function renderFind(q){
+  const box = $('#placeHits'); if (!box) return;
+  q = q.trim().toLowerCase(); if (q.length < 2){ box.innerHTML = ''; return; }
+  const hits = findIndex().filter(f => f.name.toLowerCase().includes(q)).map(f => [Math.hypot(f.x - P.x, f.z - P.z) + (f.name.toLowerCase().startsWith(q) ? 0 : 400) - (f.place && f.place.hosp ? 20000 : 0), f]).sort((a, b) => a[0] - b[0]).slice(0, 25);
+  box.innerHTML = hits.length ? hits.map(([, f]) => '<button class="it" data-find="' + FIND.indexOf(f) + '"><span class="em">' + f.em + '</span><span>' + esc(f.name) + '<span class="real">' + esc(f.sub) + '</span></span><span class="meta"><span class="dist">' + distTxt(Math.hypot(f.x - P.x, f.z - P.z)) + '</span></span></button>').join('')
+    : '<p class="real" style="padding:6px 12px">Nothing by that name on the map yet.</p>';
+}
+document.addEventListener('input', e => { if (e.target.id === 'placeFind') renderFind(e.target.value); });
 
 document.addEventListener('click', e => {
   const t = e.target;
@@ -1411,6 +1677,8 @@ document.addEventListener('click', e => {
   const act = t.closest('#act');
   if (act){ if (act.dataset.mode === 'exit') exitBuilding(); else if (act.dataset.mode === 'talk') openTalk(inside.place); else enterBuilding(PLACES.find(p => p.key === act.dataset.place)); return; }
   const go = t.closest('[data-go]'); if (go){ travelTo(go.dataset.go); return; }
+  const fd = t.closest('[data-find]');
+  if (fd){ const f = FIND[+fd.dataset.find]; if (!f) return; const target = f.place || {ex:f.x, ez:f.z, yaw:f.yaw}; travelTo(target, f.place ? () => enterBuilding(f.place) : null); toast('Going to ' + f.name + '…'); return; }
   const sayB = t.closest('[data-say]'); if (sayB){ DhivehiAudio.play(sayB.dataset.say); return; }
   if (t.closest('#muteBtn')){ DhivehiAudio.setMuted(!DhivehiAudio.isMuted()); $('#muteBtn').textContent = DhivehiAudio.isMuted() ? '🔇' : '🔊'; toast(DhivehiAudio.isMuted() ? 'Sound off.' : 'Sound on.'); return; }
   const opt = t.closest('[data-opt]'); if (opt){ chooseOpt(+opt.dataset.opt, opt); return; }
@@ -1463,7 +1731,7 @@ function frame(now){
   if (want){ const key = want.mode + (want.place || ''); if (a.dataset.key !== key){ a.dataset.key = key; a.dataset.mode = want.mode; a.dataset.place = want.place || ''; a.innerHTML = want.html; a.classList.toggle('exit', want.mode === 'exit'); } a.hidden = false; }
   else { a.hidden = true; a.dataset.key = ''; }
 
-  markT += dt; if (markT > .35){ markT = 0; updateMarkers(); }
+  markT += dt; if (markT > .35){ markT = 0; updateMarkers(); updateNamed(); }
   hudT += dt;
   if (hudT > .45){
     hudT = 0; hud(); drawMini();
@@ -1471,6 +1739,8 @@ function frame(now){
       const I = islandAt(P.x, P.z), br = BR && onBridgeDeck(P.x, P.z);
       let label = br ? '🌉 Sinamalé Bridge · ' + Math.round(bridgeH(br.s)) + ' m above the lagoon' : I ? I.name : 'the lagoon', bd = 45;
       if (!br){ for (const l of LABELS){ const d = Math.hypot(l.x - P.x, l.z - P.z); if (d < bd){ bd = d; label = l.name + (I && I.id === 'hulhumale' ? ' · Hulhumalé' : ''); } } }
+      if (!br) for (const A of AREAS_N) if (P.x >= A.x0 && P.x <= A.x1 && P.z >= A.z0 && P.z <= A.z1 && pointInPoly(P.x, P.z, A.pts)){ label = ['🌳', '⚽', '🛝', '🏖️', '🌿', '🏊', '🪦', '🏟️'][A.code] + ' ' + A.name; break; }
+      if (!br && !I && pierY(P.x, P.z) != null) label = '⚓ On the jetty';
       const n = placesNear(P.x, P.z, 9)[0]; if (n) label = n[1].em + ' ' + (n[1].name || n[1].sitObj.en);
       if (fly) label = '✈️ ' + Math.round(P.y) + ' m over ' + (I ? I.name : 'the lagoon');
       if (label !== lastWhere){ lastWhere = label; $('#where').textContent = label; }

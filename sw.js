@@ -2,7 +2,7 @@
    Pages, data and scripts: network first, falling back to the cache, so updates arrive as soon as you're online.
    Fonts and three.js: cache first. Audio is left to the browser: iOS Safari won't play <audio> from a
    service-worker response without byte-range support. ChatGPT calls (POST) are never cached. */
-const VERSION = 'pm-v1';
+const VERSION = 'pm-v2';
 const SHELL = [
   './', './index.html', './city.html', './about.html', './data.js', './config.js', './manifest.json', './icon.svg',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './audio/manifest.json', './city-data.json',

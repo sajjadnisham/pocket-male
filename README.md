@@ -69,34 +69,49 @@ from ChatGPT are not voiced.
 
 `city.html` builds both islands at load time from `city-data.json`:
 
-- **Streets, coastline, parks and 3,439 mapped buildings** come from
-  OpenStreetMap. OSM maps only part of the buildings, so the remaining blocks
-  in built-up areas are filled with generic apartment blocks (the intro says so).
+- **Streets, coastline and 3,439 mapped buildings** come from OpenStreetMap.
+  OSM maps only part of the buildings, so the remaining blocks in built-up areas
+  are filled with generic apartment blocks (the intro says so). Buildings with a
+  mapped colour use it, and **495 named buildings** carry their name on the
+  street-facing wall (ministries, schools, masjids, ferry terminals, hotels).
 - **Roads as they are**: only the outer ring and main roads
   (Boduthakurufaanu Magu, Airport Main Road, Nirolhu Magu, Hulhumalé's main
-  roads, the bridge) are tarred, with kerbs, pavements and centre lines; every
-  other street and lane is interlocking pavers.
+  roads, the bridge) are tarred, with kerbs, pavements, centre lines and street
+  lamps; every other street and lane is interlocking pavers. **565 one-way
+  streets** have painted arrows and traffic only drives them the right way, and
+  **446 mapped pedestrian crossings** are painted as zebra crossings (with the
+  few traffic lights OSM has).
 - **The Sinamalé Bridge** (1.4 km) rises over the lagoon on piers to about 15 m,
   with its two cable-stayed pylons, parapets and street lamps. You can walk it.
+- **Parks, beaches and open spaces** (294, from OSM): Sultan Park, West Park,
+  Sunset Park, HDC Central Park, Raalhugandu, the Artificial Beach, Hulhumalé beach, football turfs
+  with pitch markings, playgrounds, pools and cemeteries, with **coconut palms
+  and shade trees** — the 347 trees OSM maps plus more planted inside parks.
+  The location label names the park or beach you are standing in.
+- **Harbour**: 119 mapped jetties you can walk out on, with dhonis moored
+  alongside, and 102 breakwaters built from rock.
 - **Traffic**: scooters with riders and a few cars drive the real street
   network on the left, turn at junctions, queue behind each other, stop for you
   and block your path. **Four blue buses** run Boduthakurufaanu Magu, Majeedhee
-  Magu, Airport Main Road and Midhili Magu. About 10,121 scooters are parked
+  Magu, Airport Main Road and Midhili Magu. About 9,900 scooters are parked
   nose-in along the kerbs, and people walk the pavements.
-- **Every apartment has shops on its street-facing ground floor** (≈15,245
+- **Every apartment has shops on its street-facing ground floor** (≈15,000
   units): glass fronts, awnings and signboards.
-- **1,023 situation places, 21 kinds**, each placed at a real OpenStreetMap
-  business of that kind: restaurants, tea shops, fihaara (corner shops),
-  offices, guesthouses, tailors, masjids, pharmacies, barbers, phone shops,
-  banks, clinics, bakeries, bike garages, laundries, landlords, ferry and taxi
-  stands, coconut carts, the market and bus stops. Situation shops have their
-  own sign and a lit interior; walk to the door, go inside, talk. Public
-  landmarks (masjids, the market, hospital, ferry and bus terminals) keep their
-  real names; private businesses are left unnamed so scripted dialogue is never
-  attributed to a real shop.
+- **Real businesses with their real names**: about 1,000 situation places sit at
+  OpenStreetMap businesses of that kind (Senahiya Café, The Coffee Club, Costa,
+  Seagull Cafe House…), and 270 more named shops, offices and services get their
+  name on the signboard. Names are drawn on the signs close to you.
+  Conversations are practice dialogue *set* at a place — the app says the
+  business isn't involved.
+- **Hospitals**: Dharumavantha Hospital (IGMH), ADK Hospital, Tree Top
+  Hospital, Hulhumalé Hospital and Senahiya each have a name board, a projecting
+  red-cross sign and an ambulance at the door, and you can go inside. Clinics
+  from OSM (Poli Clinic, Central Clinic, European Clinic…) are clinic situations.
 - **Masjids** get white halls with domes and minarets — the Grand Friday
   Mosque's gold dome stands in an open courtyard — and a carpeted prayer hall
   inside with a shoe rack.
+- **Search** (Places → search box) finds any named place, building, park or
+  street and takes you there.
 - **Guided tour** of all 21 situations (nearest one first), or **Free** mode.
   The Places list sorts every kind by distance.
 - **Morning**: low sun from the east-south-east, a gradient sky with clouds,
@@ -107,6 +122,17 @@ from ChatGPT are not voiced.
 Performance: buildings, roads and shopfronts are merged into one mesh per
 280 m tile per material so off-screen tiles are culled. Scooters, riders, cars
 and people are instanced and only simulated within ~200 m of you.
+
+### Adding places OpenStreetMap doesn't have
+
+OpenStreetMap doesn't list every business yet (Veyla and Natural Cafe, for
+example). Add them to `tools/extra-places.json` with their situation and
+latitude/longitude, then rebuild the data. Adding them to openstreetmap.org
+instead fixes every map at once.
+
+The city is built only from OpenStreetMap (ODbL). Google Maps, satellite and
+Street View imagery can be used to look, but their terms don't allow copying
+their data into another map, so none of it is used here.
 
 ### Rebuilding the map data
 

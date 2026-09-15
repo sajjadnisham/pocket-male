@@ -1,0 +1,7 @@
+{
+  "about": "Places OpenStreetMap doesn't have yet. Fill in lat/lon (decimal degrees) and rebuild with: node tools/build-city-data.js. situation is one of: teashop, restaurant, shop, phone, barber, bakery, tailor, laundry, garage, bank, pharmacy, clinic, guesthouse, office. Better still, add the place to openstreetmap.org so every map gets it.",
+  "places": [
+    { "name": "Veyla", "situation": "teashop", "lat": null, "lon": null },
+    { "name": "Natural Cafe", "situation": "teashop", "lat": null, "lon": null }
+  ]
+}
