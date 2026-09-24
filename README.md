@@ -27,14 +27,16 @@ A static site that installs as a phone app, with Android and iPhone app shells
 
 ## Run locally
 
-    python -m http.server 8123
+    node tools/serve.js
 
-Then open <http://localhost:8123>.
+Then open <http://localhost:8150>. (It gzips like GitHub Pages does; plain
+`python -m http.server` also works, but some security software cuts off the
+2 MB uncompressed `city-data.json`.)
 
 ## Dhivehi audio
 
 Every curated line — situation turns, the SOS set, situation names and the
-words you can tap in the 3D city, 147 lines in all — gets a recording in
+words you can tap in the 3D city, 185 lines in all — gets a recording in
 `audio/`. The phrasebook's **Listen** buttons play them; in the 3D city your
 chosen line and the other person's reply play in turn, each speech bubble has
 a 🔊 button, tapped words speak, and 🔊/🔇 mutes. Lines without a recording yet
@@ -97,12 +99,23 @@ from ChatGPT are not voiced.
   nose-in along the kerbs, and people walk the pavements.
 - **Every apartment has shops on its street-facing ground floor** (≈15,000
   units): glass fronts, awnings and signboards.
-- **Real businesses with their real names**: about 1,000 situation places sit at
-  OpenStreetMap businesses of that kind (Senahiya Café, The Coffee Club, Costa,
-  Seagull Cafe House…), and 270 more named shops, offices and services get their
-  name on the signboard. Names are drawn on the signs close to you.
-  Conversations are practice dialogue *set* at a place — the app says the
-  business isn't involved.
+- **Real businesses with their real names**: 2,121 situation places sit at real
+  businesses of that kind (Senahiya Café, The Coffee Club, Costa, Seagull Cafe
+  House…), and 1,360 more named shops, offices and services carry their name on
+  the signboard — about 3,500 named businesses in all. Names are drawn on the
+  signs near you. Conversations are practice dialogue *set* at a place — the app
+  says the business isn't involved.
+- **Nearby islands and the sea**: Villimalé with its own streets and shops, plus
+  40 islands around the atoll — Hulhulé, Dhoonidhoo, Funadhoo, Thilafushi,
+  Gulhifalhu, Kurumba (Vihamanaafushi), Bandos and the resorts — each named,
+  palm-covered or industrial.
+- **Hulhumalé Phase 1 and Phase 2**: the canal between them is real water you
+  can't walk into, crossed by the mapped bridges, with quay walls along the edge.
+- **Ferries and speedboats** run the 18 mapped routes — Villimalé, Hulhumalé,
+  the airport, Kurumba, Dhoonidhoo — and dock at the terminals.
+- **Velana International Airport**: jets parked at the 52 mapped stands,
+  seaplanes at the seaplane terminal and moored on the lagoon, the control
+  tower, runway markings, and a plane taking off every couple of minutes.
 - **Hospitals**: Dharumavantha Hospital (IGMH), ADK Hospital, Tree Top
   Hospital, Hulhumalé Hospital and Senahiya each have a name board, a projecting
   red-cross sign and an ambulance at the door, and you can go inside. Clinics
@@ -110,6 +123,10 @@ from ChatGPT are not voiced.
 - **Masjids** get white halls with domes and minarets — the Grand Friday
   Mosque's gold dome stands in an open courtyard — and a carpeted prayer hall
   inside with a shoe rack.
+- **People you can talk to**: everyone walking the pavements has a name. Walk up
+  and tap someone to stop them — they turn to face you, greet you, and you
+  practise **asking the way** or **small talk**. Shopkeepers greet you in
+  Dhivehi when you walk into a shop.
 - **Search** (Places → search box) finds any named place, building, park or
   street and takes you there.
 - **Guided tour** of all 21 situations (nearest one first), or **Free** mode.
@@ -122,6 +139,20 @@ from ChatGPT are not voiced.
 Performance: buildings, roads and shopfronts are merged into one mesh per
 280 m tile per material so off-screen tiles are culled. Scooters, riders, cars
 and people are instanced and only simulated within ~200 m of you.
+
+### Where the data comes from
+
+| Source | What it gives | Licence |
+|---|---|---|
+| OpenStreetMap (Overpass) | coastlines, streets and one-ways, buildings, parks, piers, trees, crossings, mosques, hospitals, ferry routes, the airport | ODbL |
+| Overture Maps (places) | 2,372 extra businesses with names and categories, built from Meta and Microsoft listings | CDLA-Permissive-2.0 |
+
+    python tools/fetch-overture-places.py     # refresh the Overture businesses
+
+Google Maps, its satellite imagery and Street View are **not** used: their terms
+don't allow copying that data into another map. Facebook and Instagram pages
+can't be scraped either — Overture is the open route to much of the same
+business data.
 
 ### Adding places OpenStreetMap doesn't have
 

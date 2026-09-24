@@ -97,6 +97,9 @@ a{color:inherit}
 .opt{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:9px 13px}
 .opt:hover{border-color:var(--muted)}
 .opt .dv{font-size:1.3rem;line-height:1.8;align-self:flex-end}
+.optrow{display:flex;gap:6px;align-items:stretch}
+.optrow .opt{flex:1}
+.optsay{flex:none;width:44px;border:1px solid var(--rule);border-radius:12px;background:var(--card);font-size:.95rem}
 .opt .en{font-family:var(--display);font-style:italic;font-size:.86rem;color:var(--ink-2)}
 .opt.wrong{border-color:var(--red);animation:shake .32s}
 .opt.right{border-color:var(--lagoon);background:#eef6f4}
@@ -223,7 +226,8 @@ const sitById = id => SITUATIONS.find(x => x.id === id);
 const TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
 const EMOJI = {teashop:'☕', market:'🐟', ferry:'⛴️', taxi:'🚕', shop:'🏪', pharmacy:'💊', clinic:'🏥', landlord:'🏠', kurumba:'🥥', restaurant:'🍛',
-               phone:'📱', barber:'💈', bank:'🏦', bus:'🚌', mosque:'🕌', office:'🏢', bakery:'🥖', tailor:'🧵', laundry:'🧺', garage:'🔧', guesthouse:'🛏️'};
+               phone:'📱', barber:'💈', bank:'🏦', bus:'🚌', mosque:'🕌', office:'🏢', bakery:'🥖', tailor:'🧵', laundry:'🧺', garage:'🔧', guesthouse:'🛏️', cafe:'🥤', street:'🧭', chat:'💬'};
+const NPC_SITS = ['street', 'chat'];   // conversations you have with people on the street, not in a shop
 const TASK = {
   teashop:{turn:2, text:'order two gulha and a black tea'}, market:{turn:0, text:'ask the price of the fish'},
   kurumba:{turn:2, text:'buy two young coconuts'},          restaurant:{turn:2, text:'order tea with less sugar'},
@@ -235,11 +239,24 @@ const TASK = {
   mosque:{turn:0, text:'ask when prayer time is'},           office:{turn:0, text:'say you have come for a meeting'},
   bakery:{turn:2, text:'buy ten roshi'},                     tailor:{turn:0, text:'ask them to shorten your clothes'},
   laundry:{turn:0, text:'ask them to wash your clothes'},    garage:{turn:0, text:'say your bike won’t start'},
-  guesthouse:{turn:0, text:'ask whether a room is free'}
+  guesthouse:{turn:0, text:'ask whether a room is free'},      cafe:{turn:1, text:'order an iced coffee'},
+  street:{turn:0, text:'ask the way to a pharmacy'},          chat:{turn:0, text:'say hello and ask how they are'}
 };
-const TOUR_ORDER = ['teashop', 'shop', 'bakery', 'restaurant', 'mosque', 'pharmacy', 'phone', 'barber', 'bank', 'tailor', 'laundry', 'garage',
+const TOUR_ORDER = ['teashop', 'chat', 'cafe', 'shop', 'street', 'bakery', 'restaurant', 'mosque', 'pharmacy', 'phone', 'barber', 'bank', 'tailor', 'laundry', 'garage',
                     'office', 'clinic', 'market', 'kurumba', 'bus', 'taxi', 'ferry', 'landlord', 'guesthouse'];
 const WORDS = {
+  hello:{dv:'އައްސަލާމު ޢަލައިކުމް', rom:'assalaamu alaikum', en:'hello (peace be upon you)'},
+  welcome:{dv:'މަރުޙަބާ', rom:'marhabaa', en:'welcome'},
+  airport:{dv:'ވައިގެ ބަނދަރު', rom:'vaige bandharu', en:'airport', note:'Velana International Airport is on Hulhulé, next to Hulhumalé — the bridge and the airport ferry both go there.'},
+  plane:{dv:'މަތިންދާބޯޓު', rom:'mathindhaa boatu', en:'aeroplane'},
+  seaplane:{dv:'ސީޕްލޭން', rom:'seeplein', en:'seaplane', note:'Seaplanes to the resorts take off from the lagoon on the airport’s east side.'},
+  dhoni:{dv:'ދޯނި', rom:'dhoani', en:'boat — a dhoni'},
+  speedboat:{dv:'ސްޕީޑްބޯޓު', rom:'speedboatu', en:'speedboat'},
+  island:{dv:'ރަށް', rom:'rah', en:'island'},
+  beach:{dv:'ގޮނޑުދޮށް', rom:'gondudhosh', en:'beach'},
+  bridge:{dv:'ބުރިޖު', rom:'buriju', en:'bridge'},
+  palm:{dv:'ރުއް', rom:'ruh', en:'coconut palm'},
+  ambulance:{dv:'އެމްބިއުލާންސް', rom:'embiulaans', en:'ambulance'},
   fish:{dv:'މަސް', rom:'mas', en:'fish'}, coconut:{dv:'ކާށި', rom:'kaashi', en:'coconut'},
   tea:{dv:'ސައި', rom:'sai', en:'tea', note:'"Sai" on its own means black tea.'},
   mosque:{dv:'މިސްކިތް', rom:'miskiy', en:'mosque', note:'Shops nearby close for about fifteen minutes at each prayer time.'},
@@ -282,11 +299,11 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 if (SHADOWS){ renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; }
 $('#stage').appendChild(renderer.domElement);
-const camera = new THREE.PerspectiveCamera(68, innerWidth / innerHeight, 0.1, 4200);
+const camera = new THREE.PerspectiveCamera(68, innerWidth / innerHeight, 0.1, 6000);
 camera.rotation.order = 'YXZ';
 
 const city = new THREE.Scene();
-city.fog = new THREE.Fog(0xdcebf2, 260, 2000);
+city.fog = new THREE.Fog(0xdcebf2, 300, 3400);
 city.background = new THREE.Color(0xa9d3ec);
 city.add(new THREE.HemisphereLight(0xd6ecff, 0xc9ad86, .8));
 const SUN_DIR = new THREE.Vector3(.66, .42, .62).normalize();        // low east-south-east sun, early morning
@@ -412,7 +429,7 @@ const SOLIDS = [], GRID = new Map(), GCELL = 20;
 const SEGS = [], SEGGRID = new Map();
 const interactCity = [];
 let LABELS = [];
-const AREAS_N = [];
+const AREAS_N = [], ISLAND_LABELS = [];
 let sky = null, sunSprite = null;
 
 function addSolid(s){ const i = SOLIDS.push(s) - 1; for (let gx = Math.floor(s.x0 / GCELL); gx <= Math.floor(s.x1 / GCELL); gx++) for (let gz = Math.floor(s.z0 / GCELL); gz <= Math.floor(s.z1 / GCELL); gz++){ const k = gx + ',' + gz; (GRID.get(k) || GRID.set(k, []).get(k)).push(i); } }
@@ -434,7 +451,14 @@ function bridgeProject(x, z){
 }
 function bridgeH(s){ const t = Math.max(0, Math.min(1, s / BR.L)); return .65 + 14 * Math.pow(Math.sin(Math.PI * t), 1.2); }
 function onBridgeDeck(x, z){ const b = bridgeProject(x, z); return b && b.d < BR.half && b.s > 1 && b.s < BR.L - 1 ? b : null; }
-const PIER_GRID = new Map(), PIER_SEGS = [], BEACHES = [];
+const PIER_GRID = new Map(), PIER_SEGS = [], BEACHES = [], CANALS = [];
+function addDeck(pts, w, y){
+  for (let i = 1; i < pts.length; i++){
+    const sg = {ax:pts[i - 1][0], az:pts[i - 1][1], bx:pts[i][0], bz:pts[i][1], w, y}, si = PIER_SEGS.push(sg) - 1;
+    for (let gx = Math.floor((Math.min(sg.ax, sg.bx) - w) / 40); gx <= Math.floor((Math.max(sg.ax, sg.bx) + w) / 40); gx++)
+      for (let gz = Math.floor((Math.min(sg.az, sg.bz) - w) / 40); gz <= Math.floor((Math.max(sg.az, sg.bz) + w) / 40); gz++){ const k = gx + ',' + gz; (PIER_GRID.get(k) || PIER_GRID.set(k, []).get(k)).push(si); }
+  }
+}
 function pierY(x, z){
   for (const i of PIER_GRID.get(Math.floor(x / 40) + ',' + Math.floor(z / 40)) || []){
     const s = PIER_SEGS[i], dx = s.bx - s.ax, dz = s.bz - s.az, L2 = dx * dx + dz * dz || 1;
@@ -446,8 +470,9 @@ function pierY(x, z){
 function groundY(x, z){
   const b = BR && Math.abs(x - BR.cx) < BR.rx && Math.abs(z - BR.cz) < BR.rz ? onBridgeDeck(x, z) : null;
   if (b) return bridgeH(b.s);
-  if (islandAt(x, z)) return 0;
   const py = pierY(x, z); if (py != null) return py;
+  for (const W of CANALS) if (x >= W.x0 && x <= W.x1 && z >= W.z0 && z <= W.z1 && pointInPoly(x, z, W.pts)) return null;
+  if (islandAt(x, z)) return 0;
   for (const B of BEACHES) if (x >= B.x0 && x <= B.x1 && z >= B.z0 && z <= B.z1 && pointInPoly(x, z, B.pts)) return .02;
   return null;
 }
@@ -497,7 +522,7 @@ function atlas(cells, cols, cw, ch, draw){
   const tex = canvasTex(c);
   return {tex, uv:i => { const u0 = (i % cols) / cols, u1 = u0 + 1 / cols, v1 = 1 - ((i / cols) | 0) / rows, v0 = v1 - 1 / rows; return [[u0 + .002, v0 + .003], [u1 - .002, v0 + .003], [u1 - .002, v1 - .003], [u0 + .002, v1 - .003]]; }};
 }
-const PSTYLE = {teashop:'#7e2f23', market:'#1f5f7a', kurumba:'#4f7a2e', restaurant:'#7e5a12', shop:'#1f2535', phone:'#b83227', barber:'#3a2f4a', bank:'#0d6663',
+const PSTYLE = {cafe:'#5a3a2a', street:'#1f2535', chat:'#1f2535', teashop:'#7e2f23', market:'#1f5f7a', kurumba:'#4f7a2e', restaurant:'#7e5a12', shop:'#1f2535', phone:'#b83227', barber:'#3a2f4a', bank:'#0d6663',
                 pharmacy:'#2f7a58', clinic:'#0d6663', ferry:'#0d6663', bus:'#1d5fd1', taxi:'#1f2535', landlord:'#7a5436', mosque:'#2f6f5a', office:'#34495e',
                 bakery:'#a0622a', tailor:'#5a3a8a', laundry:'#2f86a8', garage:'#3a3f48', guesthouse:'#7a4a6a'};
 const SIT_IDS = SITUATIONS.map(s => s.id);
@@ -535,16 +560,53 @@ function buildCity(){
   }
 
   // sea, reef shallows, islands, parks
-  const sea = new THREE.Mesh(new THREE.PlaneGeometry(14000, 14000), std(0x1d9fb4, {roughness:.22, metalness:.18}));
-  sea.rotation.x = -Math.PI / 2; sea.position.set(1500, -.9, -2000); city.add(sea);
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(40000, 40000), std(0x1d9fb4, {roughness:.22, metalness:.18}));
+  sea.rotation.x = -Math.PI / 2; sea.position.set(0, -.9, -6000); city.add(sea);
+  // canals inside the islands (Hulhumalé Phase 1 / Phase 2): cut out of the land, water sits below the quay
+  for (const a of D.areas){
+    if (a[0] !== 5) continue;
+    const pts = ptsFrom(a, 2); if (pts.length < 4) continue;
+    const xs = pts.map(q => q[0]), zs = pts.map(q => q[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
+    if ((x1 - x0) * (z1 - z0) < 600) continue;
+    CANALS.push({pts, x0, x1, z0, z1});
+  }
   const shallow = std(0x6fd6d3, {roughness:.3, transparent:true, opacity:.55});
   const shape = pts => { const s = new THREE.Shape(); pts.forEach((p, i) => i ? s.lineTo(p[0], -p[1]) : s.moveTo(p[0], -p[1])); return s; };
   for (const I of ISL){
     const cx = (I.x0 + I.x1) / 2, cz = (I.z0 + I.z1) / 2;
     const reef = new THREE.Mesh(new THREE.ShapeGeometry(shape(I.ring.map(p => { const dx = p[0] - cx, dz = p[1] - cz, d = Math.hypot(dx, dz) || 1; return [p[0] + dx / d * 30, p[1] + dz / d * 30]; }))), shallow);
     reef.rotation.x = -Math.PI / 2; reef.position.y = -.6; city.add(reef);
-    const land = new THREE.Mesh(new THREE.ShapeGeometry(shape(I.ring)), std(0xd8cdb8, {roughness:.95}));
+    const landShape = shape(I.ring);
+    for (const W of CANALS) if (pointInPoly(W.pts[0][0], W.pts[0][1], I.ring)) landShape.holes.push(shape(W.pts));
+    const land = new THREE.Mesh(new THREE.ShapeGeometry(landShape), std(0xd8cdb8, {roughness:.95}));
     land.rotation.x = -Math.PI / 2; land.receiveShadow = SHADOWS; city.add(land);
+  }
+  const canalMat = std(0x2a9fb0, {roughness:.2, metalness:.15}), quay = lin(0xb9b2a4);
+  for (const W of CANALS){
+    const m = new THREE.Mesh(new THREE.ShapeGeometry(shape(W.pts)), canalMat); m.rotation.x = -Math.PI / 2; m.position.y = -.55; city.add(m);
+    for (let i = 0; i < W.pts.length; i++){ const [ax, az] = W.pts[i], [bx, bz] = W.pts[(i + 1) % W.pts.length]; tb('conc', ax, az).quad([ax, -.6, az], [bx, -.6, bz], [bx, .02, bz], [ax, .02, az], null, quay, true); }
+  }
+  // the islands around Malé: resorts and inhabited islands green with palms, industrial ones grey with sheds
+  const greenLand = std(0x9fbf7a, {roughness:1}), sandLand = std(0xeadcb2, {roughness:1}), greyLand = std(0xb8b2a6, {roughness:1});
+  const SHED = template([{geo:new THREE.BoxGeometry(1, 1, 1), color:0xffffff, pos:[0, .5, 0]}]);
+  const PALM_S = template([{geo:new THREE.CylinderGeometry(.15, .22, 8, 5), color:0x8a7358, pos:[0, 4, 0]}, {geo:new THREE.ConeGeometry(2.6, 1.6, 7), color:0xffffff, pos:[0, 8, 0]}]);
+  for (const o of D.others || []){
+    const ring = ptsFrom(o.ring); if (ring.length < 4) continue;
+    const xs = ring.map(q => q[0]), zs = ring.map(q => q[1]), cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2;
+    const reef = new THREE.Mesh(new THREE.ShapeGeometry(shape(ring.map(q => { const dx = q[0] - cx, dz = q[1] - cz, d = Math.hypot(dx, dz) || 1; return [q[0] + dx / d * 40, q[1] + dz / d * 40]; }))), shallow);
+    reef.rotation.x = -Math.PI / 2; reef.position.y = -.62; city.add(reef);
+    const sand = new THREE.Mesh(new THREE.ShapeGeometry(shape(ring)), o.kind === 'industrial' ? greyLand : sandLand); sand.rotation.x = -Math.PI / 2; sand.position.y = .01; city.add(sand);
+    if (o.kind === 'green'){
+      const inner = new THREE.Mesh(new THREE.ShapeGeometry(shape(ring.map(q => [cx + (q[0] - cx) * .8, cz + (q[1] - cz) * .8]))), greenLand); inner.rotation.x = -Math.PI / 2; inner.position.y = .03; city.add(inner);
+    }
+    const n = Math.min(o.kind === 'green' ? 260 : 60, Math.floor(o.area / (o.kind === 'green' ? 260 : 1800)));
+    for (let k = 0, tries = 0; k < n && tries < n * 5; tries++){
+      const x = Math.min(...xs) + rand() * (Math.max(...xs) - Math.min(...xs)), z = Math.min(...zs) + rand() * (Math.max(...zs) - Math.min(...zs));
+      if (!pointInPoly(x, z, ring)) continue; k++;
+      if (o.kind === 'green') mergeAdd('prop', PALM_S, x, 0, z, rand() * 6, .8 + rand() * .5, .8 + rand() * .5, .8 + rand() * .5, lin(rand() < .5 ? 0x4f8a3a : 0x5d9a40));
+      else mergeAdd('prop', SHED, x, 0, z, rand() * 3, 8 + rand() * 20, 3 + rand() * 6, 6 + rand() * 14, lin(rand() < .5 ? 0xc9c4b8 : 0x8fa3ad));
+    }
+    ISLAND_LABELS.push({name:o.name, x:cx, z:cz, ring, x0:Math.min(...xs), x1:Math.max(...xs), z0:Math.min(...zs), z1:Math.max(...zs)});
   }
   // open spaces from OpenStreetMap: parks, football turfs, playgrounds, beaches, scrub, pools, cemeteries, stadiums
   const AREA_COL = [0x6f9a4f, 0x3f8f4a, 0xb8553f, 0xeadcb2, 0x5b8440, 0x3fb0c8, 0x8d9a7c, 0x4f9a52];
@@ -552,6 +614,7 @@ function buildCity(){
   const AREA_Y = [.012, .016, .016, .008, .012, .02, .012, .016];
   for (const a of D.areas){
     const code = a[0], name = a[1], pts = ptsFrom(a, 2); if (pts.length < 4) continue;
+    if (code === 5 && CANALS.some(W => W.pts === pts || (W.pts.length === pts.length && W.pts[0][0] === pts[0][0] && W.pts[0][1] === pts[0][1]))) continue;
     const m = new THREE.Mesh(new THREE.ShapeGeometry(shape(pts)), areaMats[code]); m.rotation.x = -Math.PI / 2; m.position.y = AREA_Y[code]; m.receiveShadow = SHADOWS; city.add(m);
     const xs = pts.map(q => q[0]), zs = pts.map(q => q[1]), bb = {x0:Math.min(...xs), x1:Math.max(...xs), z0:Math.min(...zs), z1:Math.max(...zs)};
     if (code === 3) BEACHES.push(Object.assign({pts}, bb));
@@ -610,6 +673,18 @@ function buildCity(){
       if (bridge) continue;
       for (let gx = Math.floor((Math.min(s.ax, s.bx) - 10) / 50); gx <= Math.floor((Math.max(s.ax, s.bx) + 10) / 50); gx++)
         for (let gz = Math.floor((Math.min(s.az, s.bz) - 10) / 50); gz <= Math.floor((Math.max(s.az, s.bz) + 10) / 50); gz++){ const k = gx + ',' + gz; (SEGGRID.get(k) || SEGGRID.set(k, []).get(k)).push(si); }
+    }
+    if (r[1] & 8){
+      const dp = densify(pts, 4);
+      ribbon('conc', dp, w + 1.2, flat(.55), lin(0xcfc8ba));
+      ribbon(tar ? 'tar' : 'paver', dp, w, flat(.6), tar ? cAsph : cPave, 1.6);
+      for (const side of [-1, 1]) for (let i = 1; i < dp.length; i++){
+        const [ax, az] = dp[i - 1], [bx, bz] = dp[i], L = Math.hypot(bx - ax, bz - az) || 1, nx = -(bz - az) / L * side, nz = (bx - ax) / L * side, o = w / 2 + .5;
+        tb('conc', ax, az).quad([ax + nx * o, .55, az + nz * o], [bx + nx * o, .55, bz + nz * o], [bx + nx * o, 1.5, bz + nz * o], [ax + nx * o, 1.5, az + nz * o], null, lin(0xe8e4dc), true);
+        tb('conc', ax, az).quad([ax + nx * o, -.6, az + nz * o], [bx + nx * o, -.6, bz + nz * o], [bx + nx * o, .55, bz + nz * o], [ax + nx * o, .55, az + nz * o], null, lin(0xa9a294), true);
+      }
+      addDeck(dp, w + .6, .6);
+      continue;
     }
     if (bridge){
       const yAt = (x, z) => { const b = bridgeProject(x, z); return b ? bridgeH(b.s) + .05 : .7; };
@@ -874,7 +949,7 @@ function buildCity(){
     box(amb, .9, .16, .5, .6, 2.48, 0, glow(0x3a7bd5)); box(amb, 1.2, .75, 1.9, 2.05, 1.7, 0, std(0x22303a));
     for (const [wx, wz] of [[-1.6, .95], [1.7, .95], [-1.6, -.95], [1.7, -.95]]){ const wh = cyl(amb, .38, .38, .26, wx, .38, wz, std(0x121212), 12); wh.rotation.x = Math.PI / 2; }
     if (SHADOWS) amb.traverse(o => { if (o.isMesh) o.castShadow = true; });
-    amb.userData.hit = {type:'word', w:'doctor'}; interactCity.push(amb); city.add(amb);
+    amb.userData.hit = {type:'word', w:'ambulance'}; interactCity.push(amb); city.add(amb);
     AMBULANCES.push({x:amb.position.x, z:amb.position.z, a:amb.rotation.y});
   }
 
@@ -1080,6 +1155,7 @@ function updateParked(force){
 }
 
 let bodyMesh = null, headMesh = null;
+const PED_DRAWN = [];
 const PEDS = [], PED_N = TOUCH ? 90 : 170;
 const SHIRTS = ['#f4f4f2', '#1d5fd1', '#c0392b', '#2f7a58', '#e2b52f', '#6a4a8a', '#a8d0e6', '#f0a6a0', '#3a3f48', '#d9c7a3'].map(lin);
 const HEADS = ['#8a5a3c', '#6b4430', '#a06a48', '#7a4e34'].map(lin), SCARVES = ['#1d1d1f', '#2b3a67', '#7e2f23', '#d9c7a3', '#e7a8b8', '#3a5a4a'].map(lin);
@@ -1097,6 +1173,7 @@ function spawnPed(p){
   for (let tries = 0; tries < 6; tries++){
     const s = SEGS[list[(rand() * list.length) | 0]], L = Math.hypot(s.bx - s.ax, s.bz - s.az); if (L < 6) continue;
     p.s = s; p.L = L; p.t = rand(); p.dir = rand() < .5 ? 1 : -1; p.side = rand() < .5 ? 1 : -1; p.speed = .9 + rand() * .7; p.ph = rand() * 6;
+    p.name = NAMES[(rand() * NAMES.length) | 0]; p.talking = false;
     p.shirt = SHIRTS[(rand() * SHIRTS.length) | 0]; p.head = rand() < .45 ? SCARVES[(rand() * SCARVES.length) | 0] : HEADS[(rand() * HEADS.length) | 0];
     p.off = s.tar ? s.w / 2 + .9 + rand() * .7 : s.w / 2 - .5 - rand() * .5;     // pavements beside tar, the edge of paver lanes
     const pos = pedPos(p); if (solidAt(pos[0], pos[1]) || Math.hypot(pos[0] - P.x, pos[1] - P.z) < 6) continue;
@@ -1109,12 +1186,15 @@ function updatePeople(dt){
   let n = 0;
   for (const p of PEDS){
     if (!p.alive){ if (rand() < .15) spawnPed(p); if (!p.alive) continue; }
-    p.t += p.dir * p.speed * dt / p.L;
-    if (p.t > 1 || p.t < 0){ p.dir = -p.dir; p.t = Math.max(0, Math.min(1, p.t)); }
-    const [x, z, yaw] = pedPos(p);
-    if (Math.hypot(x - P.x, z - P.z) > 170){ p.alive = false; continue; }
-    p.ph += dt * p.speed * 6;
-    _o.position.set(x, Math.abs(Math.sin(p.ph)) * .045 + (p.s.tar ? .12 : 0), z); _o.rotation.set(0, yaw, Math.sin(p.ph) * .04); _o.scale.set(1, 1, 1); _o.updateMatrix();
+    if (!p.talking){
+      p.t += p.dir * p.speed * dt / p.L;
+      if (p.t > 1 || p.t < 0){ p.dir = -p.dir; p.t = Math.max(0, Math.min(1, p.t)); }
+    }
+    let [x, z, yaw] = pedPos(p);
+    if (!p.talking && Math.hypot(x - P.x, z - P.z) > 170){ p.alive = false; continue; }
+    if (p.talking){ yaw = Math.atan2(P.x - x, P.z - z); } else p.ph += dt * p.speed * 6;
+    PED_DRAWN[n] = p;
+    _o.position.set(x, (p.talking ? 0 : Math.abs(Math.sin(p.ph)) * .045) + (p.s.tar ? .12 : 0), z); _o.rotation.set(0, yaw, p.talking ? 0 : Math.sin(p.ph) * .04); _o.scale.set(1, 1, 1); _o.updateMatrix();
     bodyMesh.setMatrixAt(n, _o.matrix); headMesh.setMatrixAt(n, _o.matrix); bodyMesh.setColorAt(n, p.shirt); headMesh.setColorAt(n, p.head);
     n++;
   }
@@ -1130,7 +1210,7 @@ const CAR_COL = ['#f4f4f2', '#f4f4f2', '#1d1d1f', '#8a8f96', '#b8c2cc', '#c0392b
 function buildTraffic(){
   const nodes = ptsFrom(D.net.nodes), edges = D.net.edges.map(e => {
     const pts = ptsFrom(e, 4), cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
-    return {a:e[0], b:e[1], w:e[2] / 10, bridge:!!(e[3] & 1), tar:!!(e[3] & 2), oneway:!!(e[3] & 4), pts, cum, L:cum[cum.length - 1]};
+    return {a:e[0], b:e[1], w:e[2] / 10, bridge:!!(e[3] & 1), tar:!!(e[3] & 2), oneway:!!(e[3] & 4), small:!!(e[3] & 8), pts, cum, L:cum[cum.length - 1]};
   });
   const adj = nodes.map(() => []); edges.forEach((e, i) => { adj[e.a].push(i); adj[e.b].push(i); });
   const egrid = new Map(); edges.forEach((e, i) => { const seen = new Set(); for (let s = 0; s <= e.L; s += 30){ const [x, z] = edgeAt(e, s); const k = Math.floor(x / 60) + ',' + Math.floor(z / 60); if (seen.has(k)) continue; seen.add(k); (egrid.get(k) || egrid.set(k, []).get(k)).push(i); } });
@@ -1192,7 +1272,7 @@ function updateTraffic(dt){
     v.s += v.v * v.dir * dt;
     if (v.s > e.L || v.s < 0) nextEdge(v);
     if (!v.alive) continue;
-    const y = e.bridge && BR ? (() => { const b = bridgeProject(x, z); return b ? bridgeH(b.s) : 0; })() : (e.tar ? .14 : .06);
+    const y = e.bridge && BR ? (() => { const b = bridgeProject(x, z); return b ? bridgeH(b.s) : 0; })() : e.small ? .6 : (e.tar ? .14 : .06);
     const heading = -Math.atan2(fz, fx);
     v.a += angDiff(v.a, heading) * Math.min(1, 8 * dt); v.x = x; v.z = z; v.y = y;
     if (Math.hypot(x - P.x, z - P.z) > 230){ v.alive = false; continue; }
@@ -1214,6 +1294,134 @@ function trafficBlocks(x, z){
 }
 
 const BUSES = [];
+/* bake a group of simple parts into one vertex-coloured mesh: one draw call per vehicle */
+const BAKED = new THREE.MeshStandardMaterial({vertexColors:true, roughness:.45, metalness:.1});
+function bake(group){
+  const pos = [], nor = [], col = [];
+  group.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(group.matrixWorld).invert();
+  group.traverse(o => {
+    if (!o.isMesh) return;
+    const g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
+    g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld));
+    const c = o.material.color || new THREE.Color(1, 1, 1), P = g.attributes.position, N = g.attributes.normal;
+    for (let i = 0; i < P.count; i++){ pos.push(P.getX(i), P.getY(i), P.getZ(i)); nor.push(N.getX(i), N.getY(i), N.getZ(i)); col.push(c.r, c.g, c.b); }
+  });
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  geo.computeBoundingSphere();
+  const m = new THREE.Mesh(geo, BAKED); m.userData.hit = group.userData.hit; m.scale.copy(group.scale);
+  if (SHADOWS) m.castShadow = true;
+  return m;
+}
+
+/* ---------- boats on the real ferry and speedboat routes ---------- */
+const BOATS = [];
+function buildBoats(){
+  const hullW = std(0xf4f4f2, {roughness:.4}), blue = std(0x1d5fd1, {roughness:.4}), glass = std(0x1c2a36, {roughness:.1, metalness:.4}), red = std(0xc0392b), dark = std(0x2a2d31);
+  const makeFerry = () => {
+    const g = new THREE.Group();
+    box(g, 20, 2.2, 5.6, 0, .6, 0, hullW); box(g, 20.05, .5, 5.65, 0, 1.2, 0, blue);
+    box(g, 14, 2.2, 5, -1.5, 2.8, 0, hullW); box(g, 13, .9, 5.05, -1.5, 3, 0, glass); box(g, 14.4, .2, 5.4, -1.5, 4, 0, blue);
+    box(g, 4, 1.6, 3.6, 2, 5, 0, hullW); box(g, 3.6, .7, 3.65, 2, 5.2, 0, glass);
+    const bow = new THREE.Mesh(new THREE.ConeGeometry(2.8, 5, 4), hullW); bow.rotation.z = -Math.PI / 2; bow.scale.set(.5, 1, 1); bow.position.set(12.2, .6, 0); g.add(bow);
+    g.userData.hit = {type:'word', w:'ferry'}; return bake(g);
+  };
+  const makeSpeed = () => {
+    const g = new THREE.Group();
+    box(g, 9, 1.1, 2.8, 0, .3, 0, hullW); box(g, 9.05, .25, 2.85, 0, .7, 0, red);
+    const bow = new THREE.Mesh(new THREE.ConeGeometry(1.4, 3.2, 4), hullW); bow.rotation.z = -Math.PI / 2; bow.scale.set(.4, 1, 1); bow.position.set(6, .35, 0); g.add(bow);
+    box(g, 4, 1.1, 2.4, -.8, 1.35, 0, hullW); box(g, 3.2, .6, 2.45, -.4, 1.5, 0, glass); box(g, 1.2, .9, 1.6, -4.1, .9, 0, dark);
+    g.userData.hit = {type:'word', w:'speedboat'}; return bake(g);
+  };
+  for (const f of D.ferries || []){
+    const pts = ptsFrom(f.pts); if (pts.length < 2) continue;
+    const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    const L = cum[cum.length - 1], n = f.kind === 'ferry' ? (L > 3000 ? 2 : 1) : 1;
+    for (let k = 0; k < n; k++){
+      const g = f.kind === 'ferry' ? makeFerry() : makeSpeed();
+      interactCity.push(g); city.add(g);
+      BOATS.push({g, pts, cum, L, s:L * (k + rand() * .6) / n, dir:k % 2 ? -1 : 1, v:f.kind === 'ferry' ? 6.5 : 15, wait:0, a:0, kind:f.kind, name:f.name});
+    }
+  }
+}
+function updateBoats(dt){
+  for (const b of BOATS){
+    if (b.wait > 0){ b.wait -= dt; continue; }
+    b.s += b.v * b.dir * dt;
+    if (b.s > b.L){ b.s = b.L; b.dir = -1; b.wait = b.kind === 'ferry' ? 25 : 10; } else if (b.s < 0){ b.s = 0; b.dir = 1; b.wait = b.kind === 'ferry' ? 25 : 10; }
+    let i = 1; while (i < b.cum.length - 1 && b.cum[i] < b.s) i++;
+    const a = b.pts[i - 1], c = b.pts[i], seg = b.cum[i] - b.cum[i - 1] || 1, t = (b.s - b.cum[i - 1]) / seg;
+    const x = a[0] + (c[0] - a[0]) * t, z = a[1] + (c[1] - a[1]) * t, fx = (c[0] - a[0]) / seg * b.dir, fz = (c[1] - a[1]) / seg * b.dir;
+    b.a += angDiff(b.a, Math.atan2(-fz, fx)) * Math.min(1, 1.5 * dt);
+    b.g.position.set(x, -1.05 + Math.sin(clock * 1.3 + b.s * .05) * .08 + (b.kind === 'speed' && b.wait <= 0 ? .25 : 0), z);
+    b.g.rotation.set(b.kind === 'speed' && b.wait <= 0 ? 0 : 0, b.a, b.kind === 'speed' && b.wait <= 0 ? .06 : Math.sin(clock * .9 + b.s) * .015);
+  }
+}
+
+/* ---------- Velana International Airport: parked jets, seaplanes, the tower, a take-off ---------- */
+let PLANE_T = 0, takeoff = null;
+function jet(scale, tail){
+  const g = new THREE.Group(), white = std(0xf4f5f6, {roughness:.35, metalness:.1}), tailM = std(tail, {roughness:.4}), grey = std(0x9aa2a8, {metalness:.4, roughness:.4}), win = std(0x1c2a36);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(1.95, 1.95, 30, 12), white); body.rotation.z = Math.PI / 2; g.add(body);
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(1.95, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), white); nose.rotation.z = -Math.PI / 2; nose.position.x = 15; nose.scale.set(1, 1.6, 1); g.add(nose);
+  const tailc = new THREE.Mesh(new THREE.ConeGeometry(1.95, 7, 12), white); tailc.rotation.z = Math.PI / 2; tailc.position.x = -18.5; g.add(tailc);
+  box(g, 7, .35, 34, -1, -.6, 0, white); box(g, 3.2, 6, .35, -18, 3.4, 0, tailM); box(g, 3, .25, 11, -18.5, .8, 0, white);
+  for (const side of [-1, 1]){ const eng = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 4, 10), grey); eng.rotation.z = Math.PI / 2; eng.position.set(.5, -1.9, side * 5.8); g.add(eng); }
+  box(g, 22, .45, 3.95, 1, .7, 0, win); box(g, 1.2, 2.2, .3, 0, -2.6, 0, grey);
+  g.userData.hit = {type:'word', w:'plane'}; const m = bake(g); m.scale.setScalar(scale); return m;
+}
+function seaplane(){
+  const g = new THREE.Group(), white = std(0xf4f4f2, {roughness:.4}), stripe = std(0xd35400), dark = std(0x2a2d31), win = std(0x1c2a36);
+  box(g, 13, 2, 1.9, 0, 3, 0, white); box(g, 13.05, .35, 1.95, 0, 2.6, 0, stripe); box(g, 3, .7, 1.95, 5, 3.4, 0, win);
+  box(g, 2.2, .18, 19.8, .8, 4.1, 0, white); box(g, 1.6, 3, .2, -6, 4.5, 0, stripe); box(g, 1.4, .15, 5.5, -6.2, 3.2, 0, white);
+  for (const side of [-1, 1]){ box(g, 9, .7, .7, .5, .35, side * 1.9, white); box(g, .15, 2.2, .15, 2, 1.6, side * 1.9, dark); box(g, .15, 2.2, .15, -1, 1.6, side * 1.9, dark); const pr = new THREE.Mesh(new THREE.CylinderGeometry(.4, .4, 1.4, 8), dark); pr.rotation.z = Math.PI / 2; pr.position.set(2.2, 4, side * 4); g.add(pr); }
+  g.userData.hit = {type:'word', w:'seaplane'}; return bake(g);
+}
+function buildAirport(){
+  const A = D.airport; if (!A) return;
+  const tails = [0x1d5fd1, 0xc0392b, 0x0d6663, 0x6a4a8a, 0xe2b52f, 0x1f2535, 0x2f7a58];
+  (A.stands || []).forEach((st, i) => {
+    const x = st[0] / 10, z = st[1] / 10, h = st[2] / 1000;
+    if (!islandAt(x, z) && !st[3]) return;
+    const g = st[3] ? seaplane() : jet(i % 5 === 0 ? 1.25 : .9, tails[i % tails.length]);
+    g.position.set(x - Math.cos(h) * (st[3] ? 0 : 6), st[3] ? -1.1 : 2.9 * (i % 5 === 0 ? 1.25 : .9), z - Math.sin(h) * (st[3] ? 0 : 6)); g.rotation.y = -h;
+    interactCity.push(g); city.add(g);
+  });
+  // seaplanes moored off the seaplane terminals, on the lagoon side
+  for (const d of A.seaDocks || []){
+    const x0 = d[0] / 10, z0 = d[1] / 10;
+    let wx = 0, wz = 0; for (let a = 0; a < 16; a++){ const dx = Math.cos(a / 16 * Math.PI * 2), dz = Math.sin(a / 16 * Math.PI * 2); if (!islandAt(x0 + dx * 120, z0 + dz * 120)){ wx += dx; wz += dz; } }
+    const wl = Math.hypot(wx, wz) || 1; wx /= wl; wz /= wl;
+    for (let k = 0; k < 8; k++){
+      const tx = -wz, tz = wx, off = (k - 3.5) * 26, x = x0 + wx * (130 + (k % 2) * 30) + tx * off, z = z0 + wz * (130 + (k % 2) * 30) + tz * off;
+      if (islandAt(x, z)) continue;
+      const g = seaplane(); g.position.set(x, -1.1, z); g.rotation.y = Math.atan2(-wz, wx) + Math.PI; city.add(g); interactCity.push(g);
+    }
+  }
+  if (A.tower){
+    const g = new THREE.Group(), white = std(0xf2f2ee), glass = std(0x2a4a5a, {roughness:.1, metalness:.5});
+    cyl(g, 2.4, 3.2, 38, 0, 19, 0, white, 16); cyl(g, 5.5, 4.2, 5, 0, 40.5, 0, glass, 16); cyl(g, 6, 6, .8, 0, 43.4, 0, white, 16); cyl(g, .15, .15, 6, 0, 46.8, 0, std(0xc0392b), 6);
+    g.position.set(A.tower[0] / 10, 0, A.tower[1] / 10); if (SHADOWS) g.traverse(o => { if (o.isMesh) o.castShadow = true; }); city.add(g);
+  }
+  if (A.runway){
+    const pts = ptsFrom(A.runway.pts), w = A.runway.w / 10, g0 = pts[0], g1 = pts[pts.length - 1], L = Math.hypot(g1[0] - g0[0], g1[1] - g0[1]), ux = (g1[0] - g0[0]) / L, uz = (g1[1] - g0[1]) / L, px = -uz, pz = ux;
+    const cl = lin(0xf4f4f0);
+    for (let d = 60; d < L - 60; d += 50){ const Pt = (al, ac) => [g0[0] + ux * al + px * ac, .08, g0[1] + uz * al + pz * ac]; tb('line', g0[0] + ux * d, g0[1] + uz * d).quad(Pt(d, -.45), Pt(d + 30, -.45), Pt(d + 30, .45), Pt(d, .45), null, cl, true); }
+    for (const [base, sgn] of [[0, 1], [L, -1]]) for (let k = -w / 2 + 3; k < w / 2 - 3; k += 3.2){ const Pt = (al, ac) => [g0[0] + ux * al + px * ac, .08, g0[1] + uz * al + pz * ac]; tb('line', g0[0] + ux * base, g0[1] + uz * base).quad(Pt(base + sgn * 8, k), Pt(base + sgn * 38, k), Pt(base + sgn * 38, k + 1.6), Pt(base + sgn * 8, k + 1.6), null, cl, true); }
+    const plane = jet(1.1, 0x1d5fd1); city.add(plane); interactCity.push(plane);
+    takeoff = {plane, g0, ux, uz, L};
+  }
+}
+function updateAirport(dt){
+  if (!takeoff) return;
+  PLANE_T += dt; const T = PLANE_T % 150, t = takeoff, p = t.plane;
+  if (T > 70){ p.visible = false; return; }
+  p.visible = true;
+  const roll = Math.min(T, 40), s = 30 + 0.5 * 2.2 * roll * roll + (T > 40 ? 88 * (T - 40) : 0), climb = T > 36 ? Math.pow(T - 36, 1.6) * 1.8 : 0;
+  p.position.set(t.g0[0] + t.ux * s, 3.2 + climb, t.g0[1] + t.uz * s); p.rotation.set(0, Math.atan2(-t.uz, t.ux), T > 36 ? Math.min(.18, (T - 36) * .03) : 0);
+}
+
 function buildBuses(){
   const blue = std(0x1d5fd1, {roughness:.35, metalness:.25}), bWhite = std(0xf4f4f2, {roughness:.4}), glass = std(0x1c2a36, {roughness:.1, metalness:.4}), tyre = std(0x121212);
   (D.routes || []).slice(0, 4).forEach((r, k) => {
@@ -1258,7 +1466,7 @@ const ROOMSTYLE = {
   pharmacy:['#2f7a58', 0xeef2ef, 0xf4f8f6], clinic:['#0d6663', 0xeef2f1, 0xe9f2f3], ferry:['#0d6663', 0xbccad0, 0xe6eff2], bus:['#1d5fd1', 0xc3c1b8, 0xe9edf5],
   taxi:['#1f2535', 0xcbc4b6, 0xf6ecc8], landlord:['#7a5436', 0xd9c9b0, 0xf2e8d8], mosque:['#2f6f5a', 0x2f6b4f, 0xf7f4ee], office:['#34495e', 0xcfd4d8, 0xf1f3f5],
   bakery:['#a0622a', 0xd8c29c, 0xf6ead4], tailor:['#5a3a8a', 0xcbbfb0, 0xf1ece6], laundry:['#2f86a8', 0xdfe6ea, 0xf2f7f9], garage:['#3a3f48', 0x8f8c86, 0xd9d6d0],
-  guesthouse:['#7a4a6a', 0xd2c2a8, 0xf4ede2]
+  guesthouse:['#7a4a6a', 0xd2c2a8, 0xf4ede2], cafe:['#5a3a2a', 0xa98a6a, 0xefe6da]
 };
 const spinners = [];
 function buildInterior(place){
@@ -1334,7 +1542,7 @@ function buildInterior(place){
     goods(g, kind, W, tag);
   }
   if (['clinic', 'bank', 'ferry', 'bus'].includes(kind)) for (let i = 0; i < 4; i++){ box(sc, .6, .45, .6, -3.8 + i * .8, .22, 2.4, std(0x3f6aa0)); box(sc, .6, .5, .08, -3.8 + i * .8, .7, 2.72, std(0x3f6aa0)); }
-  if (kind === 'restaurant' || kind === 'teashop') for (const [tx, tz] of [[-3.6, 1.8], [3.6, 1.8]]){
+  if (kind === 'restaurant' || kind === 'teashop' || kind === 'cafe') for (const [tx, tz] of [[-3.6, 1.8], [3.6, 1.8]]){
     cyl(sc, .6, .6, .06, tx, .76, tz, std(0xc9ab84), 18); cyl(sc, .06, .06, .76, tx, .38, tz, std(0x3a3d42), 8);
     for (const o of [-1, 1]) cyl(sc, .22, .22, .44, tx + o * .95, .22, tz, std(0x8a6444), 10);
     tag(cyl(sc, .08, .065, .14, tx, .86, tz, std(0xf4f0e8), 12), {type:'word', w:kind === 'teashop' ? 'tea' : 'water'});
@@ -1345,6 +1553,11 @@ function goods(g, kind, W, tag){
   if (kind === 'market'){ box(g, 3.2, .1, .8, 0, 1.12, -.6, std(0x9fd0e0, {roughness:.25})); for (let i = 0; i < 6; i++){ const f = ball(g, .2, -1.25 + i * .5, 1.24, -.6 + (i % 2 ? .15 : -.15), std(0x9fb2bd, {metalness:.55, roughness:.3}), 12); f.scale.set(2.2, .6, .7); tag(f, {type:'word', w:'fish'}); } }
   else if (kind === 'kurumba'){ for (let i = 0; i < 7; i++){ const row = i < 4 ? 0 : 1; tag(ball(g, .2, -1.1 + (row ? .3 : 0) + (i - (row ? 4 : 0)) * .44, 1.28 + row * .3, -.6, std(0x5f8f34, {roughness:.7}), 14), {type:'word', w:'kurumba'}); } for (let i = 0; i < 4; i++) tag(ball(g, .17, 1.3 + (i % 2) * .3, 1.22, -.75 + (i > 1 ? .3 : 0), std(0x6b4a2a), 12), {type:'word', w:'coconut'}); }
   else if (kind === 'teashop'){ box(g, 1.3, .06, .6, -.8, 1.11, -.6, std(0xc9c3b6, {metalness:.5, roughness:.4})); for (let i = 0; i < 6; i++) ball(g, .1, -1.25 + (i % 3) * .3, 1.2, -.75 + (i > 2 ? .3 : 0), std(0xb57a3c), 10); for (let i = 0; i < 3; i++) tag(cyl(g, .08, .065, .16, .6 + i * .35, 1.16, -.65, std(0xf4f0e8), 12), {type:'word', w:'tea'}); }
+  else if (kind === 'cafe'){
+    box(g, .7, .55, .5, -1.3, 1.35, -.6, std(0x2a2d31, {metalness:.6, roughness:.3})); box(g, .5, .08, .3, -1.3, 1.1, -.35, std(0x9aa2a8, {metalness:.8, roughness:.2}));
+    for (let i = 0; i < 4; i++) tag(cyl(g, .07, .055, .2, .2 + i * .32, 1.18, -.6, std(i % 2 ? 0x6b4a2e : 0xe8dcc8), 12), {type:'word', w:'tea'});
+    const menu = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.1), new THREE.MeshBasicMaterial({map:signTex('ކޮފީ · ޖޫސް', 'Coffee · Shakes · Waffles', '#2a2320', '#f4e9d8')})); menu.position.set(-3.5, 2.0, 1.86); menu.rotation.y = Math.PI; g.add(menu);
+  }
   else if (kind === 'restaurant'){ for (let i = 0; i < 3; i++){ cyl(g, .3, .28, .03, -1.3 + i * 1.1, 1.1, -.6, std(0xf4f0e8), 20); tag(cyl(g, .21, .21, .02, -1.3 + i * 1.1, 1.13, -.6, std(0xd9a55a), 18), {type:'word', w:'roshi'}); } }
   else if (kind === 'shop'){ const colors = [0xc0392b, 0x2f7a58, 0xe8c83a, 0x2f6f8f, 0xf1ece0]; for (let s = 0; s < 3; s++){ box(g, W - .4, .06, .35, 0, .9 + s * .6, 1.4, std(0x7a6048)); for (let i = 0; i < 8; i++) tag(box(g, .3, .36, .26, -1.6 + i * .46, 1.12 + s * .6, 1.4, std(colors[(i + s) % colors.length])), {type:'word', w:'shop'}); } box(g, .24, .08, .34, 1.1, 1.13, -.6, std(0x1a1d22)); }
   else if (kind === 'phone'){ box(g, W - .5, .34, .9, 0, 1.25, -.6, new THREE.MeshStandardMaterial({color:0xbfe3ff, transparent:true, opacity:.22, roughness:.1})); for (let i = 0; i < 6; i++){ tag(box(g, .2, .03, .38, -1.5 + i * .6, 1.12, -.6, std(0x14161a, {roughness:.3})), {type:'word', w:'phone'}); box(g, .17, .005, .32, -1.5 + i * .6, 1.14, -.6, glow(i % 2 ? 0x6fb7ff : 0x9fe3c0)); } }
@@ -1419,6 +1632,7 @@ function enterBuilding(p){
     inside = buildInterior(p);
     P.x = 0; P.z = ROOM.d / 2 - 1.1; P.yaw = 0; P.pitch = -.05; auto = null; if (fly) setFly(false);
     lastWhere = ''; $('#where').textContent = p.em + ' Inside · ' + (p.name || p.sitObj.en);
+    setTimeout(() => { if (inside && !talk) DhivehiAudio.play(p.sit === 'mosque' ? WORDS.hello.dv : WORDS.welcome.dv); }, 350);
     const t = TASK[p.sit];
     toast(C.mode === 'guided' && t && currentGoal() === p.sit ? 'Walk up and tap the ' + (p.sit === 'landlord' ? 'landlord' : 'person') + ' — ' + t.text + '.' : 'Tap the person to talk. Tap things to learn their names.', 4200);
   });
@@ -1477,6 +1691,13 @@ function tapAt(cx, cy){
     if (marker && marker.object.userData.p){ const p = marker.object.userData.p; travelTo(p, () => enterBuilding(p)); return; }
   }
   const hits = ray.intersectObjects(inside ? inside.interact : interactCity, true);
+  if (!inside && bodyMesh && bodyMesh.count){
+    const ph = ray.intersectObjects([bodyMesh, headMesh])[0];
+    if (ph && ph.instanceId != null && PED_DRAWN[ph.instanceId]){
+      if (ph.distance > 9) toast('Walk a little closer to talk to ' + PED_DRAWN[ph.instanceId].name + '.'); else talkToPerson(PED_DRAWN[ph.instanceId]);
+      return;
+    }
+  }
   if (!inside){
     let best = null;
     for (const [mesh, w] of [[bikeMesh, 'scooter'], [carMesh, 'car'], [parked, 'scooter']]){ if (!mesh || !mesh.count) continue; const h = ray.intersectObject(mesh)[0]; if (h && h.distance < 30 && (!best || h.distance < best.d)) best = {d:h.distance, w}; }
@@ -1510,7 +1731,14 @@ function showWord(w){
   c.hidden = false; DhivehiAudio.play(d.dv); clearTimeout(wordT); wordT = setTimeout(() => c.hidden = true, 4200);
 }
 let talk = null;
-const allYou = SITUATIONS.flatMap(s => s.turns.filter(t => t.s === 'you').map(t => ({sit:s.id, t})));
+// polite fallbacks that fit almost any counter, used when a situation has few lines of its own
+const GENERIC = ['ނޫން، ޝުކުރިއްޔާ', 'ކިހާ ވަރެއް؟', 'ރަނގަޅު، ޝުކުރިއްޔާ', 'ވަރަށް ޝުކުރިއްޔާ'].map(dv => SITUATIONS.flatMap(x => x.turns).find(t => t.dv === dv)).filter(Boolean);
+function choicesFor(sit, right){
+  const own = sit.turns.filter(t => t.s === 'you' && t.dv !== right.dv);
+  const pool = shuffle(own.slice()).slice(0, 2);
+  for (const g of shuffle(GENERIC.slice())) if (pool.length < 2 && g.dv !== right.dv && !pool.some(q => q.dv === g.dv)) pool.push(g);
+  return shuffle([right, ...pool]);
+}
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--){ const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const currentGoal = () => C.mode === 'guided' && C.goal < TOUR_ORDER.length ? TOUR_ORDER[C.goal] : null;
 function openTalk(p){
@@ -1524,19 +1752,19 @@ function advanceTalk(){
   const t = talk; if (!t) return;
   while (t.i < t.sit.turns.length && t.sit.turns[t.i].s === 'them'){ t.log.push(t.sit.turns[t.i]); t.i++; }
   t.options = null;
-  if (t.i < t.sit.turns.length){ const right = t.sit.turns[t.i]; const pool = shuffle(allYou.filter(y => y.sit !== t.sit.id && y.t.dv !== right.dv)).slice(0, 2).map(y => y.t); t.options = shuffle([right, ...pool]); t.right = right; }
+  if (t.i < t.sit.turns.length){ const right = t.sit.turns[t.i]; t.options = choicesFor(t.sit, right); t.right = right; }
   renderTalk();
 }
 function renderTalk(){
   const t = talk, s = $('#talk'); if (!t){ s.hidden = true; return; }
   const guided = C.mode === 'guided', onGoal = currentGoal() === t.p.sit && t.i === TASK[t.p.sit].turn;
-  let h = '<div class="hd"><span>' + t.p.em + '</span><h3>' + esc(t.p.name || t.sit.en) + '</h3><span class="dv">' + t.sit.dv + '</span><button class="x" data-close-talk aria-label="Close">✕</button></div>';
-  if (!t.log.length && t.i === 0) h += '<p class="note">' + esc(t.sit.note) + '</p>' + (t.p.name && !['mosque', 'bus', 'ferry', 'market'].includes(t.p.sit) ? '<p class="note small">A practice conversation set at ' + esc(t.p.name) + ' — the business isn’t involved, and prices and details are examples.</p>' : '');
+  let h = '<div class="hd"><span>' + t.p.em + '</span><h3>' + esc(t.p.npc ? t.p.name + ' · ' + t.sit.en : (t.p.name || t.sit.en)) + '</h3><span class="dv">' + t.sit.dv + '</span><button class="x" data-close-talk aria-label="Close">✕</button></div>';
+  if (!t.log.length && t.i === 0) h += '<p class="note">' + esc(t.sit.note) + '</p>' + (t.p.name && !t.p.npc && !['mosque', 'bus', 'ferry', 'market'].includes(t.p.sit) ? '<p class="note small">A practice conversation set at ' + esc(t.p.name) + ' — the business isn’t involved, and prices and details are examples.</p>' : '');
   h += '<div class="log">' + t.log.map(x => '<div class="b ' + x.s + '"><span class="who">' + (x.s === 'you' ? 'You' : 'They say') + '</span><span class="dv">' + x.dv + '</span><span class="rom">' + esc(x.rom) + '</span>' + ((guided || x.s === 'them') ? '<span class="en">' + esc(x.en) + '</span>' : '') + '<button class="say" data-say="' + esc(x.dv) + '" aria-label="Play">🔊</button></div>').join('') + '</div>';
   if (t.options){
     const task = TASK[t.p.sit].text;
     h += '<p class="prompt">' + (onGoal ? '<b>Goal:</b> ' + esc(task.charAt(0).toUpperCase() + task.slice(1)) + '.' : (guided ? 'Pick what you’d say next.' : 'What do you say?')) + '</p>';
-    h += '<div class="opts">' + t.options.map((o, k) => '<button class="opt" data-opt="' + k + '"><span class="dv">' + o.dv + '</span><span class="rom">' + esc(o.rom) + '</span>' + (guided ? '<span class="en">' + esc(o.en) + '</span>' : '') + '</button>').join('') + '</div>';
+    h += '<div class="opts">' + t.options.map((o, k) => '<div class="optrow"><button class="opt" data-opt="' + k + '"><span class="dv">' + o.dv + '</span><span class="rom">' + esc(o.rom) + '</span>' + (guided ? '<span class="en">' + esc(o.en) + '</span>' : '') + '</button><button class="say optsay" data-say="' + esc(o.dv) + '" aria-label="Listen first">🔊</button></div>').join('') + '</div>';
     h += '<p class="hint" id="hint">' + esc(t.wrong) + '</p>';
   } else h += '<div class="done-box">That’s the whole exchange. ⭐ Every line you picked is one you can say at a real counter in Malé.</div>';
   h += '<div class="ft">' + (t.options ? '' : '<button class="btn primary" data-again>Again</button>') + '<a class="btn" href="./index.html#sit=' + t.p.sit + '">Phrasebook &amp; ChatGPT ↗</a><button class="btn" data-close-talk>Done</button></div>';
@@ -1556,7 +1784,22 @@ function chooseOpt(k, btn){
     saveC(); hud(); t.log.push(o); t.i++; t.wrong = ''; setTimeout(advanceTalk, 280);
   } else { btn.classList.remove('wrong'); void btn.offsetWidth; btn.classList.add('wrong'); t.wrong = 'Not quite — that one means “' + o.en + '”.'; const hint = $('#hint'); if (hint) hint.textContent = t.wrong; }
 }
-function closeTalk(){ talk = null; $('#talk').hidden = true; DhivehiAudio.stop(); }
+function closeTalk(){ if (talk && talk.p.npc){ const ped = talk.p.npc; setTimeout(() => { ped.talking = false; }, 600); } talk = null; $('#talk').hidden = true; DhivehiAudio.stop(); }
+/* ---------- people on the street you can stop and talk to ---------- */
+const NAMES = ['Aishath', 'Mariyam', 'Fathimath', 'Aminath', 'Hawwa', 'Shiuna', 'Zaha', 'Nashwa', 'Ibrahim', 'Mohamed', 'Ahmed', 'Hassan', 'Ali', 'Hussain', 'Moosa', 'Ismail', 'Yoosuf', 'Shifan'];
+function talkToPerson(ped){
+  if (!ped || !ped.alive || talk) return;
+  const goal = currentGoal(), sit = NPC_SITS.includes(goal) ? goal : NPC_SITS[(Math.random() * NPC_SITS.length) | 0];
+  ped.talking = true; auto = null;
+  const [x, z] = pedPos(ped); P.yaw = Math.atan2(P.x - x, P.z - z);
+  openTalk({key:'npc', npc:ped, sit, sitObj:sitById(sit), em:'🙂', name:ped.name, ex:x, ez:z});
+  if (!talk.log.length) DhivehiAudio.play(WORDS.hello.dv);
+}
+function nearestPerson(r){
+  let best = null, bd = r;
+  for (const p of PEDS){ if (!p.alive) continue; const [x, z] = pedPos(p), d = Math.hypot(x - P.x, z - P.z); if (d < bd){ bd = d; best = p; } }
+  return best;
+}
 
 /* ============================================================
    MAPS, HUD, PANELS
@@ -1564,6 +1807,10 @@ function closeTalk(){ talk = null; $('#talk').hidden = true; DhivehiAudio.stop()
 function drawIslands(ctx, tx, tz, lw){
   ctx.fillStyle = '#e3d9c6';
   for (const I of ISL){ ctx.beginPath(); I.ring.forEach((p, i) => i ? ctx.lineTo(tx(p[0]), tz(p[1])) : ctx.moveTo(tx(p[0]), tz(p[1]))); ctx.closePath(); ctx.fill(); }
+  ctx.fillStyle = '#cfe0b8';
+  for (const L2 of ISLAND_LABELS){ ctx.beginPath(); L2.ring.forEach((p, i) => i ? ctx.lineTo(tx(p[0]), tz(p[1])) : ctx.moveTo(tx(p[0]), tz(p[1]))); ctx.closePath(); ctx.fill(); }
+  ctx.fillStyle = '#2aa3b8'; for (const W of CANALS){ ctx.beginPath(); W.pts.forEach((p, i) => i ? ctx.lineTo(tx(p[0]), tz(p[1])) : ctx.moveTo(tx(p[0]), tz(p[1]))); ctx.closePath(); ctx.fill(); }
+  ctx.fillStyle = '#e3d9c6';
   const AC = ['#a9cf8e', '#8cc47f', '#e3a08c', '#f2e6c4', '#9dbf84', '#7fd0e0', '#c5cbb9', '#8cc47f'];
   for (const a of D.areas){ ctx.fillStyle = AC[a[0]]; ctx.beginPath(); for (let i = 2; i < a.length; i += 2){ const x = tx(a[i] / 10), z = tz(a[i + 1] / 10); i === 2 ? ctx.moveTo(x, z) : ctx.lineTo(x, z); } ctx.closePath(); ctx.fill(); }
   ctx.lineCap = 'round';
@@ -1610,7 +1857,7 @@ $('#mapview').addEventListener('click', e => {
   $('#mapview').hidden = true;
 });
 const distTxt = d => d > 999 ? (d / 1000).toFixed(1) + ' km' : Math.round(d) + ' m';
-function goalText(sit){ const s = sitById(sit); return 'Find a ' + s.en.toLowerCase() + ' and ' + TASK[sit].text + '.'; }
+function goalText(sit){ const s = sitById(sit); return NPC_SITS.includes(sit) ? 'Stop someone on the street and ' + TASK[sit].text + '.' : 'Find a ' + s.en.toLowerCase() + ' and ' + TASK[sit].text + '.'; }
 function hud(){
   $('#stars').textContent = C.stars; $('#words').textContent = C.words.length; $('#doneCount').textContent = C.done.length; $('#placeCount').textContent = TOUR_ORDER.length;
   $('#mGuided').setAttribute('aria-pressed', String(C.mode === 'guided')); $('#mFree').setAttribute('aria-pressed', String(C.mode === 'free'));
@@ -1672,10 +1919,11 @@ document.addEventListener('click', e => {
     const sit = currentGoal();
     if (!sit){ C.goal = 0; C.done = []; saveC(); hud(); toast('Starting the tour again.'); return; }
     if (inside && inside.place.sit === sit){ openTalk(inside.place); return; }
+    if (NPC_SITS.includes(sit)){ if (inside){ exitBuilding(); return; } const person = nearestPerson(40); if (person){ const [x, z] = pedPos(person); travelTo({ex:x, ez:z, yaw:P.yaw}, () => talkToPerson(person)); } else toast('Walk along a busy street and tap anyone passing by.'); return; }
     const p = nearestOfType(sit, P.x, P.z); if (p) travelTo(p, () => enterBuilding(p)); return;
   }
   const act = t.closest('#act');
-  if (act){ if (act.dataset.mode === 'exit') exitBuilding(); else if (act.dataset.mode === 'talk') openTalk(inside.place); else enterBuilding(PLACES.find(p => p.key === act.dataset.place)); return; }
+  if (act){ if (act.dataset.mode === 'npc'){ talkToPerson(PEDS[+act.dataset.place.slice(3)]); return; } if (act.dataset.mode === 'exit') exitBuilding(); else if (act.dataset.mode === 'talk') openTalk(inside.place); else enterBuilding(PLACES.find(p => p.key === act.dataset.place)); return; }
   const go = t.closest('[data-go]'); if (go){ travelTo(go.dataset.go); return; }
   const fd = t.closest('[data-find]');
   if (fd){ const f = FIND[+fd.dataset.find]; if (!f) return; const target = f.place || {ex:f.x, ez:f.z, yaw:f.yaw}; travelTo(target, f.place ? () => enterBuilding(f.place) : null); toast('Going to ' + f.name + '…'); return; }
@@ -1717,6 +1965,7 @@ function frame(now){
     sky.position.copy(camera.position);
     sunSprite.position.set(camera.position.x + SUN_DIR.x * 3000, camera.position.y + SUN_DIR.y * 3000, camera.position.z + SUN_DIR.z * 3000);
     sun.position.set(P.x + SUN_DIR.x * 320, SUN_DIR.y * 320, P.z + SUN_DIR.z * 320); sun.target.position.set(P.x, 0, P.z); sun.target.updateMatrixWorld();
+    updateBoats(dt); updateAirport(dt);
     updateBuses(dt); updateTraffic(dt); updatePeople(dt); updateParked(false);
     for (let i = 0; i < markers.length; i++){ if (!markers[i].visible) continue; markers[i].position.y += Math.sin(clock * 2 + i) * .002; rings[i].material.opacity = .5 + Math.sin(clock * 3) * .3; }
   }
@@ -1726,7 +1975,7 @@ function frame(now){
   let want = null;
   if (!busy && !auto){
     if (inside){ if (P.z > ROOM.d / 2 - 1.4) want = {mode:'exit', html:'← Exit to the street'}; else if (P.z < .6 || inside.place.sit === 'mosque' || inside.place.sit === 'garage' || inside.place.sit === 'landlord') want = {mode:'talk', html:(TOUCH ? 'Tap' : 'Click') + ' · talk <span class="dv">' + inside.place.sitObj.dv + '</span>'}; }
-    else if (!fly){ const n = placesNear(P.x, P.z, 4)[0]; if (n){ const p = n[1]; want = {mode:'enter', place:p.key, html:p.em + ' Go inside · ' + esc(p.name || p.sitObj.en) + ' <span class="dv">' + p.sitObj.dv + '</span>'}; } }
+    else if (!fly){ const n = placesNear(P.x, P.z, 4)[0]; const person = !n && nearestPerson(2.6); if (person) want = {mode:'npc', place:'npc' + PEDS.indexOf(person), html:'🙂 Talk to ' + esc(person.name) + ' <span class="dv">' + WORDS.hello.dv + '</span>'}; if (n){ const p = n[1]; want = {mode:'enter', place:p.key, html:p.em + ' Go inside · ' + esc(p.name || p.sitObj.en) + ' <span class="dv">' + p.sitObj.dv + '</span>'}; } }
   }
   if (want){ const key = want.mode + (want.place || ''); if (a.dataset.key !== key){ a.dataset.key = key; a.dataset.mode = want.mode; a.dataset.place = want.place || ''; a.innerHTML = want.html; a.classList.toggle('exit', want.mode === 'exit'); } a.hidden = false; }
   else { a.hidden = true; a.dataset.key = ''; }
@@ -1742,7 +1991,9 @@ function frame(now){
       if (!br) for (const A of AREAS_N) if (P.x >= A.x0 && P.x <= A.x1 && P.z >= A.z0 && P.z <= A.z1 && pointInPoly(P.x, P.z, A.pts)){ label = ['🌳', '⚽', '🛝', '🏖️', '🌿', '🏊', '🪦', '🏟️'][A.code] + ' ' + A.name; break; }
       if (!br && !I && pierY(P.x, P.z) != null) label = '⚓ On the jetty';
       const n = placesNear(P.x, P.z, 9)[0]; if (n) label = n[1].em + ' ' + (n[1].name || n[1].sitObj.en);
-      if (fly) label = '✈️ ' + Math.round(P.y) + ' m over ' + (I ? I.name : 'the lagoon');
+      let over = I ? I.name : null;
+      if (!over) for (const L2 of ISLAND_LABELS) if (P.x >= L2.x0 && P.x <= L2.x1 && P.z >= L2.z0 && P.z <= L2.z1 && pointInPoly(P.x, P.z, L2.ring)){ over = L2.name; break; }
+      if (fly) label = '✈️ ' + Math.round(P.y) + ' m over ' + (over || 'the lagoon');
       if (label !== lastWhere){ lastWhere = label; $('#where').textContent = label; }
     }
   }
@@ -1763,7 +2014,7 @@ $('#ctrlChips').innerHTML = TOUCH ? '<span>left thumb — walk</span><span>drag 
     if (!res.ok) throw new Error('city-data.json returned ' + res.status);
     D = await res.json();
   } catch (err){ fail('Couldn’t load the map of Malé', (err && err.message) || 'Check your connection and reload.'); return; }
-  buildCity(); buildPlaces(); buildParkedScooters(); buildPeople(); buildTraffic(); buildBuses();
+  buildCity(); buildBoats(); buildAirport(); buildPlaces(); buildParkedScooters(); buildPeople(); buildTraffic(); buildBuses();
   const start = nearestOfType('teashop', 0, 0) || PLACES[0];
   const [sx, sz] = freeSpotNear(start.ex + start.nx * 2, start.ez + start.nz * 2); P.x = sx; P.z = sz; P.yaw = start.yaw + Math.PI * .5;
   updateParked(true); for (let i = 0; i < 40; i++) updatePeople(.1); for (let i = 0; i < 30; i++) updateTraffic(.05); updateBuses(0); updateMarkers();

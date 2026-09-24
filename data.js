@@ -8,11 +8,13 @@ const SITUATIONS = [
     note:'Short eats (ހެދިކާ) are priced per piece, usually MVR 3–8, and you help yourself from the tray with tongs, then tell them what you took. "Sai" on its own means black tea. Most shops pull the shutter halfway for about fifteen minutes at each prayer time.',
     turns:[
       {s:'you', dv:'ހެދިކާ ހުރިތަ؟', rom:'hedhikaa hurritha?', en:"Have you got any short eats?"},
-      {s:'them', dv:'ގުޅަ، ބަޖިޔާ، ބިސް ކީމިޔާ ހުރި', rom:'gulha, bajiyaa, bis keemiyaa huri', en:'Gulha, bajiya, egg keemiya.'},
-      {s:'you', dv:'ދެ ގުޅަ އަދި ކަޅު ސައި', rom:'dhe gulha adhi kalhu sai', en:'Two gulha and a black tea.'},
-      {s:'them', dv:'ގެންދަނީތަ؟', rom:'gendhaneetha?', en:'Taking it away?'},
+      {s:'them', dv:'ގުޅަ، ބަޖިޔާ، ބިސް ކީމިޔާ ހުރި', rom:'gulha, bajiyaa, bis keemiyaa huri', en:"Gulha, bajiya, egg keemiya."},
+      {s:'you', dv:'ދެ ގުޅަ އަދި ކަޅު ސައި', rom:'dhe gulha adhi kalhu sai', en:"Two gulha and a black tea."},
+      {s:'them', dv:'ގެންދަނީތަ؟', rom:'gendhaneetha?', en:"Taking it away?"},
       {s:'you', dv:'ނޫން، މިތާ ކާނީ', rom:'noon, mithaa kaanee', en:"No, I'll eat here."},
-      {s:'you', dv:'ބިލް ދެއްވަބަލަ', rom:'bill dhevvabala', en:'The bill, please.'}
+      {s:'them', dv:'ރަނގަޅު، އިށީނދެލައްވާ', rom:'rangalhu, isheendhelavvaa', en:"Fine, have a seat."},
+      {s:'you', dv:'ބިލް ދެއްވަބަލަ', rom:'bill dhevvabala', en:"The bill, please."},
+      {s:'them', dv:'ސާޅީސް ރުފިޔާ', rom:'saalhees rufiyaa', en:"Forty rufiyaa."}
     ]
   },
   {
@@ -20,11 +22,12 @@ const SITUATIONS = [
     note:'Fish is sold by the kilo at the fish market; fruit and veg next door go by the pile, not by weight. Cash only, and the price softens a little if you buy more than one. Ask them to cut and clean it for you — they will, at no extra charge.',
     turns:[
       {s:'you', dv:'މީގެ އަގަކީ ކޮބާ؟', rom:'meege agakee kobaa?', en:"What's the price of this?"},
-      {s:'them', dv:'ކިލޯއެއް ފަންސާސް ރުފިޔާ', rom:'kiloeh fansaas rufiyaa', en:'Fifty rufiyaa a kilo.'},
-      {s:'you', dv:'އަގުހެޔޮ ކޮށްދީބަލަ', rom:'aguheyo kohdheebala', en:'Make it a bit cheaper for me.'},
-      {s:'them', dv:'ކިހާ ވަރެއް ބޭނުމީ؟', rom:'kihaa vareh beynumee?', en:'How much do you want?'},
-      {s:'you', dv:'ދެ ކިލޯ', rom:'dhe kilo', en:'Two kilos.'},
-      {s:'you', dv:'ކުދިކޮށް ކޮށާލަދީބަލަ', rom:'kudhikoh koshaaladheebala', en:'Cut it small for me.'}
+      {s:'them', dv:'ކިލޯއެއް ފަންސާސް ރުފިޔާ', rom:'kiloeh fansaas rufiyaa', en:"Fifty rufiyaa a kilo."},
+      {s:'you', dv:'އަގުހެޔޮ ކޮށްދީބަލަ', rom:'aguheyo kohdheebala', en:"Make it a bit cheaper for me."},
+      {s:'them', dv:'ކިހާ ވަރެއް ބޭނުމީ؟', rom:'kihaa vareh beynumee?', en:"How much do you want?"},
+      {s:'you', dv:'ދެ ކިލޯ', rom:'dhe kilo', en:"Two kilos."},
+      {s:'them', dv:'ކޮށާލަދެންތަ؟', rom:'koshaaladhentha?', en:"Shall I cut it for you?"},
+      {s:'you', dv:'ކުދިކޮށް ކޮށާލަދީބަލަ', rom:'kudhikoh koshaaladheebala', en:"Cut it small for me."}
     ]
   },
   {
@@ -32,32 +35,34 @@ const SITUATIONS = [
     note:'MTCC ferries run Malé–Hulhumalé and Malé–Villimalé every ten to fifteen minutes, and cost a few rufiyaa. Since the bridge opened, buses are faster to Hulhumalé, but the ferry still wins for Villimalé. Tap your card at the gate — most people use the RaajjeTransport card.',
     turns:[
       {s:'you', dv:'ހުޅުމާލެއަށް ފެރީ ކޮންއިރަކު؟', rom:'hulhumaleah feri kon-iraku?', en:"When's the ferry to Hulhumalé?"},
-      {s:'them', dv:'ފަނަރަ މިނެޓު ތެރޭ', rom:'fanara minetu therey', en:'In fifteen minutes.'},
-      {s:'you', dv:'ޓިކެޓް ކޮންތާކުން؟', rom:'ticket konthaakun?', en:'Where do I get a ticket?'},
-      {s:'them', dv:'ކާޑު ޖައްސަވާ', rom:'kaadu jassavaa', en:'Just tap your card.'},
-      {s:'you', dv:'މިއީ ވިލިމާލެ ފެރީތަ؟', rom:'mee villimale feritha?', en:'Is this the Villimalé ferry?'}
+      {s:'them', dv:'ފަނަރަ މިނެޓު ތެރޭ', rom:'fanara minetu therey', en:"In fifteen minutes."},
+      {s:'you', dv:'ޓިކެޓް ކޮންތާކުން؟', rom:'ticket konthaakun?', en:"Where do I get a ticket?"},
+      {s:'them', dv:'ކާޑު ޖައްސަވާ', rom:'kaadu jassavaa', en:"Just tap your card."},
+      {s:'you', dv:'މިއީ ވިލިމާލެ ފެރީތަ؟', rom:'mee villimale feritha?', en:"Is this the Villimalé ferry?"},
+      {s:'them', dv:'ނޫން، މިއީ ހުޅުމާލެ ފެރީ', rom:'noon, mee hulhumale feri', en:"No, this is the Hulhumalé ferry."}
     ]
   },
   {
     id:'taxi', dv:'ޓެކްސީ', rom:'teksee', en:'Taxi',
     note:'Fares inside Malé are flat, not metered — around MVR 30, more if you cross the bridge to Hulhumalé or the airport. Plenty of drivers still take cash only, and you phone a taxi centre or use an app rather than hailing one on the street.',
     turns:[
-      {s:'you', dv:'މަޖީދީ މަގަށް ދެވިދާނެތަ؟', rom:'majeedhee magah dhevidhaanetha?', en:'Can you take me to Majeedhee Magu?'},
-      {s:'them', dv:'ކޮން ހިސާބަކަށް؟', rom:'kon hisaabakah?', en:'Whereabouts?'},
-      {s:'you', dv:'ޗާންދަނީ މަގު ކަންމަތި', rom:'chaandhanee magu kanmathi', en:'The Chaandhanee Magu corner.'},
+      {s:'you', dv:'މަޖީދީ މަގަށް ދެވިދާނެތަ؟', rom:'majeedhee magah dhevidhaanetha?', en:"Can you take me to Majeedhee Magu?"},
+      {s:'them', dv:'ކޮން ހިސާބަކަށް؟', rom:'kon hisaabakah?', en:"Whereabouts?"},
+      {s:'you', dv:'ޗާންދަނީ މަގު ކަންމަތި', rom:'chaandhanee magu kanmathi', en:"The Chaandhanee Magu corner."},
       {s:'them', dv:'ކާޑެއް ނުހިނގާނެ', rom:'kaadeh nuhingaane', en:"Card won't work — cash."},
-      {s:'you', dv:'މަޑުކޮށްލަދީބަލަ', rom:'madhukohladheebala', en:'Wait for me a moment.'}
+      {s:'you', dv:'ރަނގަޅު، ފައިސާއިން ދައްކާނަން', rom:'rangalhu, faisaain dhakkaanan', en:"OK, I'll pay cash."}
     ]
   },
   {
     id:'pharmacy', dv:'ބޭސްފިހާރަ', rom:'beysfihaara', en:'Pharmacy',
     note:'Aasandha is the national health insurance scheme — say whether you are using it, and have your ID card out. STO pharmacies keep the longest hours and there is usually one open near IGMH through the night.',
     turns:[
-      {s:'you', dv:'މި ބޭސް ސިޓީ', rom:'mi beys sitee', en:'This prescription, please.'},
-      {s:'them', dv:'އާސަންދަ ބޭނުންކުރަނީތަ؟', rom:'aasandha beynunkuraneetha?', en:'Are you using Aasandha?'},
+      {s:'you', dv:'މި ބޭސް ސިޓީ', rom:'mi beys sitee', en:"This prescription, please."},
+      {s:'them', dv:'އާސަންދަ ބޭނުންކުރަނީތަ؟', rom:'aasandha beynunkuraneetha?', en:"Are you using Aasandha?"},
       {s:'you', dv:'ނޫން، އަމިއްލައަށް ދައްކާނީ', rom:'noon, amillaah dhakkaanee', en:"No, I'll pay myself."},
-      {s:'you', dv:'ބޮލުގައި ރިއްސަނީ', rom:'bolugai rissanee', en:'I have a headache.'},
-      {s:'them', dv:'ދުވާލަކު ތިން ފަހަރު', rom:'dhuvaalaku thin faharu', en:'Three times a day.'}
+      {s:'them', dv:'ދުވާލަކު ތިން ފަހަރު', rom:'dhuvaalaku thin faharu', en:"Three times a day."},
+      {s:'you', dv:'ކެއުމަށްފަހުތަ؟', rom:'keumah fahutha?', en:"After meals?"},
+      {s:'them', dv:'އާނ، ކެއުމަށްފަހު', rom:'aan, keumah fahu', en:"Yes, after eating."}
     ]
   },
   {
@@ -75,9 +80,10 @@ const SITUATIONS = [
     id:'shop', dv:'ފިހާރަ', rom:'fihaara', en:'Corner shop',
     note:'Card is widely taken now, but the machine goes down often enough that you should keep a couple of hundred rufiyaa in small notes. If you want something held while you fetch cash, the word that makes it happen is ބަހައްޓާ.',
     turns:[
-      {s:'you', dv:'ކާޑުން ދެއްކިދާނެތަ؟', rom:'kaadun dhekkidhaanetha?', en:'Can I pay by card?'},
-      {s:'them', dv:'ކާޑު މެޝިން ހަލާކުވެފައި', rom:'kaadu machine halaakuvefai', en:'The card machine is down.'},
-      {s:'you', dv:'މީތި ބަހައްޓާލަދީފާނަންތަ؟', rom:'meethi bahattaaladheefaanantha?', en:'Could you hold this for me?'},
+      {s:'you', dv:'ކާޑުން ދެއްކިދާނެތަ؟', rom:'kaadun dhekkidhaanetha?', en:"Can I pay by card?"},
+      {s:'them', dv:'ކާޑު މެޝިން ހަލާކުވެފައި', rom:'kaadu machine halaakuvefai', en:"The card machine is down."},
+      {s:'you', dv:'މީތި ބަހައްޓާލަދީފާނަންތަ؟', rom:'meethi bahattaaladheefaanantha?', en:"Could you hold this for me?"},
+      {s:'them', dv:'ރަނގަޅު، ބަހައްޓާލާނަން', rom:'rangalhu, bahattaalaanan', en:"OK, I'll keep it for you."},
       {s:'you', dv:'ފައިސާ ހިފައިގެން އަންނާނަން', rom:'faisaa hifaigen annaanan', en:"I'll come back with cash."}
     ]
   },
@@ -86,10 +92,11 @@ const SITUATIONS = [
     note:'IGMH is the public hospital and ADK the main private one. You take a number and wait, sometimes a long while — going early matters more than anything you can say at the desk.',
     turns:[
       {s:'you', dv:'ޑޮކްޓަރަށް ދައްކަން ބޭނުން', rom:'doctor-ah dhakkan beynun', en:"I'd like to see a doctor."},
-      {s:'them', dv:'އާސަންދަ ބޭނުންކުރަނީތަ؟', rom:'aasandha beynunkuraneetha?', en:'Are you using Aasandha?'},
-      {s:'them', dv:'އައިޑީ ކާޑު ދެއްވަބަލަ', rom:'ID kaadu dhevvabala', en:'Your ID card, please.'},
+      {s:'them', dv:'އާސަންދަ ބޭނުންކުރަނީތަ؟', rom:'aasandha beynunkuraneetha?', en:"Are you using Aasandha?"},
+      {s:'you', dv:'އާނ، އާސަންދަ', rom:'aan, aasandha', en:"Yes, Aasandha."},
+      {s:'them', dv:'އައިޑީ ކާޑު ދެއްވަބަލަ', rom:'ID kaadu dhevvabala', en:"Your ID card, please."},
       {s:'you', dv:'ނަންބަރު ކޮންއިރަކުން؟', rom:'namburu kon-irakun?', en:"When's my number up?"},
-      {s:'you', dv:'ބަނޑުގައި ރިއްސަނީ', rom:'bandugai rissanee', en:'I have a stomach ache.'}
+      {s:'them', dv:'ފަނަރަ މިނެޓު ތެރޭ', rom:'fanara minetu therey', en:"In fifteen minutes."}
     ]
   },
   {
@@ -141,10 +148,10 @@ const SITUATIONS = [
     note:'Queues at the main banks run on ticket numbers, so take one as soon as you walk in. Bring your passport or ID for anything beyond a cash withdrawal. US dollars are widely accepted in Malé, but change usually comes back in rufiyaa.',
     turns:[
       {s:'you', dv:'ފައިސާ ބަދަލުކުރަން ބޭނުން', rom:'faisaa badhalukuran beynun', en:"I'd like to change money."},
-      {s:'them', dv:'ނަންބަރެއް ނަގާ', rom:'nambareh nagaa', en:'Take a number.'},
+      {s:'them', dv:'ނަންބަރެއް ނަގާ', rom:'nambareh nagaa', en:"Take a number."},
       {s:'you', dv:'ޑޮލަރުގެ ރޭޓަކީ ކޮބާ؟', rom:'dolaruge reytakee kobaa?', en:"What's the dollar rate?"},
-      {s:'them', dv:'ޕާސްޕޯޓް ދެއްވަބަލަ', rom:'passport dhevvabala', en:'Your passport, please.'},
-      {s:'you', dv:'އޭޓީއެމް ކޮބާ؟', rom:'ATM kobaa?', en:"Where's the ATM?"}
+      {s:'them', dv:'ޕާސްޕޯޓް ދެއްވަބަލަ', rom:'passport dhevvabala', en:"Your passport, please."},
+      {s:'you', dv:'މިއޮތީ', rom:'mi othee', en:"Here you are."}
     ]
   },
   {
@@ -234,6 +241,41 @@ const SITUATIONS = [
       {s:'you', dv:'ދެ ރޭއަކަށް', rom:'dhe reyakah', en:'For two nights.'},
       {s:'them', dv:'ނާސްތާ ހިމެނޭ', rom:'naasthaa himeney', en:'Breakfast is included.'},
       {s:'you', dv:'ވައިފައި ޕާސްވޯޑަކީ ކޮބާ؟', rom:'waifai paasvoadakee kobaa?', en:"What's the Wi-Fi password?"}
+    ]
+  },
+  {
+    id:'cafe', dv:'ކެފޭ', rom:'kefey', en:'Café',
+    note:"Malé's cafés are where people meet after work and late into the evening — iced coffee, milkshakes and waffles. Order at the counter, say whether it's to take away, and pay by card or cash; many close for a short break at prayer times.",
+    turns:[
+      {s:'them', dv:'ކީއްތަ ބޭނުން؟', rom:'keeththa beynun?', en:"What would you like?"},
+      {s:'you', dv:'އައިސް ކޮފީއެއް ދީބަލަ', rom:'ais kofee-eh dheebala', en:"An iced coffee, please."},
+      {s:'them', dv:'ހަކުރު ލާންތަ؟', rom:'hakuru laantha?', en:"With sugar?"},
+      {s:'you', dv:'ހަކުރު ނުލައި', rom:'hakuru nulai', en:"No sugar."},
+      {s:'them', dv:'ހިފައިގެން ދާންތަ؟', rom:'hifaigen dhaantha?', en:"Is it to take away?"},
+      {s:'you', dv:'ނޫން، މިތާ ބޯނީ', rom:'noon, mithaa boanee', en:"No, I'll drink it here."}
+    ]
+  },
+  {
+    id:'street', dv:'މަގު ސުވާލު', rom:'magu suvaalu', en:'Asking the way',
+    note:"People in Malé are used to being asked for directions, and will often walk you part of the way. Landmarks work better than street names: the big mosque, the fish market, a hospital or a bus stop. Start with \"maafukuravvaa\" — excuse me.",
+    turns:[
+      {s:'you', dv:'މާފުކުރައްވާ، ފާމަސީއެއް ކޮބާ؟', rom:'maafukuravvaa, faamasee-eh kobaa?', en:"Excuse me, where is a pharmacy?"},
+      {s:'them', dv:'ސީދާ ގޮސް ވާތްފަރާތަށް', rom:'seedhaa gos vaathfaraathah', en:"Go straight, then left."},
+      {s:'you', dv:'ދުރުތަ؟', rom:'dhuruthaa?', en:"Is it far?"},
+      {s:'them', dv:'ނޫން، ފަސް މިނެޓު ހިނގާފައި', rom:'noon, fas minetu hingaafai', en:"No, five minutes' walk."},
+      {s:'you', dv:'ވަރަށް ޝުކުރިއްޔާ', rom:'varah shukuriyyaa', en:"Thank you very much."}
+    ]
+  },
+  {
+    id:'chat', dv:'ވާހަކަ ދެއްކުން', rom:'vaahaka dhekkun', en:'Small talk',
+    note:"A greeting goes a long way. \"Kihineh?\" (how are you?) is the everyday opener, and people will ask where you are from and where you live. \"Assalaamu alaikum\" is a polite greeting to anyone.",
+    turns:[
+      {s:'you', dv:'އައްސަލާމު ޢަލައިކުމް، ކިހިނެއް؟', rom:'assalaamu alaikum, kihineh?', en:"Hello, how are you?"},
+      {s:'them', dv:'ރަނގަޅު، ކަލޭ ކިހިނެއް؟', rom:'rangalhu, kaley kihineh?', en:"Fine — and you?"},
+      {s:'you', dv:'އަހަރެން ވެސް ރަނގަޅު', rom:'aharen ves rangalhu', en:"I'm fine too."},
+      {s:'them', dv:'ކޮންތާކު އުޅެނީ؟', rom:'konthaaku ulhenee?', en:"Where do you live?"},
+      {s:'you', dv:'ހުޅުމާލޭގައި', rom:'hulhumaaleygai', en:"In Hulhumalé."},
+      {s:'them', dv:'ރަނގަޅު، ދެން ބައްދަލުވާނީ', rom:'rangalhu, dhen baddaluvaanee', en:"Great — see you around."}
     ]
   }
 ];

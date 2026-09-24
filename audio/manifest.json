@@ -32,10 +32,20 @@
    "voice": "learner",
    "seconds": 1.48
   },
+  "ރަނގަޅު، އިށީނދެލައްވާ": {
+   "file": "8363ebaa24f8b0.mp3",
+   "voice": "seller",
+   "seconds": 1.92
+  },
   "ބިލް ދެއްވަބަލަ": {
    "file": "f242a5e04b0e5c.mp3",
    "voice": "learner",
    "seconds": 1.27
+  },
+  "ސާޅީސް ރުފިޔާ": {
+   "file": "c7b348d278773b.mp3",
+   "voice": "seller",
+   "seconds": 1.57
   },
   "މީގެ އަގަކީ ކޮބާ؟": {
    "file": "85b9df5af3b0e7.mp3",
@@ -61,6 +71,11 @@
    "file": "f761d7d552b4e2.mp3",
    "voice": "learner",
    "seconds": 0.95
+  },
+  "ކޮށާލަދެންތަ؟": {
+   "file": "63f403d3cbc291.mp3",
+   "voice": "seller",
+   "seconds": 1.57
   },
   "ކުދިކޮށް ކޮށާލަދީބަލަ": {
    "file": "243e4e5a9af1d4.mp3",
@@ -92,6 +107,11 @@
    "voice": "learner",
    "seconds": 1.63
   },
+  "ނޫން، މިއީ ހުޅުމާލެ ފެރީ": {
+   "file": "2952b84d079d7a.mp3",
+   "voice": "seller",
+   "seconds": 1.88
+  },
   "މަޖީދީ މަގަށް ދެވިދާނެތަ؟": {
    "file": "6214720ac5f2f6.mp3",
    "voice": "learner",
@@ -112,10 +132,10 @@
    "voice": "seller",
    "seconds": 1.62
   },
-  "މަޑުކޮށްލަދީބަލަ": {
-   "file": "626661c181786d.mp3",
+  "ރަނގަޅު، ފައިސާއިން ދައްކާނަން": {
+   "file": "758bd6d11a3339.mp3",
    "voice": "learner",
-   "seconds": 1.27
+   "seconds": 1.74
   },
   "މި ބޭސް ސިޓީ": {
    "file": "c6ccf72baae1fe.mp3",
@@ -132,15 +152,20 @@
    "voice": "learner",
    "seconds": 1.8
   },
-  "ބޮލުގައި ރިއްސަނީ": {
-   "file": "441f4698dffa1c.mp3",
-   "voice": "learner",
-   "seconds": 1.35
-  },
   "ދުވާލަކު ތިން ފަހަރު": {
    "file": "d643ec1729b2c2.mp3",
    "voice": "seller",
    "seconds": 1.8
+  },
+  "ކެއުމަށްފަހުތަ؟": {
+   "file": "6fe66d00a34e72.mp3",
+   "voice": "learner",
+   "seconds": 1.21
+  },
+  "އާނ، ކެއުމަށްފަހު": {
+   "file": "0231695bc536fe.mp3",
+   "voice": "seller",
+   "seconds": 1.68
   },
   "ކުލި ކިހާ ވަރެއް؟": {
    "file": "5eb60392f2753a.mp3",
@@ -182,6 +207,11 @@
    "voice": "learner",
    "seconds": 1.92
   },
+  "ރަނގަޅު، ބަހައްޓާލާނަން": {
+   "file": "b80878919e7cd1.mp3",
+   "voice": "seller",
+   "seconds": 1.82
+  },
   "ފައިސާ ހިފައިގެން އަންނާނަން": {
    "file": "4233e4dce2b164.mp3",
    "voice": "learner",
@@ -192,6 +222,11 @@
    "voice": "learner",
    "seconds": 1.57
   },
+  "އާނ، އާސަންދަ": {
+   "file": "ba2bf4a3fac22e.mp3",
+   "voice": "learner",
+   "seconds": 1.59
+  },
   "އައިޑީ ކާޑު ދެއްވަބަލަ": {
    "file": "330ab0dc4a2aa9.mp3",
    "voice": "seller",
@@ -201,11 +236,6 @@
    "file": "e5d798c4c87a1c.mp3",
    "voice": "learner",
    "seconds": 1.25
-  },
-  "ބަނޑުގައި ރިއްސަނީ": {
-   "file": "75a59fd0795a8c.mp3",
-   "voice": "learner",
-   "seconds": 1.32
   },
   "ކުރުނބާ ހުރިތަ؟": {
    "file": "704a5029a92744.mp3",
@@ -327,10 +357,10 @@
    "voice": "seller",
    "seconds": 1.8
   },
-  "އޭޓީއެމް ކޮބާ؟": {
-   "file": "0c1ef8bc4a1efc.mp3",
+  "މިއޮތީ": {
+   "file": "7e9b91ade42872.mp3",
    "voice": "learner",
-   "seconds": 1.37
+   "seconds": 0.67
   },
   "ހުޅުމާލެއަށް ދާ ބަސް ކޮބާ؟": {
    "file": "0907d3a716e1a2.mp3",

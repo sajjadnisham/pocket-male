@@ -27,6 +27,8 @@ for (const f of ['city.html'].filter(f => fs.existsSync(path.join(root, f)))){
 }
 SITUATIONS.forEach(s => add(s.dv, 'word'));
 
+// greetings the other person says to you get the shopkeeper's voice
+for (const dv of ['މަރުޙަބާ', 'އައްސަލާމު ޢަލައިކުމް']) if (lines.has(dv)) lines.get(dv).role = 'them';
 const out = [...lines.values()];
 fs.writeFileSync(path.join(__dirname, 'lines.json'), JSON.stringify(out, null, 1) + '\n');
 console.log('wrote tools/lines.json:', out.length, 'lines');
