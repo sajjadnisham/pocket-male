@@ -9,7 +9,7 @@ OpenStreetMap has no building, instead of inventing filler blocks.
 
 Writes tools/overture-buildings.json: [[levels or 0, height_dm or 0, source, lon,lat, lon,lat, ...], ...]
 """
-import json, sys, urllib.request
+import json, sys, urllib.parse, urllib.request
 from pathlib import Path
 import duckdb
 
@@ -25,14 +25,38 @@ def latest_release():
     return sorted(l['href'].rstrip('/').split('/')[-2] for l in latest)[-1]
 
 
+def stac_files(release):
+    base = f'https://stac.overturemaps.org/{release}/buildings/building/collection.json'
+    with urllib.request.urlopen(base, timeout=120) as r:
+        col = json.load(r)
+    out = []
+    for link in col.get('links', []):
+        if link.get('rel') != 'item': continue
+        url = urllib.parse.urljoin(base, link['href'])
+        try:
+            with urllib.request.urlopen(url, timeout=120) as r:
+                item = json.load(r)
+        except Exception:
+            continue
+        b = item.get('bbox')
+        if b and b[0] <= BBOX['xmax'] and b[2] >= BBOX['xmin'] and b[1] <= BBOX['ymax'] and b[3] >= BBOX['ymin']:
+            out.append(item['assets']['aws']['href'].replace('https://overturemaps-us-west-2.s3.us-west-2.amazonaws.com/', 's3://overturemaps-us-west-2/'))
+    if not out: raise SystemExit('no building files cover this area in release ' + release)
+    return out
+
+
 def main():
     release = sys.argv[1] if len(sys.argv) > 1 else latest_release()
     print('Overture release', release, flush=True)
     con = duckdb.connect()
     con.execute("INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial; SET s3_region='us-west-2';")
+    # Only the one data file that covers Malé, found through Overture's STAC catalogue —
+    # scanning all 512 files of the buildings theme over the network takes hours.
+    files = stac_files(release)
+    print(len(files), 'building data files cover this area', flush=True)
     rows = con.execute(f"""
       SELECT coalesce(num_floors, 0), coalesce(height, 0), sources[1].dataset, ST_AsText(geometry)
-      FROM read_parquet('s3://overturemaps-us-west-2/release/{release}/theme=buildings/type=building/*', hive_partitioning=1)
+      FROM read_parquet({files!r})
       WHERE bbox.xmin BETWEEN {BBOX['xmin']} AND {BBOX['xmax']} AND bbox.ymin BETWEEN {BBOX['ymin']} AND {BBOX['ymax']}
     """).fetchall()
     out, src = [], {}

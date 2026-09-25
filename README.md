@@ -71,9 +71,10 @@ from ChatGPT are not voiced.
 
 `city.html` builds both islands at load time from `city-data.json`:
 
-- **Streets, coastline and 3,439 mapped buildings** come from OpenStreetMap.
-  OSM maps only part of the buildings, so the remaining blocks in built-up areas
-  are filled with generic apartment blocks (the intro says so). Buildings with a
+- **Streets, coastline and 9,061 mapped buildings** come from OpenStreetMap and
+  Overture (which adds machine-traced footprints from Google Open Buildings,
+  Microsoft and Esri). Blocks neither source maps are still filled with generic
+  apartment blocks (the intro says so). Buildings with a
   mapped colour use it, and **495 named buildings** carry their name on the
   street-facing wall (ministries, schools, masjids, ferry terminals, hotels).
 - **Roads as they are**: only the outer ring and main roads
@@ -146,8 +147,10 @@ and people are instanced and only simulated within ~200 m of you.
 |---|---|---|
 | OpenStreetMap (Overpass) | coastlines, streets and one-ways, buildings, parks, piers, trees, crossings, mosques, hospitals, ferry routes, the airport | ODbL |
 | Overture Maps (places) | 2,372 extra businesses with names and categories, built from Meta and Microsoft listings | CDLA-Permissive-2.0 |
+| Overture Maps (buildings) | 5,471 extra building footprints — OpenStreetMap plus Google Open Buildings, Microsoft and Esri traces — with heights where known | ODbL / CDLA-Permissive-2.0 |
 
-    python tools/fetch-overture-places.py     # refresh the Overture businesses
+    python tools/fetch-overture-places.py      # refresh the Overture businesses
+    python tools/fetch-overture-buildings.py   # refresh the Overture footprints
 
 Google Maps, its satellite imagery and Street View are **not** used: their terms
 don't allow copying that data into another map. Facebook and Instagram pages
