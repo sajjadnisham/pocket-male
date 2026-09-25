@@ -771,6 +771,106 @@
    "file": "193e0faa845e0d.mp3",
    "voice": "learner",
    "seconds": 1.16
+  },
+  "ކީއްތަ ބޭނުން؟": {
+   "file": "260cb1eec5f7ae.mp3",
+   "voice": "seller",
+   "seconds": 1.55
+  },
+  "އައިސް ކޮފީއެއް ދީބަލަ": {
+   "file": "8bd81e2fb201ac.mp3",
+   "voice": "learner",
+   "seconds": 1.72
+  },
+  "ހަކުރު ލާންތަ؟": {
+   "file": "ac377523b2dcef.mp3",
+   "voice": "seller",
+   "seconds": 1.55
+  },
+  "ހަކުރު ނުލައި": {
+   "file": "fe8122bc0ee142.mp3",
+   "voice": "learner",
+   "seconds": 1.08
+  },
+  "ހިފައިގެން ދާންތަ؟": {
+   "file": "77e8755a19c5b3.mp3",
+   "voice": "seller",
+   "seconds": 1.75
+  },
+  "ނޫން، މިތާ ބޯނީ": {
+   "file": "066129dbd943dd.mp3",
+   "voice": "learner",
+   "seconds": 1.45
+  },
+  "މާފުކުރައްވާ، ފާމަސީއެއް ކޮބާ؟": {
+   "file": "f974ed3bd69a7a.mp3",
+   "voice": "learner",
+   "seconds": 1.96
+  },
+  "ސީދާ ގޮސް ވާތްފަރާތަށް": {
+   "file": "c852878f80b3ba.mp3",
+   "voice": "seller",
+   "seconds": 1.84
+  },
+  "ދުރުތަ؟": {
+   "file": "43082b5f5237fa.mp3",
+   "voice": "learner",
+   "seconds": 0.88
+  },
+  "ނޫން، ފަސް މިނެޓު ހިނގާފައި": {
+   "file": "38b64f3f0a17c3.mp3",
+   "voice": "seller",
+   "seconds": 1.95
+  },
+  "ވަރަށް ޝުކުރިއްޔާ": {
+   "file": "7c51cbe5565afb.mp3",
+   "voice": "learner",
+   "seconds": 1.24
+  },
+  "އައްސަލާމު ޢަލައިކުމް، ކިހިނެއް؟": {
+   "file": "878abd92c4a979.mp3",
+   "voice": "learner",
+   "seconds": 1.86
+  },
+  "ރަނގަޅު، ކަލޭ ކިހިނެއް؟": {
+   "file": "a98144c490fc34.mp3",
+   "voice": "seller",
+   "seconds": 1.86
+  },
+  "އަހަރެން ވެސް ރަނގަޅު": {
+   "file": "ab74683ae14a35.mp3",
+   "voice": "learner",
+   "seconds": 1.47
+  },
+  "ކޮންތާކު އުޅެނީ؟": {
+   "file": "ea92f97502ef5d.mp3",
+   "voice": "seller",
+   "seconds": 1.52
+  },
+  "ހުޅުމާލޭގައި": {
+   "file": "2d34a379f1c8b8.mp3",
+   "voice": "learner",
+   "seconds": 1.23
+  },
+  "ރަނގަޅު، ދެން ބައްދަލުވާނީ": {
+   "file": "d237e3990c16e0.mp3",
+   "voice": "seller",
+   "seconds": 1.95
+  },
+  "އައްސަލާމު ޢަލައިކުމް": {
+   "file": "24ad940bbf97d1.mp3",
+   "voice": "seller",
+   "seconds": 1.84
+  },
+  "މަރުޙަބާ": {
+   "file": "43b905597d68f6.mp3",
+   "voice": "seller",
+   "seconds": 1.24
+  },
+  "ވައިގެ ބަނދަރު": {
+   "file": "dab360dad28b87.mp3",
+   "voice": "learner",
+   "seconds": 1.37
   }
  }
 }
