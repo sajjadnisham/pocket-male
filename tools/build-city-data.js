@@ -122,6 +122,7 @@ const SIGN_CAT = t => /cafe|restaurant|fast_food|ice_cream|bar/.test(t.amenity |
   console.log('fetching island names…'); const islandNames = await overpass('(way["place"~"^(island|islet)$"]' + WIDE + ';relation["place"~"^(island|islet)$"]' + WIDE + ';);out tags center;');
   console.log('fetching ferry routes…'); const ferryRaw = await overpass('way["route"="ferry"]' + WIDE + ';out geom tags;');
   console.log('fetching airport…');    const airRaw = await overpass('(node["aeroway"~"^(parking_position|tower|gate)$"]' + WIDE + ';way["aeroway"~"^(terminal|aerodrome)$"]' + WIDE + ';);out geom tags;');
+  console.log('fetching the port…');   const portRaw = await overpass('(nwr["landuse"~"^(port|harbour|industrial)$"]' + WIDE + ';nwr["industrial"~"port|shipyard|container"]' + WIDE + ';nwr["seamark:type"~"^(harbour|anchorage|mooring)$"]' + WIDE + ';nwr["man_made"~"^(storage_tank|silo|quay|crane)$"]' + WIDE + ';nwr["name"~"Ports? Limited|MPL|Port Complex"]' + WIDE + ';nwr["waterway"="boatyard"]' + WIDE + ';nwr["leisure"="marina"]' + WIDE + ';);out geom tags;');
   console.log('fetching Villimalé…');  const villiRoads = await overpass('way["highway"]' + VILLI + ';out geom tags;');
   const villiBld = await overpass('way["building"]' + VILLI + ';out geom tags;');
   console.log('fetching roads…');      const roadsRaw0 = await overpass('way["highway"]' + BBOX + ';out geom tags;');
@@ -568,6 +569,46 @@ const SIGN_CAT = t => /cafe|restaurant|fast_food|ice_cream|bar/.test(t.amenity |
     runway:mainRunway ? {w:dm(mainRunway.w), pts:mainRunway.pts.flatMap(p => [dm(p[0]), dm(p[1])])} : null
   };
 
+  /* ---------- the port: harbours, anchorages, the MPL container yard, tanks and silos ---------- */
+  const geomOf = e => e.geometry ? e.geometry.filter(Boolean).map(g => toXZ(g.lat, g.lon)) : (e.lat != null ? [toXZ(e.lat, e.lon)] : e.center ? [toXZ(e.center.lat, e.center.lon)] : []);
+  const port = {harbours:[], anchor:[], tanks:[], silos:[], yards:[], industry:[], marinas:[]};
+  for (const e of portRaw){
+    const t = e.tags || {}, pts = geomOf(e); if (!pts.length) continue;
+    const [cx, cz] = centroid(pts), nm = t['name:en'] || t.name || t['seamark:name'] || '';
+    if (!inView([cx, cz])) continue;
+    if (t['seamark:type'] === 'anchorage' || t['seamark:type'] === 'mooring'){
+      if (pts.length > 3){ const xs = pts.map(q => q[0]), zs = pts.map(q => q[1]); port.anchor.push([dm(cx), dm(cz), dm(Math.min(250, (Math.max(...xs) - Math.min(...xs)) / 3))]); }
+      else port.anchor.push([dm(cx), dm(cz), dm(120)]);
+    } else if (t.man_made === 'storage_tank' || t.man_made === 'silo'){
+      let r = 6; if (pts.length > 3){ const xs = pts.map(q => q[0]); r = Math.max(2, Math.min(22, (Math.max(...xs) - Math.min(...xs)) / 2)); }
+      const h = parseFloat(t.height) || (t.man_made === 'silo' ? 22 : Math.min(16, 5 + r * .6));
+      (t.man_made === 'silo' ? port.silos : port.tanks).push([dm(cx), dm(cz), dm(r), dm(h)]);
+    } else if (t.leisure === 'marina' || t.waterway === 'boatyard'){
+      port.marinas.push([nm, dm(cx), dm(cz)]);
+    } else if (/harbour/.test(t.landuse || '') || t['seamark:type'] === 'harbour' || t.harbour){
+      if (pts.length > 3) port.harbours.push([nm, ...simplify(pts, 2).flatMap(q => [dm(q[0]), dm(q[1])])]);
+    } else if (/port|container/.test((t.landuse || '') + (t.industrial || '')) || /Ports? Limited|MPL|Port Complex/i.test(nm)){
+      port.yards.push([nm || 'Port', dm(cx), dm(cz), pts.length > 3 ? 1 : 0]);
+    } else if (t.landuse === 'industrial' && pts.length > 3 && !islandOf(cx, cz)){
+      port.industry.push([nm, ...simplify(pts, 3).flatMap(q => [dm(q[0]), dm(q[1])])]);
+    }
+  }
+  // the quay of the Malé commercial harbour: the stretch of Malé's coast nearest the MPL points, facing the lagoon
+  const maleRing = islands.find(I => I.id === 'male').ring, mplPts = port.yards.filter(y => islandOf(y[1] / 10, y[2] / 10) === 'male');
+  if (mplPts.length){
+    const mx = mplPts.reduce((a, y) => a + y[1] / 10, 0) / mplPts.length, mz = mplPts.reduce((a, y) => a + y[2] / 10, 0) / mplPts.length;
+    let best = null;
+    for (let i = 0; i < maleRing.length; i++){
+      const [ax, az] = maleRing[i], [bx, bz] = maleRing[(i + 1) % maleRing.length], L = Math.hypot(bx - ax, bz - az); if (L < 25) continue;
+      const d = Math.hypot((ax + bx) / 2 - mx, (az + bz) / 2 - mz); if (!best || d < best.d) best = {d, ax, az, bx, bz, L};
+    }
+    if (best){
+      let nx = -(best.bz - best.az) / best.L, nz = (best.bx - best.ax) / best.L;
+      if (islandOf((best.ax + best.bx) / 2 + nx * 8, (best.az + best.bz) / 2 + nz * 8)){ nx = -nx; nz = -nz; }
+      port.quay = [dm(best.ax), dm(best.az), dm(best.bx), dm(best.bz), Math.round(nx * 1000), Math.round(nz * 1000), dm(mx), dm(mz)];
+    }
+  }
+
   const labels = Object.entries(named).filter(([, v]) => v.L > 40).map(([n, v]) => [n, dm(v.x), dm(v.z), +v.a.toFixed(3)]);
 
   /* ---------- name boards on named buildings (on the wall that faces the street) ---------- */
@@ -624,7 +665,7 @@ const SIGN_CAT = t => /cafe|restaurant|fast_food|ice_cream|bar/.test(t.amenity |
     roads, buildings,
     fill: fill.map(r => [dm(r.x + .5), dm(r.z + .5), dm(r.n * CELL - 1), dm(CELL - 1), r.lv]),
     areas: areas.map(a => [a.code, a.name || '', ...simplify(a.pts, .5).flatMap(q => [dm(q[0]), dm(q[1])])]),
-    boards, bcolours, signs, trees, crossings, piers, ferries, airport,
+    boards, bcolours, signs, trees, crossings, piers, ferries, airport, port,
     others:others.map(o => ({id:o.id, name:o.name, kind:o.kind, area:o.area, ring:o.ring.flatMap(p => [dm(p[0]), dm(p[1])])})),
     runways: runways.map(r => [dm(r.w), ...r.pts.flatMap(p => [dm(p[0]), dm(p[1])])]),
     units: units.map(u => [dm(u.x), dm(u.z), Math.round(u.nx * 1000), Math.round(u.nz * 1000), dm(u.w), u.sign, u.awn]),
@@ -641,6 +682,7 @@ const SIGN_CAT = t => /cafe|restaurant|fast_food|ice_cream|bar/.test(t.amenity |
   console.log('named shop signs', signs.length, '| building name boards', boards.length, '| trees', trees.length, '| crossings', crossings.length, '| piers & breakwaters', piers.length,
               '| one-way road ways', roads.filter(r => r[2 - 1] & 4).length, '| open spaces', areas.length);
   console.log('nearby islands', others.length, others.filter(o => o.name !== 'Island').map(o => o.name).join(', '));
+  console.log('port: harbours', port.harbours.length, '| anchorages', port.anchor.length, '| tanks', port.tanks.length, '| silos', port.silos.length, '| yards', port.yards.length, '| industrial areas', port.industry.length, '| quay', port.quay ? 'found' : 'none');
   console.log('ferry routes', ferries.length, '| aircraft stands', stands.length, '| seaplane docks', seaDocks.length, '| canals', waters.length, '| bridges', roads.filter(r => r[1] & 8).length, '| Overture places merged', overture.length, '| Overture buildings', overtureBuildings);
   if (skippedExtra.length) console.log('extra-places.json entries without coordinates (skipped):', skippedExtra.join(', '));
   Object.entries(count).sort((a, b) => (b[1].male + b[1].hulhumale) - (a[1].male + a[1].hulhumale)).forEach(([k, v]) => console.log('  ', k.padEnd(11), 'Malé', String(v.male).padStart(3), '  Hulhumalé', String(v.hulhumale).padStart(3), '  Villimalé', String(v.villimale).padStart(3)));

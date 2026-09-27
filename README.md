@@ -142,7 +142,20 @@ from ChatGPT are not voiced.
   code — or open the invite link — and meet in the same Malé. You see each
   other with name tags, hear each other's Dhivehi lines, can pick a café to meet
   at, order together at the same counter, and book a taxi you can both ride.
-  Needs the server in `server/` deployed (see `server/README.md`).
+  It works with no server of your own: the first person to open a code hosts
+  the session on their device and the others connect to them directly (WebRTC
+  via the free PeerJS service, which only introduces the devices and relays when
+  a mobile network blocks a direct link). If the host leaves, the next person
+  takes over. Deploying `server/` switches it to your own rooms instead.
+- **The port**: the Malé Commercial Harbour quay (Maldives Ports Limited, at the
+  island's north-west corner) with harbour cranes, container stacks and a
+  landing craft alongside; container feeders and tankers waiting at the 14
+  charted anchorages in the lagoon, one always coming in; Thilafushi's container
+  yards and gantry crane; the fuel tanks of Funadhoo and Thilafushi (101 mapped);
+  and fishing dhonis heading out from the harbours and back. The location label
+  names the harbour you're at.
+- **Small details**: water tanks, AC units and satellite dishes on the roofs,
+  and Malé's crows circling overhead.
 - **Search** (Places → search box) finds any named place, building, park or
   street and takes you there.
 - **Guided tour** of all 21 situations (nearest one first), or **Free** mode.

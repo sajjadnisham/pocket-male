@@ -280,6 +280,7 @@ const WORDS = {
   welcome:{dv:'މަރުޙަބާ', rom:'marhabaa', en:'welcome'},
   airport:{dv:'ވައިގެ ބަނދަރު', rom:'vaige bandharu', en:'airport', note:'Velana International Airport is on Hulhulé, next to Hulhumalé — the bridge and the airport ferry both go there.'},
   plane:{dv:'މަތިންދާބޯޓު', rom:'mathindhaa boatu', en:'aeroplane'},
+  ship:{dv:'ނާވު', rom:'naavu', en:'ship', note:'Almost everything in Malé arrives by sea — container feeders anchor off the north of the island and landing craft carry the goods on to the islands.'},
   seaplane:{dv:'ސީޕްލޭން', rom:'seeplein', en:'seaplane', note:'Seaplanes to the resorts take off from the lagoon on the airport’s east side.'},
   dhoni:{dv:'ދޯނި', rom:'dhoani', en:'boat — a dhoni'},
   speedboat:{dv:'ސްޕީޑްބޯޓު', rom:'speedboatu', en:'speedboat'},
@@ -474,7 +475,7 @@ function instanced(geo, n, mat){
 const MERGE = new Map();
 const TILE_MESHES = [];
 function cullTiles(){
-  const far = (TOUCH ? 520 : 900) ** 2, near = (TOUCH ? 150 : 240) ** 2;
+  const far = (TOUCH ? 520 : 900) ** 2, near = (TOUCH ? 170 : 280) ** 2;
   for (const t of TILE_MESHES){
     const dx = t.x - P.x, dz = t.z - P.z, d2 = dx * dx + dz * dz;
     t.m.visible = d2 < (t.near ? near : far);
@@ -502,7 +503,8 @@ function mergeFlush(mats){
     g.setAttribute('color', new THREE.Float32BufferAttribute(b.col, 3));
     g.computeBoundingSphere();
     const m = new THREE.Mesh(g, mats[b.layer] || mats.prop);
-    if (SHADOWS){ m.castShadow = b.layer !== 'rock'; m.receiveShadow = true; }
+    if (SHADOWS){ m.castShadow = b.layer !== 'rock' && b.layer !== 'roof'; m.receiveShadow = true; }
+    if (b.layer === 'roof'){ const c = g.boundingSphere.center; TILE_MESHES.push({m, x:c.x, z:c.z, near:true}); }
     city.add(m);
   }
   MERGE.clear();
@@ -868,6 +870,18 @@ function buildCity(){
     else mergeAdd('prop', PALM, x, 0, z, rand() * 6, sc, .85 + rand() * .4, sc, LEAF[(rand() * LEAF.length) | 0]);
   }
 
+  // rooftop clutter: black water tanks, AC condensers, dishes — every Malé roof has them
+  const ROOF_TANK = template([{geo:new THREE.CylinderGeometry(.6, .6, 1.4, 7), color:0x1c1d20, pos:[0, .7, 0]}]);
+  const ROOF_AC = template([{geo:new THREE.BoxGeometry(.9, .6, .4), color:0xd8d4cc, pos:[0, .3, 0]}]);
+  const ROOF_DISH = template([{geo:new THREE.CylinderGeometry(.02, .5, .2, 7), color:0xe8e6e0, pos:[0, .9, 0], rot:[.6, 0, 0]}, {geo:new THREE.CylinderGeometry(.04, .04, .9, 4), color:0x8f969c, pos:[0, .45, 0]}]);
+  const roofBits = (pts, h, seedv) => {
+    let cx = 0, cz = 0; for (const q of pts){ cx += q[0]; cz += q[1]; } cx /= pts.length; cz /= pts.length;
+    const r = hash32(Math.round(cx * 10), Math.round(cz * 10), seedv);
+    if ((r & 7) === 0) return;
+    mergeAdd('roof', ROOF_TANK, cx + ((r >>> 4) % 5 - 2) * .6, h, cz + ((r >>> 8) % 5 - 2) * .6, 0, 1, 1, 1);
+    if ((r >>> 12) & 1) mergeAdd('roof', ROOF_AC, cx + 1.8, h, cz - 1.2, (r >>> 14) % 4 * 1.57, 1, 1, 1);
+    if (((r >>> 16) & 3) === 0) mergeAdd('roof', ROOF_DISH, cx - 1.6, h, cz + 1.4, (r >>> 18) % 6, 1, 1, 1);
+  };
   // buildings
   const facade = ['#f3efe6', '#ece2cf', '#f2dcc9', '#dfe9e6', '#e3e8f0', '#f1e7b8', '#e6d8ea', '#d9e8d2', '#f6f3ee', '#e9d2bd', '#cfe0e8', '#f0cfc4'].map(lin);
   const mosques = D.places.filter(p => p.sit === 'mosque');
@@ -894,13 +908,13 @@ function buildCity(){
     const pts = ptsFrom(b, 2); if (pts.length < 3) return;
     const xs = pts.map(p => p[0]), zs = pts.map(p => p[1]); const s = {x0:Math.min(...xs), x1:Math.max(...xs), z0:Math.min(...zs), z1:Math.max(...zs), pts};
     let lv = b[0]; if (nearMosque(s.x0, s.x1, s.z0, s.z1, pts) || inPlaza(s.x0, s.x1, s.z0, s.z1, 40)) lv = Math.min(lv, 2);
-    prism(pts, lv * 3.2, BCOL.get(bi) || facade[(rand() * facade.length) | 0]); addSolid(s);
+    prism(pts, lv * 3.2, BCOL.get(bi) || facade[(rand() * facade.length) | 0]); addSolid(s); roofBits(pts, lv * 3.2, bi);
   });
   for (const f of D.fill){
     const x = f[0] / 10, z = f[1] / 10, w = f[2] / 10, d = f[3] / 10; let lv = f[4];
     if (inPlaza(x, x + w, z, z + d, 28)) continue;                 // open courtyard around the big masjids
     if (nearMosque(x, x + w, z, z + d) || inPlaza(x, x + w, z, z + d, 55)) lv = Math.min(lv, 2);
-    prism([[x, z], [x + w, z], [x + w, z + d], [x, z + d]], lv * 3.2, facade[(rand() * facade.length) | 0]);
+    prism([[x, z], [x + w, z], [x + w, z + d], [x, z + d]], lv * 3.2, facade[(rand() * facade.length) | 0]); roofBits([[x, z], [x + w, z + d]], lv * 3.2, 7);
     addSolid({x0:x, x1:x + w, z0:z, z1:z + d});
   }
 
@@ -990,7 +1004,8 @@ function buildCity(){
     city.add(m);
   }
   tiles.clear();
-  mergeFlush({prop:new THREE.MeshStandardMaterial({vertexColors:true, roughness:.8, side:THREE.DoubleSide}), rock:new THREE.MeshStandardMaterial({vertexColors:true, roughness:1, flatShading:true}),
+  buildPort();
+  mergeFlush({roof:new THREE.MeshStandardMaterial({vertexColors:true, roughness:.7}), prop:new THREE.MeshStandardMaterial({vertexColors:true, roughness:.8, side:THREE.DoubleSide}), rock:new THREE.MeshStandardMaterial({vertexColors:true, roughness:1, flatShading:true}),
               boat:new THREE.MeshStandardMaterial({vertexColors:true, roughness:.55})});
 
   // mosques: white halls with a dome and minaret; the big ones gold
@@ -1536,6 +1551,162 @@ function updateBoats(dt){
   }
 }
 
+/* ============================================================
+   THE PORT — Malé Commercial Harbour (MPL), the anchorages, Thilafushi, fuel depots
+   ============================================================ */
+const SHIPS = [], HARBOURS = [];
+function shipModel(kind, hull){
+  const g = new THREE.Group(), H = std(hull, {roughness:.5}), deckM = std(0x8f969c), white = std(0xf2f0ea), red = std(0x9c3a2d), dark = std(0x2a2d31), glass = std(0x1c2a36);
+  if (kind === 'landing'){             // the flat-bottomed landing craft that carry everything to the islands
+    box(g, 30, 3, 9, 0, .6, 0, H); box(g, 30.1, .8, 9.1, 0, -.6, 0, red); box(g, 1, 4, 8.6, 15.3, 2.2, 0, H);
+    box(g, 6, 5, 7, -11, 4.6, 0, white); box(g, 5.6, 1.2, 7.1, -11, 6.2, 0, glass);
+    for (let i = 0; i < 6; i++) box(g, 6, 2.6, 2.4, -3 + (i % 3) * 6.2, 3.4, (i < 3 ? -1.4 : 1.4), std([0xc0392b, 0x1d5fd1, 0x2f7a58, 0xe2b52f, 0x8a8f96, 0xd35400][i]));
+  } else if (kind === 'tanker'){
+    box(g, 90, 7, 15, 0, 1.5, 0, H); box(g, 90.2, 2, 15.1, 0, -1.2, 0, red);
+    const bow = new THREE.Mesh(new THREE.CylinderGeometry(7.5, 7.5, 7, 12, 1, false, 0, Math.PI), H); bow.position.set(45, 1.5, 0); bow.rotation.y = Math.PI / 2; g.add(bow);
+    for (let i = -3; i <= 2; i++) box(g, 9, 1.2, 10, i * 11, 5.6, 0, deckM);
+    box(g, 12, 12, 14, -38, 11, 0, white); box(g, 11.6, 1.6, 14.1, -38, 15.4, 0, glass); cyl(g, 1.3, 1.3, 7, -42, 20, 0, dark, 10);
+  } else {                             // a small container feeder ship
+    box(g, 110, 8, 18, 0, 2, 0, H); box(g, 110.2, 2.2, 18.1, 0, -1.2, 0, red);
+    const bow = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 8, 12, 1, false, 0, Math.PI), H); bow.position.set(55, 2, 0); bow.rotation.y = Math.PI / 2; g.add(bow);
+    const cc = [0xc0392b, 0x1d5fd1, 0x2f7a58, 0xe2b52f, 0x8a8f96, 0xd35400, 0x6a4a8a, 0xf4f4f2];
+    for (let bay = 0; bay < 12; bay++) for (let tier = 0; tier < 2 + (bay % 3 === 0 ? 1 : 0); tier++) for (let row = -2; row <= 2; row++)
+      box(g, 6, 2.6, 2.5, -30 + bay * 6.4, 7.3 + tier * 2.6, row * 2.6, std(cc[(bay * 7 + tier * 3 + row + 9) % cc.length]));
+    box(g, 12, 16, 16, -46, 14, 0, white); box(g, 11.6, 1.8, 16.1, -46, 19.5, 0, glass); cyl(g, 1.5, 1.5, 8, -50, 26, 0, dark, 10);
+  }
+  g.userData.hit = {type:'word', w:'ship'};
+  return bake(g);
+}
+function containerStacks(x0, z0, ux, uz, len, depth, count){
+  // rows of stacked shipping containers, as one merged mesh per yard
+  const CT = template([{geo:new THREE.BoxGeometry(6.1, 2.6, 2.44), color:0xffffff, pos:[0, 1.3, 0]}]);
+  const cols = [0xc0392b, 0x1d5fd1, 0x2f7a58, 0xe2b52f, 0x8a8f96, 0xd35400, 0x6a4a8a, 0xb8742a, 0xf4f4f2].map(lin);
+  const px = -uz, pz = ux; let n = 0;
+  for (let a = 4; a < len - 4 && n < count; a += 6.6) for (let b = 6; b < depth && n < count; b += 2.8){
+    const h = 1 + ((hash32(Math.round(a), Math.round(b), 3) >>> 3) % 4);
+    for (let k = 0; k < h && n < count; k++, n++) mergeAdd('prop', CT, x0 + ux * a + px * b, k * 2.6, z0 + uz * a + pz * b, Math.atan2(-uz, ux), 1, 1, 1, cols[(hash32(Math.round(a), Math.round(b), k) >>> 5) % cols.length]);
+  }
+}
+function harbourCrane(){
+  const g = new THREE.Group(), y = std(0xe2b52f, {roughness:.5}), dark = std(0x3a3f45);
+  box(g, 8, 2.4, 8, 0, 1.2, 0, dark); box(g, 3, 22, 3, 0, 13, 0, y); box(g, 5, 4, 5, 0, 25, 0, y);
+  const boom = box(g, 2, 2, 42, 0, 30, 18, y); boom.rotation.x = -.35; box(g, .3, 14, .3, 0, 26, 36, dark);
+  return bake(g);
+}
+function gantryCrane(){
+  const g = new THREE.Group(), c = std(0xc0392b, {roughness:.5});
+  for (const sx of [-9, 9]) for (const sz of [-4, 4]) box(g, 1.4, 40, 1.4, sx, 20, sz, c);
+  box(g, 22, 3, 10, 0, 40, 0, c); box(g, 3, 3, 60, 0, 42, 16, c); box(g, 5, 4, 6, 0, 38, 30, std(0x3a3f45));
+  return bake(g);
+}
+function buildPort(){
+  const PT = D.port; if (!PT) return;
+  // Malé Commercial Harbour: the MPL quay with container stacks behind it, two harbour cranes on the edge and a landing craft alongside
+  if (PT.quay){
+    const [ax, az, bx, bz, nx1, nz1] = PT.quay, x0 = ax / 10, z0 = az / 10, x1 = bx / 10, z1 = bz / 10, nx = nx1 / 1000, nz = nz1 / 1000;
+    const L = Math.hypot(x1 - x0, z1 - z0), ux = (x1 - x0) / L, uz = (z1 - z0) / L;
+    // stacks sit on the land side (away from the water normal)
+    containerStacks(x0 - nx * 4, z0 - nz * 4, ux, uz, L, 0, 0);
+    const inland = (a, b) => [x0 + ux * a - nx * b, z0 + uz * a - nz * b];
+    const CT = template([{geo:new THREE.BoxGeometry(6.1, 2.6, 2.44), color:0xffffff, pos:[0, 1.3, 0]}]), cols = [0xc0392b, 0x1d5fd1, 0x2f7a58, 0xe2b52f, 0x8a8f96, 0xd35400].map(lin);
+    for (let a = 5; a < L - 5; a += 6.6) for (let b = 6; b < 26; b += 2.8){ const [cx, cz] = inland(a, b); if (!islandAt(cx, cz) || solidAt(cx, cz)) continue; const h = 1 + (hash32(Math.round(a), Math.round(b), 1) >>> 4) % 3; for (let k = 0; k < h; k++) mergeAdd('prop', CT, cx, k * 2.6, cz, Math.atan2(-uz, ux), 1, 1, 1, cols[(hash32(Math.round(a), Math.round(b), k) >>> 6) % cols.length]); }
+    for (const t of [.3, .75]){ const c = harbourCrane(); const cx = x0 + ux * L * t + nx * 3, cz = z0 + uz * L * t + nz * 3; c.position.set(cx, 0, cz); c.rotation.y = Math.atan2(nx, nz); city.add(c); interactCity.push(c); }
+    const ship = shipModel('landing', 0x2f6f8f); ship.position.set((x0 + x1) / 2 + nx * 13, -1.2, (z0 + z1) / 2 + nz * 13); ship.rotation.y = Math.atan2(-uz, ux); city.add(ship); interactCity.push(ship);
+    SHIPS.push({g:ship, x:ship.position.x, z:ship.position.z, a:ship.rotation.y, bob:1, moored:true});
+    HARBOURS.push({name:'Malé Commercial Harbour (MPL)', x:(x0 + x1) / 2, z:(z0 + z1) / 2, r:90});
+  }
+  // cargo ships waiting at the charted anchorages in the lagoon
+  const kinds = ['container', 'tanker', 'landing', 'container', 'landing', 'tanker'], hulls = [0x1d3a6b, 0x2f2f33, 0x8a2f23, 0x2f6f5a, 0x3a3f48, 0x6b4a2e];
+  PT.anchor.forEach((a, i) => {
+    const n = a[2] / 10 > 150 ? 2 : 1;
+    for (let k = 0; k < n; k++){
+      const h = hash32(a[0], a[1], k), x = a[0] / 10 + (k ? 90 : 0) * Math.cos(h), z = a[1] / 10 + (k ? 90 : 0) * Math.sin(h);
+      if (islandAt(x, z)) continue;
+      const ship = shipModel(kinds[(i + k) % kinds.length], hulls[(h >>> 4) % hulls.length]); ship.position.set(x, -1.2, z); ship.rotation.y = (h % 628) / 100; city.add(ship); interactCity.push(ship);
+      SHIPS.push({g:ship, x, z, a:ship.rotation.y, bob:.6 + (h % 10) / 10});
+    }
+  });
+  // one ship always coming in from the channel to the anchorage
+  if (PT.anchor.length){
+    const a = PT.anchor[0], ship = shipModel('container', 0x1d5fd1); city.add(ship); interactCity.push(ship);
+    SHIPS.push({g:ship, moving:true, from:[a[0] / 10 - 2600, a[1] / 10 - 1800], to:[a[0] / 10 - 200, a[1] / 10 - 120], t:.3, bob:.5});
+  }
+  // fuel tanks and silos: Funadhoo's depot and Thilafushi
+  const TANK = template([{geo:new THREE.CylinderGeometry(1, 1, 1, 14), color:0xffffff, pos:[0, .5, 0]}, {geo:new THREE.CylinderGeometry(1.02, 1.02, .08, 14), color:0x9aa2a8, pos:[0, 1, 0]}]);
+  for (const t of PT.tanks) mergeAdd('prop', TANK, t[0] / 10, 0, t[1] / 10, 0, t[2] / 10, t[3] / 10, t[2] / 10, lin(0xeeeae2));
+  for (const t of PT.silos) mergeAdd('prop', TANK, t[0] / 10, 0, t[1] / 10, 0, t[2] / 10, t[3] / 10, t[2] / 10, lin(0xc9c4b8));
+  // Thilafushi and the other industrial islands: container yards and a gantry crane each
+  for (const ind of PT.industry){
+    const pts = ptsFrom(ind, 1); if (pts.length < 4) continue;
+    const xs = pts.map(q => q[0]), zs = pts.map(q => q[1]), cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2, w = Math.max(...xs) - Math.min(...xs);
+    if (w < 60) continue;
+    const CT = template([{geo:new THREE.BoxGeometry(6.1, 2.6, 2.44), color:0xffffff, pos:[0, 1.3, 0]}]), cols = [0xc0392b, 0x1d5fd1, 0x2f7a58, 0xe2b52f, 0x8a8f96].map(lin);
+    let n = 0;
+    for (let gx = Math.min(...xs) + 10; gx < Math.max(...xs) - 10 && n < 260; gx += 14) for (let gz = Math.min(...zs) + 10; gz < Math.max(...zs) - 10 && n < 260; gz += 9){
+      if (!pointInPoly(gx, gz, pts) || (hash32(Math.round(gx), Math.round(gz), 2) & 3) === 0) continue;
+      const h = 1 + (hash32(Math.round(gx), Math.round(gz), 5) >>> 3) % 3; for (let k = 0; k < h; k++, n++) mergeAdd('prop', CT, gx, k * 2.6, gz, 0, 1, 1, 1, cols[(hash32(Math.round(gx), Math.round(gz), k) >>> 5) % cols.length]);
+    }
+    const c = gantryCrane(); c.position.set(cx, 0, cz); c.rotation.y = hash32(Math.round(cx), 1, 1) % 3; city.add(c);
+    if (ind[0]) HARBOURS.push({name:ind[0], x:cx, z:cz, r:w / 2});
+  }
+  for (const h of PT.harbours){ if (!h[0] || h[0].length < 5) continue; const pts = ptsFrom(h, 1), xs = pts.map(q => q[0]), zs = pts.map(q => q[1]); HARBOURS.push({name:h[0], x:(Math.min(...xs) + Math.max(...xs)) / 2, z:(Math.min(...zs) + Math.max(...zs)) / 2, r:80}); }
+  for (const y of PT.yards) if (y[0] && y[0] !== 'Port') HARBOURS.push({name:y[0], x:y[1] / 10, z:y[2] / 10, r:70});
+}
+function updateShips(dt){
+  for (const sh of SHIPS){
+    if (sh.moving){
+      sh.t += dt * .004; if (sh.t > 1) sh.t = 0;
+      const x = sh.from[0] + (sh.to[0] - sh.from[0]) * sh.t, z = sh.from[1] + (sh.to[1] - sh.from[1]) * sh.t;
+      sh.g.position.set(x, -1.2 + Math.sin(clock * .6) * .1, z); sh.g.rotation.y = Math.atan2(-(sh.to[1] - sh.from[1]), sh.to[0] - sh.from[0]);
+    } else sh.g.position.y = -1.2 + Math.sin(clock * .5 * sh.bob + sh.x) * .12;
+  }
+}
+
+/* ---------- fishing dhonis heading out from the harbours and back ---------- */
+const FISHING = [];
+function buildFishing(){
+  const starts = HARBOURS.filter(h => /harbou?r/i.test(h.name)).concat(PIERS_START);
+  const hull = [0xf4f2ec, 0x3a86a8, 0x2f7a58, 0xe2b52f].map(lin);
+  for (let i = 0; i < 10 && starts.length; i++){
+    const h = starts[i % starts.length], ang = hash32(i, 77, 3) % 628 / 100;
+    let ox = h.x, oz = h.z; for (let k = 0; k < 40 && islandAt(ox, oz); k++){ ox += Math.cos(ang) * 10; oz += Math.sin(ang) * 10; }
+    const g = new THREE.Group(); const wood = std(new THREE.Color(hull[i % hull.length]).getHex(), {roughness:.6});
+    box(g, 9, 1.2, 2.6, 0, .4, 0, wood); const bow = new THREE.Mesh(new THREE.ConeGeometry(1.3, 3.4, 4), wood); bow.rotation.z = -Math.PI / 2; bow.scale.set(.6, 1, .8); bow.position.set(6, .6, 0); g.add(bow);
+    box(g, 3, 1.6, 2.2, -2.2, 1.6, 0, std(0xf4f2ec)); box(g, 3.6, .12, 2.6, -2.2, 2.45, 0, std(0x2f6f8f)); box(g, .15, 5, .15, 1.5, 3, 0, std(0x6b4a2e));
+    g.userData.hit = {type:'word', w:'dhoni'};
+    const m = bake(g); city.add(m); interactCity.push(m);
+    FISHING.push({g:m, from:[ox, oz], to:[ox + Math.cos(ang) * 1800, oz + Math.sin(ang) * 1800], t:(i * .13) % 1, dir:i % 2 ? 1 : -1});
+  }
+}
+let PIERS_START = [];
+function updateFishing(dt){
+  for (const f of FISHING){
+    f.t += f.dir * dt * .006; if (f.t > 1){ f.t = 1; f.dir = -1; } else if (f.t < 0){ f.t = 0; f.dir = 1; }
+    const x = f.from[0] + (f.to[0] - f.from[0]) * f.t, z = f.from[1] + (f.to[1] - f.from[1]) * f.t, fx = (f.to[0] - f.from[0]) * f.dir, fz = (f.to[1] - f.from[1]) * f.dir;
+    f.g.position.set(x, -1.05 + Math.sin(clock * 1.4 + f.t * 30) * .12, z); f.g.rotation.set(0, Math.atan2(-fz, fx), Math.sin(clock + f.t * 20) * .04);
+  }
+}
+
+/* ---------- Malé's crows, always somewhere overhead ---------- */
+let crowMesh = null; const CROWS = [];
+function buildCrows(){
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, .35, -.9, .05, 0, 0, .12, -.3,  0, 0, .35, 0, .12, -.3, .9, .05, 0], 3)); geo.computeVertexNormals();
+  crowMesh = new THREE.InstancedMesh(geo, new THREE.MeshBasicMaterial({color:0x17171a, side:THREE.DoubleSide}), 24); crowMesh.frustumCulled = false; city.add(crowMesh);
+  for (let i = 0; i < 24; i++) CROWS.push({r:8 + (i % 6) * 5, h:9 + (i % 5) * 4, s:.3 + (i % 7) * .07, ph:i * 1.7, ox:(i % 3 - 1) * 30, oz:((i / 3 | 0) % 3 - 1) * 30});
+}
+function updateCrows(){
+  if (!crowMesh) return;
+  crowMesh.visible = !inside;
+  CROWS.forEach((c, i) => {
+    const a = clock * c.s + c.ph, cx = Math.round(P.x / 60) * 60 + c.ox, cz = Math.round(P.z / 60) * 60 + c.oz;
+    _o.position.set(cx + Math.cos(a) * c.r, c.h + Math.sin(a * 2.3) * 1.2, cz + Math.sin(a) * c.r);
+    _o.rotation.set(0, -a, Math.sin(clock * 9 + i) * .5); _o.scale.set(.8, 1 + Math.sin(clock * 12 + i) * .6, .8); _o.updateMatrix();
+    crowMesh.setMatrixAt(i, _o.matrix);
+  });
+  crowMesh.instanceMatrix.needsUpdate = true;
+}
+
 /* ---------- Velana International Airport: parked jets, seaplanes, the tower, a take-off ---------- */
 let PLANE_T = 0, takeoff = null;
 function jet(scale, tail){
@@ -1854,38 +2025,137 @@ const ROOM_BASE = (() => {
   return String(CFGC.roomsEndpoint || CFGC.aiEndpoint || '').replace(/\/+$/, '');
 })();
 const TG_KEY = 'pocketmale.together';
-const TG = {ws:null, code:'', me:null, peers:new Map(), sendT:0, lastSent:'', meet:null, taxi:null, retry:0};
+const TG = {link:null, pending:null, hosting:false, gen:0, code:'', me:null, peers:new Map(), sendT:0, lastSent:'', meet:null, taxi:null, retry:0};
 const PEER_COLS = ['#c0392b', '#1d5fd1', '#2f7a58', '#8a3a7a', '#d35400', '#0d6663', '#b8742a', '#3a3f48'];
 let tgPrefs; try { tgPrefs = JSON.parse(localStorage.getItem(TG_KEY) || '{}') || {}; } catch (e) { tgPrefs = {}; }
 if (!tgPrefs.color) tgPrefs.color = PEER_COLS[(Math.random() * PEER_COLS.length) | 0];
 const saveTg = () => { try { localStorage.setItem(TG_KEY, JSON.stringify(tgPrefs)); } catch (e) {} };
 const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), b => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 32]).join('');
 
-function tgSend(m){ if (TG.ws && TG.ws.readyState === 1) TG.ws.send(JSON.stringify(m)); }
-function tgJoin(code, name){
-  if (!ROOM_BASE){ toast('Play together isn’t switched on in this build yet.'); return; }
+/* Two ways to connect, one protocol (hello / pos / say / act → welcome / join / leave / …):
+   - the Pocket Malé server's rooms (server/room.js) when one is configured, or
+   - straight between the players' devices (WebRTC through PeerJS). The first person to open a
+     session code hosts it on their device and relays for everyone else; if they leave, the next
+     person takes over. PeerJS's free public service only introduces the devices — and relays the
+     traffic when a mobile network blocks a direct connection. */
+const TG_ONLINE = () => !!(TG.link && TG.link.ready);
+function tgSend(m){ if (TG_ONLINE()) TG.link.send(m); }
+function tgStart(code, name){
   code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-  if (code.length < 4){ toast('A session code is 4 to 12 letters or numbers.'); return; }
-  name = String(name || '').trim().slice(0, 24); if (!name){ toast('Type your name first, so your friend knows it’s you.'); return; }
+  if (code.length < 4){ toast('A session code is 4 to 12 letters or numbers.'); return null; }
+  name = String(name || '').trim().slice(0, 24); if (!name){ toast('Type your name first, so your friend knows it’s you.'); return null; }
   tgLeave(true);
   tgPrefs.name = name; tgPrefs.code = code; saveTg();
-  const url = ROOM_BASE.replace(/^http/, 'ws') + '/room/' + code;
-  let ws; try { ws = new WebSocket(url); } catch (e) { toast('Couldn’t reach the Play-together server.'); return; }
-  TG.ws = ws; TG.code = code; TG.lastSent = '';
-  ws.onopen = () => { TG.retry = 0; tgSend({t:'hello', name, color:tgPrefs.color}); tgSendPos(true); };
-  ws.onmessage = ev => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } tgOn(m); };
-  ws.onclose = ev => {
-    if (TG.ws !== ws) return;
-    TG.ws = null;
-    if (ev.code === 1013 || ev.reason === 'full'){ toast('That session is full (8 people).'); tgClearPeers(); renderTogether(); return; }
-    if (TG.code && TG.retry < 5){ TG.retry++; toast('Connection lost — reconnecting…'); setTimeout(() => { if (TG.code) tgJoin(TG.code, tgPrefs.name); }, 1500 * TG.retry); }
-    else { tgClearPeers(); renderTogether(); }
-  };
+  TG.code = code; TG.lastSent = ''; TG.gen = (TG.gen || 0) + 1;
+  return {code, name, gen:TG.gen};
+}
+function tgReady(link){ TG.link = link; link.ready = true; TG.retry = 0; tgSend({t:'hello', name:tgPrefs.name, color:tgPrefs.color}); tgSendPos(true); renderTogether(); }
+function tgLost(gen, why){
+  if (gen !== TG.gen) return;
+  TG.link = null; tgClearPeers();
+  if (why === 'full'){ toast('That session is full (8 people).'); TG.code = ''; renderTogether(); return; }
+  if (TG.code && TG.retry < 6){ TG.retry++; toast('Connection lost — reconnecting…'); setTimeout(() => { if (TG.code && gen === TG.gen) tgJoin(TG.code, tgPrefs.name, true); }, 600 + 900 * TG.retry * Math.random()); }
+  else renderTogether();
+}
+function tgJoin(code, name, again){
+  const retry = TG.retry, j = tgStart(code, name); if (!j) return;
+  if (again) TG.retry = retry;
   renderTogether();
+  if (ROOM_BASE) tgJoinServer(j); else tgJoinP2P(j);
+}
+function tgJoinServer(j){
+  let ws; try { ws = new WebSocket(ROOM_BASE.replace(/^http/, 'ws') + '/room/' + j.code); } catch (e) { toast('Couldn’t reach the Play-together server.'); return; }
+  const link = {send:m => { if (ws.readyState === 1) ws.send(JSON.stringify(m)); }, close:() => { try { ws.close(1000); } catch (e) {} }};
+  TG.pending = link;
+  ws.onopen = () => { if (j.gen === TG.gen) tgReady(link); };
+  ws.onmessage = ev => { if (j.gen !== TG.gen) return; let m; try { m = JSON.parse(ev.data); } catch (e) { return; } tgOn(m); };
+  ws.onclose = ev => tgLost(j.gen, ev.code === 1013 || ev.reason === 'full' ? 'full' : 'closed');
+}
+
+/* ----- peer-to-peer: a room run by whoever opened the code first ----- */
+const PEERJS = 'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js';
+let peerLoading = null;
+function loadPeer(){
+  if (window.Peer) return Promise.resolve();
+  return peerLoading || (peerLoading = new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = PEERJS; sc.onload = res; sc.onerror = () => { peerLoading = null; rej(new Error('peerjs')); }; document.head.appendChild(sc); }));
+}
+// the same rules as server/room.js, run on the hosting device
+function hostRoom(localDeliver){
+  const players = new Map(); let nextId = 1;
+  const clean = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u001f<>]/g, '').slice(0, n);
+  const num = (v, lo, hi) => { const x = Number(v); return Number.isFinite(x) ? Math.max(lo, Math.min(hi, x)) : 0; };
+  const ACTS = new Set(['meet', 'order', 'taxi', 'taxi-arrive', 'ride', 'wave', 'cancel']);
+  const deliver = (to, msg) => { if (to === 'local') localDeliver(msg); else try { to.send(JSON.stringify(msg)); } catch (e) {} };
+  const broadcast = (from, msg) => { for (const [to, q] of players) if (to !== from && q.ready) deliver(to, msg); };
+  return {
+    size:() => players.size,
+    add(to){ const me = {id:nextId++, name:'', color:'#1d5fd1', ready:false, window:Date.now(), count:0}; players.set(to, me); return me; },
+    remove(to){ const me = players.get(to); if (!me) return; players.delete(to); if (me.ready) broadcast(null, {t:'leave', id:me.id}); },
+    message(to, raw){
+      const me = players.get(to); if (!me) return;
+      const now = Date.now(); if (now - me.window > 1000){ me.window = now; me.count = 0; } if (++me.count > 30) return;
+      let m; try { m = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (e) { return; }
+      if (!m || typeof m.t !== 'string') return;
+      if (m.t === 'hello'){
+        me.name = clean(m.name, 24) || 'Player ' + me.id; me.color = /^#[0-9a-f]{6}$/i.test(m.color || '') ? m.color : '#1d5fd1'; me.ready = true;
+        deliver(to, {t:'welcome', id:me.id, peers:[...players.values()].filter(q => q !== me && q.ready).map(q => ({id:q.id, name:q.name, color:q.color, pos:q.pos || null}))});
+        broadcast(to, {t:'join', id:me.id, name:me.name, color:me.color}); return;
+      }
+      if (!me.ready) return;
+      if (m.t === 'pos'){ me.pos = {x:num(m.x, -20000, 20000), z:num(m.z, -20000, 20000), yaw:num(m.yaw, -100, 100), isl:clean(m.isl, 16), inside:clean(m.inside, 16), place:clean(m.place, 48)}; broadcast(to, Object.assign({t:'pos', id:me.id}, me.pos)); return; }
+      if (m.t === 'say'){ broadcast(to, {t:'say', id:me.id, dv:clean(m.dv, 120), en:clean(m.en, 120)}); return; }
+      if (m.t === 'act' && ACTS.has(m.kind)) broadcast(to, {t:'act', id:me.id, kind:m.kind, place:clean(m.place, 48), key:clean(m.key, 16), x:num(m.x, -20000, 20000), z:num(m.z, -20000, 20000), yaw:num(m.yaw, -100, 100), dest:clean(m.dest, 48)});
+    }
+  };
+}
+async function tgJoinP2P(j){
+  try { await loadPeer(); } catch (e) { toast('Couldn’t load Play together — check your connection.'); TG.code = ''; renderTogether(); return; }
+  if (j.gen !== TG.gen) return;
+  const hostId = 'pocketmale-room-' + j.code.toLowerCase();
+  const tryHost = () => {
+    const peer = new Peer(hostId, {debug:0});
+    TG.pending = {close:() => peer.destroy()};
+    peer.on('open', () => {
+      if (j.gen !== TG.gen){ peer.destroy(); return; }
+      // I opened this code first: host the room on this device
+      const room = hostRoom(m => { if (j.gen === TG.gen) tgOn(m); });
+      room.add('local');
+      peer.on('connection', conn => {
+        conn.on('open', () => { if (room.size() >= 8){ try { conn.send(JSON.stringify({t:'full'})); } catch (e) {} setTimeout(() => conn.close(), 300); return; } room.add(conn); });
+        conn.on('data', d => room.message(conn, d));
+        conn.on('close', () => room.remove(conn));
+        conn.on('error', () => room.remove(conn));
+      });
+      TG.hosting = true;
+      tgReady({send:m => room.message('local', m), close:() => peer.destroy()});
+    });
+    peer.on('error', err => {
+      if (j.gen !== TG.gen) return;
+      if (err.type === 'unavailable-id'){ peer.destroy(); joinGuest(); }                 // someone is already hosting
+      else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error'){ peer.destroy(); tgLost(j.gen, 'net'); }
+    });
+    peer.on('disconnected', () => { if (j.gen === TG.gen && !peer.destroyed) try { peer.reconnect(); } catch (e) {} });
+  };
+  const joinGuest = () => {
+    const peer = new Peer({debug:0});
+    TG.pending = {close:() => peer.destroy()};
+    peer.on('open', () => {
+      if (j.gen !== TG.gen){ peer.destroy(); return; }
+      const conn = peer.connect(hostId, {reliable:true});
+      const link = {send:m => { try { conn.send(JSON.stringify(m)); } catch (e) {} }, close:() => peer.destroy()};
+      conn.on('open', () => { if (j.gen === TG.gen){ TG.hosting = false; tgReady(link); } });
+      conn.on('data', d => { if (j.gen !== TG.gen) return; let m; try { m = typeof d === 'string' ? JSON.parse(d) : d; } catch (e) { return; } if (m.t === 'full'){ peer.destroy(); tgLost(j.gen, 'full'); return; } tgOn(m); });
+      conn.on('close', () => { peer.destroy(); tgLost(j.gen, 'host-left'); });          // the host left: someone takes over
+    });
+    peer.on('error', err => { if (j.gen !== TG.gen) return; peer.destroy(); if (err.type === 'peer-unavailable') setTimeout(() => { if (j.gen === TG.gen) tryHost(); }, 300 + Math.random() * 900); else tgLost(j.gen, 'net'); });
+  };
+  tryHost();
 }
 function tgLeave(quiet){
-  const ws = TG.ws; TG.ws = null; TG.code = quiet ? TG.code : '';
-  if (ws) try { ws.close(1000); } catch (e) {}
+  TG.gen = (TG.gen || 0) + 1;
+  const link = TG.link || TG.pending; TG.link = null; TG.pending = null; TG.hosting = false;
+  if (!quiet) TG.code = '';
+  if (link && link.close) try { link.close(); } catch (e) {}
   tgClearPeers(); TG.meet = null; if (!quiet){ tgPrefs.code = ''; saveTg(); toast('You left the session.'); }
   renderTogether();
 }
@@ -1955,7 +2225,7 @@ function tgOn(m){
   }
 }
 function tgSendPos(force){
-  if (!TG.ws || TG.ws.readyState !== 1) return;
+  if (!TG_ONLINE()) return;
   const where = inside ? inside.place : null;
   const m = {t:'pos', x:+P.x.toFixed(2), z:+P.z.toFixed(2), yaw:+P.yaw.toFixed(2), isl:currentIsland(), inside:where ? where.key : '', place:where ? (where.name || where.sitObj.en) : ''};
   const sig = [Math.round(m.x * 4), Math.round(m.z * 4), Math.round(m.yaw * 10), m.inside].join('|');
@@ -1982,7 +2252,7 @@ function updateTogether(dt){
 
 /* ---------- shared plans: meet at a café, order together, share a taxi ---------- */
 function tgMeet(){
-  if (!TG.ws){ toast('Join a session first.'); return; }
+  if (!TG_ONLINE()){ toast('Join a session first.'); return; }
   const cafe = nearestOfType('cafe', P.x, P.z); if (!cafe){ toast('No café found nearby.'); return; }
   const name = cafe.name || 'the café';
   TG.meet = {from:'you', key:cafe.key, name, x:cafe.ex, z:cafe.ez, place:cafe};
@@ -2048,21 +2318,19 @@ function tgRideTo(d, shared){
 /* ---------- the panel ---------- */
 function renderTogether(){
   const box2 = $('#together'); if (!box2) return;
-  if (!ROOM_BASE){
-    box2.innerHTML = '<div class="tg"><h4>Play together</h4><p class="small">Meet a friend in the same Malé — same session code, and you’ll see each other, meet at a café, order together and share a taxi.</p><p class="small">It needs the Pocket Malé server, which isn’t switched on in this build yet (see server/README.md).</p></div>';
-    return;
-  }
   let h = '<div class="tg">';
-  if (!TG.ws){
+  if (TG.code && !TG_ONLINE()){
+    h += '<h4>Session</h4><div class="bigcode">' + esc(TG.code) + '</div><p class="small">Connecting…</p><div class="krow"><button class="kbtn" data-tg="leave">Cancel</button></div>';
+  } else if (!TG_ONLINE()){
     h += '<h4>Play together</h4>'
       + '<p class="small">You and a friend type the same session code and meet in the same Malé. You’ll see each other walk around, can meet at a café, order together, and share a taxi.</p>'
       + '<label for="tgName">Your name</label><input id="tgName" maxlength="24" autocomplete="nickname" value="' + esc(tgPrefs.name || '') + '" placeholder="e.g. Aishath">'
       + '<label for="tgCode">Session code</label><input id="tgCode" class="code" maxlength="12" autocomplete="off" spellcheck="false" value="' + esc(TG.code || tgPrefs.code || '') + '" placeholder="e.g. MALE42">'
       + '<div class="krow"><button class="kbtn primary" data-tg="join">Join</button><button class="kbtn" data-tg="new">New session</button></div>'
-      + '<p class="small">Only your name and position are shared, with the people in your session — nothing is saved.</p>';
+      + '<p class="small">Only your name and position are shared, with the people in your session — nothing is saved.' + (ROOM_BASE ? '' : ' Devices connect directly; the free PeerJS service only introduces them.') + '</p>';
   } else {
     const n = TG.peers.size;
-    h += '<h4>Session</h4><div class="bigcode">' + esc(TG.code) + '</div>'
+    h += '<h4>Session' + (TG.hosting ? ' · you’re hosting' : '') + '</h4><div class="bigcode">' + esc(TG.code) + '</div>'
       + '<div class="krow"><button class="kbtn" data-tg="invite">Copy invite link</button><button class="kbtn" data-tg="leave">Leave</button></div>'
       + '<label>' + (n ? 'With you (' + n + ')' : 'Waiting for your friend…') + '</label>'
       + [...TG.peers.values()].map(p => '<div class="who"><span class="dot" style="background:' + esc(p.color) + '"></span><span>' + esc(p.name) + '<span class="at">' + esc(p.seen ? (p.inside ? 'inside ' + p.place : 'in ' + (p.isl === 'hulhumale' ? 'Hulhumalé' : p.isl === 'villimale' ? 'Villimalé' : 'Malé') + ' · ' + distTxt(Math.hypot(p.x - P.x, p.z - P.z))) : 'joining…') + '</span></span><button class="kbtn" data-tg-go="' + p.id + '">Go to</button></div>').join('')
@@ -2232,7 +2500,7 @@ function chooseOpt(k, btn){
     } else if (C.done.indexOf(t.p.sit) === -1 && t.i >= t.sit.turns.length - 1) C.done.push(t.p.sit);
     const replies = []; for (let j = t.i + 1; j < t.sit.turns.length && t.sit.turns[j].s === 'them'; j++) replies.push(t.sit.turns[j].dv);
     DhivehiAudio.playSequence([o.dv].concat(replies), 250);
-    if (typeof tgSend === 'function' && TG.ws){ tgSend({t:'say', dv:o.dv, en:o.en}); if (t.p.sit === 'cafe' || t.p.sit === 'teashop') tgSend({t:'act', kind:'order', place:o.en}); }
+    if (typeof tgSend === 'function' && TG_ONLINE()){ tgSend({t:'say', dv:o.dv, en:o.en}); if (t.p.sit === 'cafe' || t.p.sit === 'teashop') tgSend({t:'act', kind:'order', place:o.en}); }
     saveC(); hud(); t.log.push(o); t.i++; t.wrong = ''; setTimeout(advanceTalk, 280);
   } else { btn.classList.remove('wrong'); void btn.offsetWidth; btn.classList.add('wrong'); t.wrong = 'Not quite — that one means “' + o.en + '”.'; const hint = $('#hint'); if (hint) hint.textContent = t.wrong; }
 }
@@ -2419,7 +2687,7 @@ function frame(now){
     sky.position.copy(camera.position);
     sunSprite.position.set(camera.position.x + SUN_DIR.x * 3000, camera.position.y + SUN_DIR.y * 3000, camera.position.z + SUN_DIR.z * 3000);
     sun.position.set(P.x + SUN_DIR.x * 320, SUN_DIR.y * 320, P.z + SUN_DIR.z * 320); sun.target.position.set(P.x, 0, P.z); sun.target.updateMatrixWorld();
-    updateBoats(dt); updateAirport(dt);
+    updateBoats(dt); updateAirport(dt); updateShips(dt); updateFishing(dt); updateCrows();
     updateBuses(dt); updateTraffic(dt); updatePeople(dt); updateBubbles(dt); updateParked(false);
     for (let i = 0; i < markers.length; i++){ if (!markers[i].visible) continue; markers[i].position.y += Math.sin(clock * 2 + i) * .002; rings[i].material.opacity = .5 + Math.sin(clock * 3) * .3; }
   }
@@ -2445,6 +2713,7 @@ function frame(now){
       if (!br){ for (const l of LABELS){ const d = Math.hypot(l.x - P.x, l.z - P.z); if (d < bd){ bd = d; label = l.name + (I && I.id === 'hulhumale' ? ' · Hulhumalé' : ''); } } }
       if (!br) for (const A of AREAS_N) if (P.x >= A.x0 && P.x <= A.x1 && P.z >= A.z0 && P.z <= A.z1 && pointInPoly(P.x, P.z, A.pts)){ label = ['🌳', '⚽', '🛝', '🏖️', '🌿', '🏊', '🪦', '🏟️'][A.code] + ' ' + A.name; break; }
       if (!br && !I && pierY(P.x, P.z) != null) label = '⚓ On the jetty';
+      if (!br) for (const H of HARBOURS) if (Math.hypot(H.x - P.x, H.z - P.z) < H.r){ label = '⚓ ' + H.name; break; }
       const n = placesNear(P.x, P.z, 9)[0]; if (n) label = n[1].em + ' ' + (n[1].name || n[1].sitObj.en);
       let over = I ? I.name : null;
       if (!over) for (const L2 of ISLAND_LABELS) if (P.x >= L2.x0 && P.x <= L2.x1 && P.z >= L2.z0 && P.z <= L2.z1 && pointInPoly(P.x, P.z, L2.ring)){ over = L2.name; break; }
@@ -2469,7 +2738,7 @@ $('#ctrlChips').innerHTML = TOUCH ? '<span>left thumb — walk</span><span>drag 
     if (!res.ok) throw new Error('city-data.json returned ' + res.status);
     D = await res.json();
   } catch (err){ fail('Couldn’t load the map of Malé', (err && err.message) || 'Check your connection and reload.'); return; }
-  buildCity(); buildBoats(); buildAirport(); buildPlaces(); buildParkedScooters(); buildPeople(); buildTraffic(); buildBuses();
+  buildCity(); buildBoats(); buildAirport(); buildPlaces(); buildFishing(); buildCrows(); buildParkedScooters(); buildPeople(); buildTraffic(); buildBuses();
   const start = nearestOfType('teashop', 0, 0) || PLACES[0];
   const [sx, sz] = freeSpotNear(start.ex + start.nx * 2, start.ez + start.nz * 2); P.x = sx; P.z = sz; P.yaw = start.yaw + Math.PI * .5;
   updateParked(true); for (let i = 0; i < 40; i++) updatePeople(.1); for (let i = 0; i < 30; i++) updateTraffic(.05); updateBuses(0); updateMarkers();
