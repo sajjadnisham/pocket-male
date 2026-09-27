@@ -931,6 +931,21 @@
    "file": "8cafffe5da7b22.mp3",
    "voice": "learner",
    "seconds": 1.27
+  },
+  "ފޯނު ގެއްލިއްޖެ": {
+   "file": "b2791dc90db2d9.mp3",
+   "voice": "learner",
+   "seconds": 1.21
+  },
+  "ކޮންތާކުން؟": {
+   "file": "0c8be97c24524d.mp3",
+   "voice": "seller",
+   "seconds": 1.41
+  },
+  "ބަހުގައި": {
+   "file": "724bdd45ae8abb.mp3",
+   "voice": "learner",
+   "seconds": 0.86
   }
  }
 }

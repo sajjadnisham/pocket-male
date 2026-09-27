@@ -277,6 +277,54 @@ const SITUATIONS = [
       {s:'you', dv:'ހުޅުމާލޭގައި', rom:'hulhumaaleygai', en:"In Hulhumalé."},
       {s:'them', dv:'ރަނގަޅު، ދެން ބައްދަލުވާނީ', rom:'rangalhu, dhen baddaluvaanee', en:"Great — see you around."}
     ]
+  },
+  {
+    id:'police', dv:'ފުލުހުން', rom:'fulhun', en:'Police',
+    note:"For an emergency call 119. For something lost or stolen, go to the nearest police station with your ID card or passport — they will write a report you may need for insurance or to replace a SIM or card.",
+    turns:[
+      {s:'you', dv:'ފޯނު ގެއްލިއްޖެ', rom:'foanu gellijje', en:"My phone is lost."},
+      {s:'them', dv:'ކޮންތާކުން؟', rom:'konthaakun?', en:"Where did you lose it?"},
+      {s:'you', dv:'ބަހުގައި', rom:'bahugai', en:"On the bus."},
+      {s:'them', dv:'ރިޕޯޓެއް ލިޔަންވާނެ', rom:'report-eh liyanvaane', en:"We'll need to write a report."},
+      {s:'you', dv:'އައިޑީ ކާޑު މިއޮތީ', rom:'ID kaadu mi othee', en:"Here's my ID card."},
+      {s:'them', dv:'ލިބިއްޖެނަމަ ގުޅާނަން', rom:'libijjenama gulhaanan', en:"We'll call you if it's found."}
+    ]
+  },
+  {
+    id:'post', dv:'ޕޯސްޓް އޮފީސް', rom:'poast ofees', en:'Post office',
+    note:"Parcels from abroad are collected from Maldives Post with the slip you are sent. Bring ID; imported goods over the allowance pay customs duty at the counter.",
+    turns:[
+      {s:'you', dv:'ޕާސަލެއް ނަގަން އައީ', rom:'paasaleh nagan aee', en:"I've come to collect a parcel."},
+      {s:'them', dv:'ސްލިޕް ދެއްވަބަލަ', rom:'slip dhevvabala', en:"Your slip, please."},
+      {s:'you', dv:'މިއޮތީ', rom:'mi othee', en:"Here you are."},
+      {s:'them', dv:'މިތާ ސޮއިކޮށްލައްވާ', rom:'mithaa soikohlavvaa', en:"Please sign here."},
+      {s:'you', dv:'ޑިއުޓީ ދައްކަންޖެހޭތަ؟', rom:'duty dhakkanjeheytha?', en:"Do I have to pay duty?"},
+      {s:'them', dv:'ނޫން، ދައްކަން ނުޖެހޭ', rom:'noon, dhakkan nujehey', en:"No, there's nothing to pay."}
+    ]
+  },
+  {
+    id:'hardware', dv:'ހާޑްވެއަރ', rom:'haadvea', en:'Hardware shop',
+    note:"Malé's hardware shops sell everything for a flat: bulbs, fans, pipe fittings, paint and tools, often packed floor to ceiling. Bring the old part with you — it saves a second trip.",
+    turns:[
+      {s:'you', dv:'ބޮކި ހުރިތަ؟', rom:'boki hurritha?', en:"Do you have light bulbs?"},
+      {s:'them', dv:'ކިހާ ބޮޑުތަ؟', rom:'kihaa boduthaa?', en:"What size?"},
+      {s:'you', dv:'މިއީ ބޭނުންވާ ބާވަތް', rom:'mee beynunvaa baavathu', en:"This is the kind I need."},
+      {s:'them', dv:'ހުރި، ކިތައް ބޭނުން؟', rom:'huri, kithah beynun?', en:"We have them — how many?"},
+      {s:'you', dv:'ދެ ބޮކި ދީބަލަ', rom:'dhe boki dheebala', en:"Two bulbs, please."},
+      {s:'them', dv:'ސާޅީސް ރުފިޔާ', rom:'saalhees rufiyaa', en:"Forty rufiyaa."}
+    ]
+  },
+  {
+    id:'delivery', dv:'ޑެލިވަރީ', rom:'delivaree', en:'Delivery rider',
+    note:"Food, groceries and parcels all come by scooter in Malé. Riders call when they are downstairs — flats rarely have lifts, so you usually go down to meet them. Say the building name, not just the street.",
+    turns:[
+      {s:'them', dv:'ޑެލިވަރީ، ތިރިއަށް އަރައިގަންނަވާ', rom:'delivaree, thiriah araigannavaa', en:"Delivery — please come down."},
+      {s:'you', dv:'ކޮބާ ތިހުރީ؟', rom:'kobaa thihuree?', en:"Where are you?"},
+      {s:'them', dv:'ދޮރުމަތީގައި', rom:'dhorumatheegai', en:"At the door."},
+      {s:'you', dv:'ކިހާ ވަރެއް؟', rom:'kihaa vareh?', en:"How much?"},
+      {s:'them', dv:'ސަތޭކަ ރުފިޔާ', rom:'sathekaa rufiyaa', en:"A hundred rufiyaa."},
+      {s:'you', dv:'ފައިސާ މިއޮތީ، ޝުކުރިއްޔާ', rom:'faisaa mi othee, shukuriyyaa', en:"Here's the money, thanks."}
+    ]
   }
 ];
 

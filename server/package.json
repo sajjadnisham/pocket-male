@@ -1,1 +1,1 @@
-{"type":"module"}
+{"type":"module","devDependencies":{"ws":"^8.22.0"}}

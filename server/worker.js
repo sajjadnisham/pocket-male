@@ -15,7 +15,9 @@
  *   /activate  {device, license}                       -> {plan} or 400
  *   /ask       {device, license?, situation, question} -> {phrases, tip, model, plan} or 402 {error:'upgrade', plan}
  *
- * Bindings (see wrangler.toml): KV namespace PM; secret OPENAI_API_KEY.
+ *   GET /room/<code>  (WebSocket)                  -> a Play-together room, see room.js
+ *
+ * Bindings (see wrangler.toml): KV namespace PM; Durable Object ROOMS; secret OPENAI_API_KEY.
  */
 
 const J = (body, status, cors) => new Response(JSON.stringify(body), {status: status || 200, headers: {'Content-Type': 'application/json', ...cors}});
@@ -159,8 +161,13 @@ async function ask(body, req, env, cors){
   return J({phrases, tip: clip(data.tip, 500), model, plan: publicPlan(p)}, 200, cors);
 }
 
+export {Room} from './room.js';
+import {roomRequest} from './room.js';
+
 export default {
   async fetch(req, env){
+    // Play together: WebSocket rooms (server/room.js)
+    if (new URL(req.url).pathname.startsWith('/room/')) return roomRequest(req, env);
     const cors = corsFor(req, env);
     if (req.method === 'OPTIONS') return new Response(null, {status: cors ? 204 : 403, headers: cors || {}});
     if (!cors) return J({error: 'origin'}, 403, {});

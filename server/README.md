@@ -63,6 +63,31 @@ plusPrice:  '$4.99',
 Commit and push. The website updates in a minute and the Android app rebuilds
 automatically.
 
+## Play together (same Worker)
+
+`room.js` adds Play-together rooms to the same Worker: two to eight people type
+the same session code in the 3D city (👥 Together) and see each other, meet at a
+café, order together and share a taxi. The room relays positions, lines said and
+shared plans between the people in it; it stores nothing and closes when the last
+person leaves.
+
+It uses a Cloudflare **Durable Object** (one per session code), declared in
+`wrangler.toml`; `npx wrangler deploy` sets it up with everything else, and it
+runs on the free plan. The app connects to `aiEndpoint` unless you set
+`roomsEndpoint` in `config.js` to a different Worker.
+
+Try it locally with no accounts:
+
+```bash
+npm install
+```
+```bash
+node dev-rooms.mjs
+```
+
+then open `city.html?rooms=http://localhost:8788` in two browser windows and
+join the same code. `node test-rooms.mjs` checks the room protocol.
+
 ## Limits you can change (`wrangler.toml` → `[vars]`)
 
 | Setting | Default | Meaning |

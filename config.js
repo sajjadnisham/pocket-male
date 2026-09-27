@@ -4,5 +4,6 @@ window.POCKET_CONFIG = {
   aiEndpoint: '',   // your worker URL, e.g. 'https://pocket-male-ai.yourname.workers.dev'
   upgradeUrl: '',   // checkout link for Pocket Malé Plus (Gumroad or Lemon Squeezy)
   plusPrice: '',    // shown on the upgrade card, e.g. '$4.99'
+  roomsEndpoint: '', // Play together; leave empty to use aiEndpoint (the same Worker)
   androidApk: 'https://github.com/sajjadnisham/pocket-male/releases/download/android-latest/pocket-male.apk'
 };

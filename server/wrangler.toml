@@ -8,10 +8,19 @@ compatibility_date = "2026-09-01"
 binding = "PM"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"
 
+# Play together: one Durable Object per room code (free plan: SQLite-backed classes)
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+
 [vars]
 MODEL = "gpt-4o-mini"
 # The web app, the Android/iOS app shells (Capacitor) and local testing
-ALLOWED_ORIGINS = "https://sajjadnisham.github.io,https://localhost,capacitor://localhost,http://localhost:8123"
+ALLOWED_ORIGINS = "https://sajjadnisham.github.io,https://localhost,capacitor://localhost,http://localhost:8123,http://localhost:8150"
 FREE_QUESTIONS = "1"
 FREE_PER_IP_PER_DAY = "5"
 FREE_TOTAL_PER_DAY = "300"

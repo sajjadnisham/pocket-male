@@ -21,7 +21,7 @@ A static site that installs as a phone app, with Android and iPhone app shells
 | `about.html` | The marketing landing page. |
 | `config.js` | Deployment settings: ChatGPT server URL, Plus checkout link and price, Android download link. |
 | `manifest.json`, `sw.js`, `icons/` | Web app manifest, offline service worker and app icons, so it installs to a phone home screen. |
-| `server/` | **Pocket Malé AI** — the Cloudflare Worker that holds the OpenAI key, gives one free question and checks Plus licences. See `server/README.md`. |
+| `server/` | The Cloudflare Worker: **Pocket Malé AI** (holds the OpenAI key, one free question, Plus licences) and **Play together** rooms. See `server/README.md`. |
 | `package.json`, `capacitor.config.json`, `tools/build-www.js` | The Android and iPhone app shells. |
 | `.github/workflows/android.yml` | Builds the Android APK on every push. |
 
@@ -133,6 +133,16 @@ from ChatGPT are not voiced.
   at once. Walk up and tap anyone to stop them — they turn to face you, greet
   you, and you practise **asking the way** or **small talk**. Shopkeepers greet
   you in Dhivehi when you walk into a shop.
+- **Residents live their day**: they walk into shops and come back out a while
+  later, stop to chat with each other (with speech bubbles), greet you in
+  Dhivehi as you pass, and delivery riders (red shirt, red helmet) can be
+  stopped to practise meeting a delivery. Pharmacies cluster around IGMH, ADK
+  and Tree Top like the real ones, each with a green cross.
+- **Play together** (👥 Together): two to eight people type the same session
+  code — or open the invite link — and meet in the same Malé. You see each
+  other with name tags, hear each other's Dhivehi lines, can pick a café to meet
+  at, order together at the same counter, and book a taxi you can both ride.
+  Needs the server in `server/` deployed (see `server/README.md`).
 - **Search** (Places → search box) finds any named place, building, park or
   street and takes you there.
 - **Guided tour** of all 21 situations (nearest one first), or **Free** mode.

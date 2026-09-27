@@ -85,7 +85,10 @@ const norm = t => String(t).toLowerCase().normalize('NFKD').replace(/[^a-z0-9ހ-
 // Overture categories → OpenStreetMap-style tags (so one mapping decides situations and sign colours)
 const OV_TAGS = (c, alt) => {
   const all = [c].concat(alt).join(' ');
-  if (/mosque|place_of_worship|park|beach|landmark|island|bus_station|airport|ferry|marina|school|college|university|embassy|police|residential|apartment|real_estate_agent|event_planning|travel_agent|tours|scuba|diving|resort/.test(c)) return null;
+  if (/police/.test(c)) return {amenity:'police'};
+  if (/post_office/.test(c)) return {amenity:'post_office'};
+  if (/hardware|home_improvement|building_supply|paint_store/.test(c)) return {shop:'hardware'};
+  if (/mosque|place_of_worship|park|beach|landmark|island|bus_station|airport|ferry|marina|school|college|university|embassy|residential|apartment|real_estate_agent|event_planning|travel_agent|tours|scuba|diving|resort/.test(c)) return null;
   if (/coffee|cafe|tea_room|juice|bubble_tea|dessert|ice_cream/.test(all)) return {amenity:'cafe'};
   if (/restaurant|food|pizza|burger|bbq|seafood|diner|bistro|grill|shawarma|kebab/.test(all)) return {amenity:'restaurant'};
   if (/bakery|pastry|cake/.test(all)) return {shop:'bakery'};
@@ -131,7 +134,7 @@ const SIGN_CAT = t => /cafe|restaurant|fast_food|ice_cream|bar/.test(t.amenity |
   console.log('fetching airport…');    const aeroRaw = await overpass('way["aeroway"~"^(aerodrome|runway|taxiway|apron)$"]' + BBOX + ';out geom tags;');
   console.log('fetching more shops…'); const shopRaw = await overpass('(nwr["shop"]' + BBOX + ';nwr["craft"]' + BBOX + ';nwr["amenity"~"^(fuel|library|cinema|fitness_centre|post_office|internet_cafe|car_rental|driving_school|money_transfer|bureau_de_change|food_court|ice_cream|bar|pub)$"]' + BBOX + ';);out tags center;');
   console.log('fetching businesses…'); const poiRaw0 = await overpass(
-    '(nwr["amenity"~"^(marketplace|ferry_terminal|pharmacy|bank|hospital|clinic|doctors|bus_station|cafe|restaurant|fast_food|taxi|place_of_worship)$"]' + BBOX +
+    '(nwr["amenity"~"^(marketplace|ferry_terminal|pharmacy|bank|hospital|clinic|doctors|bus_station|cafe|restaurant|fast_food|taxi|place_of_worship|police|post_office)$"]' + BBOX +
     ';nwr["shop"~"^(convenience|supermarket|general|mobile_phone|electronics|hairdresser|beauty|bakery|tailor|clothes|laundry|dry_cleaning|motorcycle|motorcycle_repair|car_repair)$"]' + BBOX +
     ';nwr["office"]' + BBOX + ';nwr["craft"~"^(tailor|dressmaker)$"]' + BBOX + ';nwr["tourism"~"^(guest_house|hotel)$"]' + BBOX +
     ';nwr["highway"="bus_stop"]' + BBOX + ';);out tags center;');
@@ -384,6 +387,9 @@ const SIGN_CAT = t => /cafe|restaurant|fast_food|ice_cream|bar/.test(t.amenity |
     if (s === 'tailor' || /^(tailor|dressmaker)$/.test(c || '')) return 'tailor';
     if (/^(laundry|dry_cleaning)$/.test(s || '')) return 'laundry';
     if (/^(motorcycle|motorcycle_repair|car_repair)$/.test(s || '')) return 'garage';
+    if (a === 'police') return 'police';
+    if (a === 'post_office') return 'post';
+    if (/^(hardware|doityourself|paint|electrical|trade)$/.test(s || '')) return 'hardware';
     if (a === 'bank') return 'bank';
     if (a === 'pharmacy') return 'pharmacy';
     if (/drug agency|residence tower/i.test(t.name || '') || t.healthcare === 'sample_collection') return null;
@@ -496,9 +502,9 @@ const SIGN_CAT = t => /cafe|restaurant|fast_food|ice_cream|bar/.test(t.amenity |
     usedUnits.add(i); signs.push([i, nm.slice(0, 40), SIGN_CAT(p.tags)]);
   }
   // make sure every situation exists on both islands, spread across town
-  const MIN = {villimale:{teashop:3, shop:4, restaurant:2, cafe:2, pharmacy:1, mosque:0, bakery:1, barber:1},
-               male:{cafe:12, laundry:10, tailor:10, garage:12, bakery:8, office:10, guesthouse:4, landlord:8, taxi:4, phone:8, barber:8, bank:5, pharmacy:6, shop:25, teashop:20, restaurant:15, clinic:3, kurumba:3, market:1, ferry:1, bus:2},
-               hulhumale:{cafe:10, laundry:5, tailor:5, garage:6, bakery:5, office:6, guesthouse:12, landlord:6, taxi:3, phone:5, barber:5, bank:3, pharmacy:4, shop:15, teashop:12, restaurant:12, clinic:2, kurumba:2, market:1, ferry:1, bus:4}};
+  const MIN = {villimale:{police:1, teashop:3, shop:4, restaurant:2, cafe:2, pharmacy:1, mosque:0, bakery:1, barber:1},
+               male:{police:3, post:2, hardware:10, cafe:12, laundry:10, tailor:10, garage:12, bakery:8, office:10, guesthouse:4, landlord:8, taxi:4, phone:8, barber:8, bank:5, pharmacy:6, shop:25, teashop:20, restaurant:15, clinic:3, kurumba:3, market:1, ferry:1, bus:2},
+               hulhumale:{police:2, post:1, hardware:5, cafe:10, laundry:5, tailor:5, garage:6, bakery:5, office:6, guesthouse:12, landlord:6, taxi:3, phone:5, barber:5, bank:3, pharmacy:4, shop:15, teashop:12, restaurant:12, clinic:2, kurumba:2, market:1, ferry:1, bus:4}};
   for (const isl of Object.keys(MIN)){
     const pool = units.map((u, i) => i).filter(i => units[i].isl === isl && !usedUnits.has(i) && units[i].road.w >= 5);
     for (let k = pool.length - 1; k > 0; k--){ const j = ri(k + 1); [pool[k], pool[j]] = [pool[j], pool[k]]; }

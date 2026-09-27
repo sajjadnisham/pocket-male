@@ -66,6 +66,25 @@ a{color:inherit}
 .panel .it .done{color:var(--lagoon);font-size:.8rem}
 .panel h4{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:8px 10px 4px}
 .panel .real{display:block;font-size:.68rem;color:var(--muted)}
+.panel.together{left:auto;right:10px;top:calc(max(10px,env(safe-area-inset-top)) + 186px);bottom:auto;max-height:calc(100vh - 260px)}
+.together .tg{padding:8px 10px 4px}
+.together .tg h4{margin:4px 0 8px}
+.together label{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:8px 0 4px}
+.together input{width:100%;padding:9px 11px;border:1px solid var(--rule);border-radius:10px;font:inherit;font-size:.9rem;background:#fff;color:var(--ink);-webkit-user-select:text;user-select:text}
+.together input.code{font-family:var(--mono);letter-spacing:.2em;text-transform:uppercase}
+.together .krow{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.together .kbtn{border-radius:999px;padding:8px 13px;font-size:.8rem;border:1px solid var(--rule);background:var(--card)}
+.together .kbtn.primary{background:var(--red);color:#fdf4ea;border-color:var(--red)}
+.together .bigcode{font-family:var(--mono);font-size:1.5rem;letter-spacing:.25em;color:var(--red);margin:2px 0 4px}
+.together .who{display:flex;align-items:center;gap:8px;padding:7px 2px;font-size:.84rem;border-top:1px solid var(--rule)}
+.together .who .dot{width:12px;height:12px;border-radius:50%;flex:none}
+.together .who .at{display:block;font-size:.7rem;color:var(--muted)}
+.together .who button{margin-left:auto}
+.together .small{font-size:.74rem;color:var(--muted);line-height:1.45;margin:8px 2px 2px}
+.together .phr{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.together .phr button{text-align:left;padding:6px 10px;border:1px solid var(--rule);border-radius:9px;background:var(--card);font-size:.8rem}
+.together .phr .dv{font-size:1rem;display:block}
+#togetherCount{margin-left:4px;background:var(--red);color:#fdf4ea;border-radius:999px;padding:0 6px;font-size:.66rem}
 .panel .find{display:block;width:calc(100% - 12px);margin:6px;padding:9px 12px;border:1px solid var(--rule);border-radius:10px;font:inherit;font-size:.86rem;background:#fff;color:var(--ink);-webkit-user-select:text;user-select:text}
 .panel .find:focus{outline:2px solid var(--ochre);outline-offset:1px}
 .note.small{font-size:.72rem;border-left-color:var(--rule);margin-top:-6px}
@@ -163,6 +182,9 @@ a{color:inherit}
       <a class="pill" href="./index.html">Pocket Malé ↗</a>
       <button class="pill" id="muteBtn" aria-label="Sound on or off">🔊</button>
     </div>
+    <div class="row">
+      <button class="pill" id="togetherBtn" aria-label="Play together">👥 Together<b id="togetherCount" hidden></b></button>
+    </div>
   </div>
   <div class="bl">
     <div class="alt" id="altBtns" hidden><button id="upBtn" aria-label="Fly higher">▲</button><button id="downBtn" aria-label="Fly lower">▼</button></div>
@@ -186,6 +208,7 @@ a{color:inherit}
 <button class="act" id="act" hidden></button>
 <div class="joy" id="joy" hidden><i id="knob"></i></div>
 <div class="panel" id="places" hidden></div>
+<div class="panel together" id="together" hidden></div>
 <div class="mapview" id="mapview" hidden><canvas id="bigmap"></canvas><p>Tap a place to go there · tap anywhere else to close</p></div>
 <div class="word" id="word" hidden></div>
 <div class="toast" id="toast" hidden></div>
@@ -200,6 +223,7 @@ a{color:inherit}
     <p class="body">A bright morning on real streets. The coastline, every road and the mapped buildings come from OpenStreetMap; the businesses, hospitals, masjids and offices sit where OpenStreetMap puts them, with their real names, scooters crowd the kerbs, people are out walking and the blue buses run Boduthakurufaanu Magu, Majeedhee Magu and Hulhumalé’s main roads.</p>
     <ul>
       <li><b>31,000 shopfronts you can walk into</b> — tea shops, cafés, restaurants, fihaara, bakeries, tailors, garages, masjids, 24 kinds in all. 2,122 are real businesses with their real names, from OpenStreetMap and Overture; the rest are invented shops on real buildings, and the app says so.</li>
+      <li><b>Play together</b>: you and a friend type the same session code (👥 Together) and meet in the same Malé — at a café to order coffee, or share a taxi.</li>
       <li><b>A city of 200,000</b>: everyone on the pavement is a resident with a name and a job, and the same street brings back the same people. Walk up and tap anyone to ask the way or make small talk.</li>
       <li>Bikes and cars weave through the traffic and stop for you. Interlocking-paver lanes inside, tarred ring roads outside, and the <b>Sinamalé Bridge</b> to <b>Hulhumalé</b> — walk it, or <b>Fly</b>.</li>
     </ul>
@@ -227,8 +251,8 @@ const sitById = id => SITUATIONS.find(x => x.id === id);
 const TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
 const EMOJI = {teashop:'☕', market:'🐟', ferry:'⛴️', taxi:'🚕', shop:'🏪', pharmacy:'💊', clinic:'🏥', landlord:'🏠', kurumba:'🥥', restaurant:'🍛',
-               phone:'📱', barber:'💈', bank:'🏦', bus:'🚌', mosque:'🕌', office:'🏢', bakery:'🥖', tailor:'🧵', laundry:'🧺', garage:'🔧', guesthouse:'🛏️', cafe:'🥤', street:'🧭', chat:'💬'};
-const NPC_SITS = ['street', 'chat'];   // conversations you have with people on the street, not in a shop
+               phone:'📱', barber:'💈', bank:'🏦', bus:'🚌', mosque:'🕌', office:'🏢', bakery:'🥖', tailor:'🧵', laundry:'🧺', garage:'🔧', guesthouse:'🛏️', cafe:'🥤', street:'🧭', chat:'💬', police:'🚓', post:'📮', hardware:'🔨', delivery:'🛵'};
+const NPC_SITS = ['street', 'chat', 'delivery'];   // conversations you have with people on the street, not in a shop
 const TASK = {
   teashop:{turn:2, text:'order two gulha and a black tea'}, market:{turn:0, text:'ask the price of the fish'},
   kurumba:{turn:2, text:'buy two young coconuts'},          restaurant:{turn:2, text:'order tea with less sugar'},
@@ -241,11 +265,17 @@ const TASK = {
   bakery:{turn:2, text:'buy ten roshi'},                     tailor:{turn:0, text:'ask them to shorten your clothes'},
   laundry:{turn:0, text:'ask them to wash your clothes'},    garage:{turn:0, text:'say your bike won’t start'},
   guesthouse:{turn:0, text:'ask whether a room is free'},      cafe:{turn:1, text:'order an iced coffee'},
-  street:{turn:0, text:'ask the way to a pharmacy'},          chat:{turn:0, text:'say hello and ask how they are'}
+  street:{turn:0, text:'ask the way to a pharmacy'},          chat:{turn:0, text:'say hello and ask how they are'},
+  police:{turn:0, text:'report that your phone is lost'},    post:{turn:0, text:'collect a parcel'},
+  hardware:{turn:0, text:'ask for light bulbs'},             delivery:{turn:1, text:'ask the delivery rider where they are'}
 };
-const TOUR_ORDER = ['teashop', 'chat', 'cafe', 'shop', 'street', 'bakery', 'restaurant', 'mosque', 'pharmacy', 'phone', 'barber', 'bank', 'tailor', 'laundry', 'garage',
+const TOUR_ORDER = ['teashop', 'chat', 'cafe', 'shop', 'street', 'delivery', 'bakery', 'hardware', 'post', 'police', 'restaurant', 'mosque', 'pharmacy', 'phone', 'barber', 'bank', 'tailor', 'laundry', 'garage',
                     'office', 'clinic', 'market', 'kurumba', 'bus', 'taxi', 'ferry', 'landlord', 'guesthouse'];
 const WORDS = {
+  parcel:{dv:'ޕާސަލް', rom:'paasal', en:'parcel'},
+  bulb:{dv:'ބޮކި', rom:'boki', en:'light bulb'},
+  report:{dv:'ރިޕޯޓް', rom:'report', en:'report'},
+  pharmacy:{dv:'ފާމަސީ', rom:'faamasee', en:'pharmacy', note:'Pharmacies cluster around the hospitals — the streets beside IGMH and ADK are lined with them.'},
   hello:{dv:'އައްސަލާމު ޢަލައިކުމް', rom:'assalaamu alaikum', en:'hello (peace be upon you)'},
   welcome:{dv:'މަރުޙަބާ', rom:'marhabaa', en:'welcome'},
   airport:{dv:'ވައިގެ ބަނދަރު', rom:'vaige bandharu', en:'airport', note:'Velana International Airport is on Hulhulé, next to Hulhumalé — the bridge and the airport ferry both go there.'},
@@ -287,17 +317,21 @@ const hrand = (h, n) => h % n;                       // stable pick from a hash
 const hfloat = h => (h >>> 8) / 16777216;
 
 // the trades of a Malé street, roughly in the proportions the mapped businesses show
-const TRADE_MIX = [['shop', 16], ['cafe', 9], ['restaurant', 9], ['tailor', 7], ['office', 7], ['barber', 6], ['phone', 5], ['teashop', 5],
-                   ['guesthouse', 5], ['laundry', 4], ['bakery', 4], ['garage', 4], ['pharmacy', 3], ['clinic', 3], ['bank', 2], ['landlord', 2], ['kurumba', 2]];
+const TRADE_MIX = [['hardware', 3], ['shop', 16], ['cafe', 9], ['restaurant', 9], ['tailor', 7], ['office', 7], ['barber', 6], ['phone', 5], ['teashop', 5],
+                   ['guesthouse', 5], ['laundry', 4], ['bakery', 4], ['garage', 4], ['pharmacy', 1], ['clinic', 2], ['bank', 2], ['landlord', 2], ['kurumba', 2]];
 const TRADE_PICK = TRADE_MIX.flatMap(([id, n]) => Array(n).fill(id));
 // shop names are built the way Malé's are: a Dhivehi or English word plus a shop word
 const NAME_A = ['Fini', 'Raalhu', 'Dhivehi', 'Kanbaa', 'Muraka', 'Fehi', 'Dhoni', 'Vaali', 'Hiya', 'Sosun', 'Rihi', 'Boashi', 'Kurangi', 'Maalan', 'Hudhu', 'Reethi', 'Ever', 'Blue', 'Ocean', 'Island', 'Coral', 'Palm', 'Lagoon', 'Sunny', 'Royal', 'Silver', 'Golden', 'Happy', 'Smart', 'City', 'Star', 'New', 'Grand', 'Nasandhura', 'Athama', 'Endheri', 'Vaadhoo', 'Kaani', 'Miyaru', 'Handhu'];
 const NAME_B = {shop:['Store', 'Mart', 'Trade', 'Shop', 'Supermarket', 'Corner'], cafe:['Cafe', 'Coffee', 'Lounge', 'Bites', 'Brew'], restaurant:['Restaurant', 'Kitchen', 'Grill', 'Diner', 'Food'],
   teashop:['Hotaa', 'Tea Shop', 'Sai Hotaa'], tailor:['Tailors', 'Stitch', 'Fashion', 'Textiles'], office:['Holdings', 'Investment', 'Services', 'Agency', 'Group'], barber:['Salon', 'Barbers', 'Cuts', 'Beauty'],
   phone:['Mobile', 'Electronics', 'Telecom', 'Gadgets'], guesthouse:['Inn', 'Guest House', 'Residence', 'Lodge'], laundry:['Laundry', 'Dry Clean', 'Wash'], bakery:['Bakery', 'Bakes', 'Oven'],
-  garage:['Garage', 'Motors', 'Service Centre'], pharmacy:['Pharmacy', 'Chemist', 'Medicals'], clinic:['Clinic', 'Medical Centre', 'Health'], bank:['Exchange', 'Finance'], landlord:['Property', 'Rentals'], kurumba:['Kurumba', 'Coconut Stall']};
+  garage:['Garage', 'Motors', 'Service Centre'], hardware:['Hardware', 'Trading', 'Building Supplies', 'Electricals'], pharmacy:['Pharmacy', 'Chemist', 'Medicals'], clinic:['Clinic', 'Medical Centre', 'Health'], bank:['Exchange', 'Finance'], landlord:['Property', 'Rentals'], kurumba:['Kurumba', 'Coconut Stall']};
+let HOSPS = null;
 function shopFor(i, u){
-  const h = hash32(i, 7717, 31), trade = TRADE_PICK[hrand(h, TRADE_PICK.length)];
+  if (!HOSPS) HOSPS = D.places.filter(q => q.hosp).map(q => [q.ux, q.uz]);
+  const h = hash32(i, 7717, 31), x = u[0] / 10, z = u[1] / 10;
+  const byHospital = HOSPS.some(([hx, hz]) => Math.abs(hx - x) + Math.abs(hz - z) < 110);
+  const trade = byHospital && hfloat(h >>> 2) < .3 ? 'pharmacy' : TRADE_PICK[hrand(h, TRADE_PICK.length)];
   const words = NAME_B[trade] || NAME_B.shop;
   return {sit:trade, name:NAME_A[hrand(h >>> 5, NAME_A.length)] + ' ' + words[hrand(h >>> 11, words.length)]};
 }
@@ -575,7 +609,7 @@ function atlas(cells, cols, cw, ch, draw){
   const tex = canvasTex(c);
   return {tex, uv:i => { const u0 = (i % cols) / cols, u1 = u0 + 1 / cols, v1 = 1 - ((i / cols) | 0) / rows, v0 = v1 - 1 / rows; return [[u0 + .002, v0 + .003], [u1 - .002, v0 + .003], [u1 - .002, v1 - .003], [u0 + .002, v1 - .003]]; }};
 }
-const PSTYLE = {cafe:'#5a3a2a', street:'#1f2535', chat:'#1f2535', teashop:'#7e2f23', market:'#1f5f7a', kurumba:'#4f7a2e', restaurant:'#7e5a12', shop:'#1f2535', phone:'#b83227', barber:'#3a2f4a', bank:'#0d6663',
+const PSTYLE = {police:'#1d3a6b', post:'#c0392b', hardware:'#3a3f48', delivery:'#c0392b', cafe:'#5a3a2a', street:'#1f2535', chat:'#1f2535', teashop:'#7e2f23', market:'#1f5f7a', kurumba:'#4f7a2e', restaurant:'#7e5a12', shop:'#1f2535', phone:'#b83227', barber:'#3a2f4a', bank:'#0d6663',
                 pharmacy:'#2f7a58', clinic:'#0d6663', ferry:'#0d6663', bus:'#1d5fd1', taxi:'#1f2535', landlord:'#7a5436', mosque:'#2f6f5a', office:'#34495e',
                 bakery:'#a0622a', tailor:'#5a3a8a', laundry:'#2f86a8', garage:'#3a3f48', guesthouse:'#7a4a6a'};
 const SIT_IDS = SITUATIONS.map(s => s.id);
@@ -1182,9 +1216,23 @@ function placeBoards(pool, list, radius, wide){
     m.position.set(b.x + b.nx * b.out, b.y, b.z + b.nz * b.out); m.rotation.set(0, Math.atan2(b.nx, b.nz), 0); m.scale.set(b.w, b.h, 1); m.visible = true;
   });
 }
+let crossPool = null;
+function crossTex(){
+  const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
+  x.fillStyle = '#ffffff'; x.fillRect(0, 0, 128, 128); x.fillStyle = '#1fa65a'; x.fillRect(44, 12, 40, 104); x.fillRect(12, 44, 104, 40);
+  return canvasTex(c);
+}
 function updateNamed(){
-  if (!signPool){ signPool = makePool(TOUCH ? 28 : 44); boardPool = makePool(TOUCH ? 14 : 24); }
+  if (!signPool){ signPool = makePool(TOUCH ? 28 : 44); boardPool = makePool(TOUCH ? 14 : 24);
+    const tex = crossTex(); crossPool = []; for (let i = 0; i < 12; i++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.1), new THREE.MeshBasicMaterial({map:tex, side:THREE.DoubleSide})); m.visible = false; city.add(m); crossPool.push(m); } }
   placeBoards(signPool, NAMED, 60, false); placeBoards(boardPool, BOARDS, 260, true);
+  // a projecting green cross over every pharmacy nearby, the way you find them from down the street
+  const near = inside ? [] : placesNear(P.x, P.z, 120).filter(e => e[1].sit === 'pharmacy').slice(0, crossPool.length);
+  crossPool.forEach((m, i) => {
+    const e = near[i]; if (!e){ m.visible = false; return; }
+    const q = e[1], tx = -q.nz, tz = q.nx;
+    m.position.set(q.ux + q.nx * .75 + tx * (q.uw || 3) * .42, 3.5, q.uz + q.nz * .75 + tz * (q.uw || 3) * .42); m.rotation.set(0, Math.atan2(tx, tz), 0); m.visible = true;
+  });
 }
 
 /* ============================================================
@@ -1221,6 +1269,7 @@ function updateParked(force){
 
 let bodyMesh = null, headMesh = null;
 const PED_DRAWN = [];
+const RIDER_SHIRT = lin(0xd6452f), RIDER_HELMET = lin(0xb3261e);
 const PEDS = [], PED_N = TOUCH ? 130 : 260;
 const SHIRTS = ['#f4f4f2', '#1d5fd1', '#c0392b', '#2f7a58', '#e2b52f', '#6a4a8a', '#a8d0e6', '#f0a6a0', '#3a3f48', '#d9c7a3'].map(lin);
 const HEADS = ['#8a5a3c', '#6b4430', '#a06a48', '#7a4e34'].map(lin), SCARVES = ['#1d1d1f', '#2b3a67', '#7e2f23', '#d9c7a3', '#e7a8b8', '#3a5a4a'].map(lin);
@@ -1232,7 +1281,42 @@ function buildPeople(){
   for (let i = 0; i < PED_N; i++) PEDS.push({alive:false});
 }
 function segsNear(x, z, reach){ const out = []; const gx = Math.floor(x / 50), gz = Math.floor(z / 50); for (let ox = -reach; ox <= reach; ox++) for (let oz = -reach; oz <= reach; oz++) for (const i of SEGGRID.get((gx + ox) + ',' + (gz + oz)) || []) if (SEGS[i].w >= 4) out.push(i); return out; }
-function pedPos(p){ const s = p.s, dx = (s.bx - s.ax) / p.L, dz = (s.bz - s.az) / p.L; return [s.ax + (s.bx - s.ax) * p.t - dz * p.side * p.off, s.az + (s.bz - s.az) * p.t + dx * p.side * p.off, Math.atan2(dx * p.dir, dz * p.dir)]; }
+function pedPos(p){
+  if (p.mode === 'toShop' || p.mode === 'fromShop'){
+    const a = p.mode === 'toShop' ? p.from : p.door, b = p.mode === 'toShop' ? p.door : p.from, k = Math.min(1, p.k);
+    return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, Math.atan2(b[0] - a[0], b[1] - a[1])];
+  }
+  if (p.mode === 'inShop') return [p.door[0], p.door[1], 0];
+  const s = p.s, dx = (s.bx - s.ax) / p.L, dz = (s.bz - s.az) / p.L;
+  return [s.ax + (s.bx - s.ax) * p.t - dz * p.side * p.off, s.az + (s.bz - s.az) * p.t + dx * p.side * p.off, Math.atan2(dx * p.dir, dz * p.dir)];
+}
+/* speech bubbles over residents' heads */
+let bubblePool = null; const BUBBLES = [];
+function bubbleTex(dv, en){
+  const c = document.createElement('canvas'); c.width = 512; c.height = 176; const x = c.getContext('2d');
+  x.fillStyle = 'rgba(255,253,248,.96)'; x.beginPath(); x.roundRect ? x.roundRect(6, 6, 500, 138, 28) : x.rect(6, 6, 500, 138); x.fill(); x.beginPath(); x.moveTo(236, 142); x.lineTo(276, 142); x.lineTo(256, 172); x.fill();
+  x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#1a1814';
+  x.direction = 'rtl'; x.font = '600 54px "Noto Sans Thaana", sans-serif'; x.fillText(dv, 256, 58);
+  x.direction = 'ltr'; x.font = 'italic 30px "Newsreader", Georgia, serif'; x.fillStyle = '#4a463f'; x.fillText(en, 256, 116);
+  return canvasTex(c);
+}
+function say(ped, dv, en, secs){
+  if (!bubblePool){ bubblePool = []; for (let i = 0; i < 6; i++){ const sp = new THREE.Sprite(new THREE.SpriteMaterial({depthWrite:false, transparent:true})); sp.scale.set(2.3, .8, 1); sp.visible = false; city.add(sp); bubblePool.push(sp); } }
+  let b = BUBBLES.find(q => q.ped === ped) || BUBBLES.find(q => q.t <= 0);
+  if (!b){ if (BUBBLES.length >= bubblePool.length) return; b = {sp:bubblePool[BUBBLES.length]}; BUBBLES.push(b); }
+  if (b.sp.material.map) b.sp.material.map.dispose();
+  b.sp.material.map = bubbleTex(dv, en); b.sp.material.needsUpdate = true; b.ped = ped; b.t = secs || 3.5;
+}
+function updateBubbles(dt){
+  for (const b of BUBBLES){
+    b.t -= dt;
+    if (b.t <= 0 || !b.ped.alive || b.ped.mode === 'inShop' || inside){ b.sp.visible = false; continue; }
+    const [x, z] = pedPos(b.ped); b.sp.position.set(x, 2.45, z); b.sp.visible = true;
+  }
+}
+const GREETINGS = [['އައްސަލާމު ޢަލައިކުމް', 'Hello'], ['ކިހިނެއް؟', 'How are you?'], ['ރަނގަޅު، ޝުކުރިއްޔާ', 'Fine, thanks.'], ['މަރުޙަބާ', 'Welcome']];
+const CHAT_LINES = [['ކިހިނެއް؟', 'How are you?'], ['ރަނގަޅު، ކަލޭ ކިހިނެއް؟', 'Fine — and you?'], ['ދެން ބައްދަލުވާނީ', 'See you around.'], ['ކޮންތާކަށް ދަނީ؟', 'Where are you off to?']];
+let greetT = 0;
 function spawnPed(p){
   const list = segsNear(P.x, P.z, 3); if (!list.length){ p.alive = false; return; }
   for (let tries = 0; tries < 6; tries++){
@@ -1240,8 +1324,9 @@ function spawnPed(p){
     p.s = s; p.L = L; p.t = rand(); p.dir = rand() < .5 ? 1 : -1; p.side = rand() < .5 ? 1 : -1; p.ph = rand() * 6;
     // which of the 200,000 residents walks this stretch of pavement is fixed by the street itself
     const slot = (rand() * 64) | 0, who = resident(hash32(Math.round(s.ax), Math.round(s.az), slot) % POPULATION);
-    p.who = who; p.name = who.name; p.job = who.job; p.talking = false;
-    p.shirt = who.shirt; p.head = who.head;
+    p.who = who; p.name = who.name; p.job = who.job; p.talking = false; p.mode = 'walk'; p.goingTo = null; p.greeted = 0;
+    p.rider = who.job === 'delivery rider';
+    p.shirt = p.rider ? RIDER_SHIRT : who.shirt; p.head = p.rider ? RIDER_HELMET : who.head;
     p.speed = p.who.speed;
     p.off = s.tar ? s.w / 2 + .9 + rand() * .7 : s.w / 2 - .5 - rand() * .5;     // pavements beside tar, the edge of paver lanes
     const pos = pedPos(p); if (solidAt(pos[0], pos[1]) || Math.hypot(pos[0] - P.x, pos[1] - P.z) < 6) continue;
@@ -1251,18 +1336,42 @@ function spawnPed(p){
 }
 function updatePeople(dt){
   if (inside){ bodyMesh.count = headMesh.count = 0; return; }
-  let n = 0;
+  let n = 0; greetT -= dt;
   for (const p of PEDS){
     if (!p.alive){ if (rand() < .3) spawnPed(p); if (!p.alive) continue; }
     if (!p.talking){
-      p.t += p.dir * p.speed * dt / p.L;
-      if (p.t > 1 || p.t < 0){ p.dir = -p.dir; p.t = Math.max(0, Math.min(1, p.t)); }
+      if (p.mode === 'walk'){
+        p.t += p.dir * p.speed * dt / p.L;
+        if (p.t > 1 || p.t < 0){ p.dir = -p.dir; p.t = Math.max(0, Math.min(1, p.t)); }
+        // now and then, pop into a shop on the way
+        if (rand() < .035 * dt){
+          const [x0, z0] = pedPos(p), shop = placesNear(x0, z0, 22).map(e => e[1]).find(q => q.kind === 'shop' && q.sit !== 'bus');
+          if (shop){ p.from = [x0, z0]; p.door = [shop.ux + shop.nx * .35, shop.uz + shop.nz * .35]; p.k = 0; p.kspeed = p.speed / Math.max(1, Math.hypot(p.door[0] - x0, p.door[1] - z0)); p.mode = 'toShop'; p.goingTo = shop.name || shop.sitObj.en; }
+        }
+        // or stop to chat with someone they pass
+        else if (rand() < .02 * dt){
+          const [x0, z0] = pedPos(p), other = PEDS.find(q => q !== p && q.alive && q.mode === 'walk' && !q.talking && Math.hypot(pedPos(q)[0] - x0, pedPos(q)[1] - z0) < 2.4);
+          if (other){ const tt = 4 + rand() * 5; p.mode = other.mode = 'chat'; p.timer = other.timer = tt; p.partner = other; other.partner = p; const l = CHAT_LINES[(rand() * CHAT_LINES.length) | 0]; say(p, l[0], l[1], 3); }
+        }
+      } else if (p.mode === 'toShop'){ p.k += p.kspeed * dt; if (p.k >= 1){ p.mode = 'inShop'; p.timer = 8 + rand() * 30; } }
+      else if (p.mode === 'inShop'){ p.timer -= dt; if (p.timer <= 0){ p.mode = 'fromShop'; p.k = 0; p.goingTo = null; } }
+      else if (p.mode === 'fromShop'){ p.k += p.kspeed * dt; if (p.k >= 1) p.mode = 'walk'; }
+      else if (p.mode === 'chat'){ p.timer -= dt; if (p.timer <= 0 || !p.partner || !p.partner.alive){ p.mode = 'walk'; p.partner = null; } else if (p.timer > 1.5 && p.timer < 1.6 && p.partner.mode === 'chat'){ const l = CHAT_LINES[(rand() * CHAT_LINES.length) | 0]; say(p.partner, l[0], l[1], 2.5); } }
     }
+    if (p.mode === 'inShop'){ if (Math.hypot(p.door[0] - P.x, p.door[1] - P.z) > 170) p.alive = false; continue; }
     let [x, z, yaw] = pedPos(p);
     if (!p.talking && Math.hypot(x - P.x, z - P.z) > 170){ p.alive = false; continue; }
-    if (p.talking){ yaw = Math.atan2(P.x - x, P.z - z); } else p.ph += dt * p.speed * 6;
+    const still = p.talking || p.mode === 'chat';
+    if (p.talking){ yaw = Math.atan2(P.x - x, P.z - z); }
+    else if (p.mode === 'chat' && p.partner){ const q = pedPos(p.partner); yaw = Math.atan2(q[0] - x, q[1] - z); }
+    else p.ph += dt * p.speed * 6;
+    // residents notice you: a greeting as you pass, now and then
+    if (!still && greetT <= 0 && !talk && clock - p.greeted > 60){
+      const d = Math.hypot(x - P.x, z - P.z);
+      if (d < 3.2 && rand() < .5){ const g = GREETINGS[(rand() * 2) | 0]; say(p, g[0], g[1], 3); DhivehiAudio.play(g[0]); p.greeted = clock; greetT = 7; }
+    }
     PED_DRAWN[n] = p;
-    _o.position.set(x, (p.talking ? 0 : Math.abs(Math.sin(p.ph)) * .045) + (p.s.tar ? .12 : 0), z); _o.rotation.set(0, yaw, p.talking ? 0 : Math.sin(p.ph) * .04); _o.scale.set(1, 1, 1); _o.updateMatrix();
+    _o.position.set(x, (still ? 0 : Math.abs(Math.sin(p.ph)) * .045) + (p.mode === 'walk' && p.s.tar ? .12 : 0), z); _o.rotation.set(0, yaw, still ? 0 : Math.sin(p.ph) * .04); _o.scale.set(1, 1, 1); _o.updateMatrix();
     bodyMesh.setMatrixAt(n, _o.matrix); headMesh.setMatrixAt(n, _o.matrix); bodyMesh.setColorAt(n, p.shirt); headMesh.setColorAt(n, p.head);
     n++;
   }
@@ -1534,7 +1643,8 @@ const ROOMSTYLE = {
   pharmacy:['#2f7a58', 0xeef2ef, 0xf4f8f6], clinic:['#0d6663', 0xeef2f1, 0xe9f2f3], ferry:['#0d6663', 0xbccad0, 0xe6eff2], bus:['#1d5fd1', 0xc3c1b8, 0xe9edf5],
   taxi:['#1f2535', 0xcbc4b6, 0xf6ecc8], landlord:['#7a5436', 0xd9c9b0, 0xf2e8d8], mosque:['#2f6f5a', 0x2f6b4f, 0xf7f4ee], office:['#34495e', 0xcfd4d8, 0xf1f3f5],
   bakery:['#a0622a', 0xd8c29c, 0xf6ead4], tailor:['#5a3a8a', 0xcbbfb0, 0xf1ece6], laundry:['#2f86a8', 0xdfe6ea, 0xf2f7f9], garage:['#3a3f48', 0x8f8c86, 0xd9d6d0],
-  guesthouse:['#7a4a6a', 0xd2c2a8, 0xf4ede2], cafe:['#5a3a2a', 0xa98a6a, 0xefe6da]
+  guesthouse:['#7a4a6a', 0xd2c2a8, 0xf4ede2], cafe:['#5a3a2a', 0xa98a6a, 0xefe6da],
+  police:['#1d3a6b', 0xcfd4d8, 0xeef1f4], post:['#c0392b', 0xd8d2c4, 0xf4efe4], hardware:['#3a3f48', 0x9a958c, 0xe4e1da]
 };
 const spinners = [];
 function buildInterior(place){
@@ -1621,6 +1731,19 @@ function goods(g, kind, W, tag){
   if (kind === 'market'){ box(g, 3.2, .1, .8, 0, 1.12, -.6, std(0x9fd0e0, {roughness:.25})); for (let i = 0; i < 6; i++){ const f = ball(g, .2, -1.25 + i * .5, 1.24, -.6 + (i % 2 ? .15 : -.15), std(0x9fb2bd, {metalness:.55, roughness:.3}), 12); f.scale.set(2.2, .6, .7); tag(f, {type:'word', w:'fish'}); } }
   else if (kind === 'kurumba'){ for (let i = 0; i < 7; i++){ const row = i < 4 ? 0 : 1; tag(ball(g, .2, -1.1 + (row ? .3 : 0) + (i - (row ? 4 : 0)) * .44, 1.28 + row * .3, -.6, std(0x5f8f34, {roughness:.7}), 14), {type:'word', w:'kurumba'}); } for (let i = 0; i < 4; i++) tag(ball(g, .17, 1.3 + (i % 2) * .3, 1.22, -.75 + (i > 1 ? .3 : 0), std(0x6b4a2a), 12), {type:'word', w:'coconut'}); }
   else if (kind === 'teashop'){ box(g, 1.3, .06, .6, -.8, 1.11, -.6, std(0xc9c3b6, {metalness:.5, roughness:.4})); for (let i = 0; i < 6; i++) ball(g, .1, -1.25 + (i % 3) * .3, 1.2, -.75 + (i > 2 ? .3 : 0), std(0xb57a3c), 10); for (let i = 0; i < 3; i++) tag(cyl(g, .08, .065, .16, .6 + i * .35, 1.16, -.65, std(0xf4f0e8), 12), {type:'word', w:'tea'}); }
+  else if (kind === 'police'){
+    box(g, W - .2, 1.2, .04, 0, 1.7, -.55, new THREE.MeshStandardMaterial({color:0xd7f0ec, transparent:true, opacity:.25, roughness:.05}));
+    const crest = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.1), new THREE.MeshBasicMaterial({map:signTex('ދިވެހި ފުލުހުން', 'Maldives Police Service', '#1d3a6b', '#f4f2ec')})); crest.position.set(0, 2.3, 1.72); crest.rotation.y = Math.PI; g.add(crest);
+    tag(box(g, .5, .04, .35, -1, 1.08, -.6, std(0xf4f2ec)), {type:'word', w:'report'});
+  }
+  else if (kind === 'post'){
+    for (let s2 = 0; s2 < 3; s2++) for (let i = 0; i < 6; i++) tag(box(g, .5, .32, .4, -1.4 + i * .56, .95 + s2 * .5, 1.45, std([0xc8a878, 0xb89868, 0xd8b888][(i + s2) % 3])), {type:'word', w:'parcel'});
+    box(g, .7, 1.1, .5, 2.4, .55, -1.3, std(0xc0392b)); box(g, .5, .06, .04, 2.4, .95, -1.54, std(0x1a1d22));
+  }
+  else if (kind === 'hardware'){
+    for (let s2 = 0; s2 < 4; s2++){ box(g, W - .4, .05, .4, 0, .75 + s2 * .5, 1.5, std(0x6e6a64)); for (let i = 0; i < 9; i++){ const it = cyl(g, .07, .07, .22, -1.8 + i * .45, .9 + s2 * .5, 1.5, std([0xf4f2ec, 0xe2b52f, 0x3a86a8, 0xc0392b][(i + s2) % 4]), 8); if (s2 === 1) tag(it, {type:'word', w:'bulb'}); } }
+    for (let i = 0; i < 4; i++) box(g, .06, .8, .06, -2 + i * .3, 2.5, -1.8, std(0x8f969c));
+  }
   else if (kind === 'cafe'){
     box(g, .7, .55, .5, -1.3, 1.35, -.6, std(0x2a2d31, {metalness:.6, roughness:.3})); box(g, .5, .08, .3, -1.3, 1.1, -.35, std(0x9aa2a8, {metalness:.8, roughness:.2}));
     for (let i = 0; i < 4; i++) tag(cyl(g, .07, .055, .2, .2 + i * .32, 1.18, -.6, std(i % 2 ? 0x6b4a2e : 0xe8dcc8), 12), {type:'word', w:'tea'});
@@ -1716,6 +1839,264 @@ function exitBuilding(instant){
   };
   if (instant) go(); else fadeThen(go);
 }
+
+/* ============================================================
+   PLAY TOGETHER — two to eight people in the same Malé
+   Everyone types the same session code (or opens the invite link). The room on the
+   server (server/room.js) only relays: where you are, lines you say, and shared plans —
+   meet at a café, order together, share a taxi. Nothing is stored.
+   ============================================================ */
+const CFGC = window.POCKET_CONFIG || {};
+const ROOM_BASE = (() => {
+  // ?rooms=http://localhost:8788 for local testing only
+  const q = new URLSearchParams(location.search).get('rooms');
+  if (q && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(q)) return q;
+  return String(CFGC.roomsEndpoint || CFGC.aiEndpoint || '').replace(/\/+$/, '');
+})();
+const TG_KEY = 'pocketmale.together';
+const TG = {ws:null, code:'', me:null, peers:new Map(), sendT:0, lastSent:'', meet:null, taxi:null, retry:0};
+const PEER_COLS = ['#c0392b', '#1d5fd1', '#2f7a58', '#8a3a7a', '#d35400', '#0d6663', '#b8742a', '#3a3f48'];
+let tgPrefs; try { tgPrefs = JSON.parse(localStorage.getItem(TG_KEY) || '{}') || {}; } catch (e) { tgPrefs = {}; }
+if (!tgPrefs.color) tgPrefs.color = PEER_COLS[(Math.random() * PEER_COLS.length) | 0];
+const saveTg = () => { try { localStorage.setItem(TG_KEY, JSON.stringify(tgPrefs)); } catch (e) {} };
+const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), b => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 32]).join('');
+
+function tgSend(m){ if (TG.ws && TG.ws.readyState === 1) TG.ws.send(JSON.stringify(m)); }
+function tgJoin(code, name){
+  if (!ROOM_BASE){ toast('Play together isn’t switched on in this build yet.'); return; }
+  code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (code.length < 4){ toast('A session code is 4 to 12 letters or numbers.'); return; }
+  name = String(name || '').trim().slice(0, 24); if (!name){ toast('Type your name first, so your friend knows it’s you.'); return; }
+  tgLeave(true);
+  tgPrefs.name = name; tgPrefs.code = code; saveTg();
+  const url = ROOM_BASE.replace(/^http/, 'ws') + '/room/' + code;
+  let ws; try { ws = new WebSocket(url); } catch (e) { toast('Couldn’t reach the Play-together server.'); return; }
+  TG.ws = ws; TG.code = code; TG.lastSent = '';
+  ws.onopen = () => { TG.retry = 0; tgSend({t:'hello', name, color:tgPrefs.color}); tgSendPos(true); };
+  ws.onmessage = ev => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } tgOn(m); };
+  ws.onclose = ev => {
+    if (TG.ws !== ws) return;
+    TG.ws = null;
+    if (ev.code === 1013 || ev.reason === 'full'){ toast('That session is full (8 people).'); tgClearPeers(); renderTogether(); return; }
+    if (TG.code && TG.retry < 5){ TG.retry++; toast('Connection lost — reconnecting…'); setTimeout(() => { if (TG.code) tgJoin(TG.code, tgPrefs.name); }, 1500 * TG.retry); }
+    else { tgClearPeers(); renderTogether(); }
+  };
+  renderTogether();
+}
+function tgLeave(quiet){
+  const ws = TG.ws; TG.ws = null; TG.code = quiet ? TG.code : '';
+  if (ws) try { ws.close(1000); } catch (e) {}
+  tgClearPeers(); TG.meet = null; if (!quiet){ tgPrefs.code = ''; saveTg(); toast('You left the session.'); }
+  renderTogether();
+}
+function tgClearPeers(){ for (const p of TG.peers.values()) tgDropAvatar(p); TG.peers.clear(); tgCount(); }
+function tgCount(){ const n = TG.peers.size, b = $('#togetherCount'); b.hidden = !n; b.textContent = n; }
+
+/* ---------- other players in the world ---------- */
+function tgAvatar(col){
+  const g = new THREE.Group(), m = std(new THREE.Color(col).getHex(), {roughness:.6});
+  box(g, .42, .62, .26, 0, 1.22, 0, m); box(g, .15, .88, .18, .1, .46, 0, std(0x3a3f45)); box(g, .15, .88, .18, -.1, .46, 0, std(0x3a3f45));
+  ball(g, .15, 0, 1.68, 0, std(0x8a5a3c), 12);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(.45, .6, 24), new THREE.MeshBasicMaterial({color:new THREE.Color(col), side:THREE.DoubleSide, transparent:true, opacity:.8, depthWrite:false}));
+  ring.rotation.x = -Math.PI / 2; ring.position.y = .05; g.add(ring);
+  return g;
+}
+function tgLabel(text, col){
+  const c = document.createElement('canvas'); c.width = 384; c.height = 96; const x = c.getContext('2d');
+  x.fillStyle = col; x.beginPath(); x.roundRect ? x.roundRect(4, 14, 376, 68, 34) : x.rect(4, 14, 376, 68); x.fill();
+  x.fillStyle = '#fff'; x.font = '600 40px "Instrument Sans", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text.slice(0, 16), 192, 50);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:canvasTex(c), depthTest:false, transparent:true})); sp.scale.set(1.9, .48, 1); sp.renderOrder = 10; return sp;
+}
+function tgMakeAvatar(p){
+  tgDropAvatar(p);
+  p.g = tgAvatar(p.color); p.label = tgLabel(p.name, p.color); p.label.position.y = 2.35; p.g.add(p.label);
+  p.g.visible = false; city.add(p.g);
+}
+function tgDropAvatar(p){
+  if (p.g){ p.g.parent && p.g.parent.remove(p.g); p.g.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material){ if (o.material.map) o.material.map.dispose(); o.material.dispose(); } }); p.g = null; }
+  if (p.bubble){ p.bubble.parent && p.bubble.parent.remove(p.bubble); p.bubble.material.map && p.bubble.material.map.dispose(); p.bubble.material.dispose(); p.bubble = null; }
+}
+function tgBubble(p, dv, en){
+  if (!p.g) return;
+  if (p.bubble){ p.bubble.material.map.dispose(); } else { p.bubble = new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, depthTest:false})); p.bubble.renderOrder = 11; p.bubble.scale.set(2.5, .86, 1); p.bubble.position.y = 3.05; p.g.add(p.bubble); }
+  p.bubble.material.map = bubbleTex(dv, en || ''); p.bubble.material.needsUpdate = true; p.bubble.visible = true; p.bubbleT = 5;
+}
+function tgOn(m){
+  if (m.t === 'welcome'){
+    TG.me = m.id; tgClearPeers();
+    for (const q of m.peers){ const p = Object.assign({id:q.id, name:q.name, color:q.color, x:0, z:0, yaw:0, tx:0, tz:0, inside:'', place:'', seen:false}, q.pos ? {tx:q.pos.x, tz:q.pos.z, x:q.pos.x, z:q.pos.z, inside:q.pos.inside, place:q.pos.place, seen:true} : {}); TG.peers.set(q.id, p); tgMakeAvatar(p); }
+    tgCount(); renderTogether();
+    toast(m.peers.length ? 'Joined — ' + m.peers.map(q => q.name).join(', ') + (m.peers.length === 1 ? ' is' : ' are') + ' here.' : 'Session ' + TG.code + ' is open. Share the code — your friend will appear here.', 5000);
+    return;
+  }
+  if (m.t === 'join'){ const p = {id:m.id, name:m.name, color:m.color, x:0, z:0, yaw:0, tx:0, tz:0, inside:'', place:'', seen:false}; TG.peers.set(m.id, p); tgMakeAvatar(p); tgCount(); renderTogether(); toast('👋 ' + m.name + ' joined the session.'); DhivehiAudio.play(WORDS.hello.dv); tgSendPos(true); return; }
+  if (m.t === 'leave'){ const p = TG.peers.get(m.id); if (p){ toast(p.name + ' left the session.'); tgDropAvatar(p); TG.peers.delete(m.id); tgCount(); renderTogether(); } return; }
+  const p = TG.peers.get(m.id); if (!p) return;
+  if (m.t === 'pos'){
+    const wasInside = p.inside;
+    p.tx = m.x; p.tz = m.z; p.tyaw = m.yaw; p.inside = m.inside || ''; p.place = m.place || ''; p.isl = m.isl;
+    if (!p.seen){ p.x = m.x; p.z = m.z; p.yaw = m.yaw; p.seen = true; }
+    if (inside && p.inside && p.inside === inside.place.key && wasInside !== p.inside) toast(p.name + ' came in.');
+    TG.dirty = true;
+    return;
+  }
+  if (m.t === 'say'){ tgBubble(p, m.dv, m.en); DhivehiAudio.play(m.dv); return; }
+  if (m.t === 'act'){
+    if (m.kind === 'meet'){
+      const place = PLACES.find(q => q.key === m.key) || null;
+      TG.meet = {from:p.name, key:m.key, name:m.place, x:m.x, z:m.z, place};
+      toast('☕ ' + p.name + ' wants to meet at ' + m.place + '. Open 👥 Together to go there.', 6500); renderTogether();
+    } else if (m.kind === 'order'){ toast(p.name + ' ordered: ' + m.place); }
+    else if (m.kind === 'taxi'){ tgTaxiCome({x:m.x, z:m.z, yaw:m.yaw, by:p.name, forMe:false}); toast('🚕 ' + p.name + ' booked a taxi — walk over if you want to share it.'); }
+    else if (m.kind === 'ride'){
+      if (Math.hypot(p.x - P.x, p.z - P.z) < 12 && !inside){ const d = TAXI_DEST.find(q => q.id === m.dest); if (d){ toast('🚕 You share the taxi with ' + p.name + '.'); tgRideTo(d, true); } }
+      tgTaxiGone();
+    } else if (m.kind === 'wave'){ tgBubble(p, '👋', 'waves'); }
+  }
+}
+function tgSendPos(force){
+  if (!TG.ws || TG.ws.readyState !== 1) return;
+  const where = inside ? inside.place : null;
+  const m = {t:'pos', x:+P.x.toFixed(2), z:+P.z.toFixed(2), yaw:+P.yaw.toFixed(2), isl:currentIsland(), inside:where ? where.key : '', place:where ? (where.name || where.sitObj.en) : ''};
+  const sig = [Math.round(m.x * 4), Math.round(m.z * 4), Math.round(m.yaw * 10), m.inside].join('|');
+  if (!force && sig === TG.lastSent) return;
+  TG.lastSent = sig; tgSend(m);
+}
+function updateTogether(dt){
+  TG.sendT += dt; if (TG.sendT > .15){ TG.sendT = 0; tgSendPos(false); }
+  TG.panelT = (TG.panelT || 0) + dt; if (TG.dirty && TG.panelT > 1){ TG.panelT = 0; TG.dirty = false; if (!$('#together').hidden) renderTogether(); }
+  for (const p of TG.peers.values()){
+    if (!p.g) continue;
+    // smooth towards the last position we heard
+    const k = Math.min(1, dt * 8); p.x += (p.tx - p.x) * k; p.z += (p.tz - p.z) * k; p.yaw += angDiff(p.yaw || 0, p.tyaw || 0) * k;
+    if (p.bubble && (p.bubbleT -= dt) <= 0) p.bubble.visible = false;
+    const sameShop = inside && p.inside && p.inside === inside.place.key, outdoors = !inside && !p.inside;
+    const scene = inside ? inside.scene : city;
+    if (p.g.parent !== scene){ p.g.parent && p.g.parent.remove(p.g); scene.add(p.g); }
+    p.g.visible = p.seen && (sameShop || outdoors);
+    if (sameShop){ p.g.position.set(p.x, 0, p.z); } else if (outdoors){ const gy = groundY(p.x, p.z); p.g.position.set(p.x, gy == null ? 0 : gy, p.z); }
+    p.g.rotation.y = p.yaw;
+  }
+  if (TG.taxi) tgTaxiStep(dt);
+}
+
+/* ---------- shared plans: meet at a café, order together, share a taxi ---------- */
+function tgMeet(){
+  if (!TG.ws){ toast('Join a session first.'); return; }
+  const cafe = nearestOfType('cafe', P.x, P.z); if (!cafe){ toast('No café found nearby.'); return; }
+  const name = cafe.name || 'the café';
+  TG.meet = {from:'you', key:cafe.key, name, x:cafe.ex, z:cafe.ez, place:cafe};
+  tgSend({t:'act', kind:'meet', key:cafe.key, place:name, x:cafe.ex, z:cafe.ez});
+  toast('☕ You suggested meeting at ' + name + '. Heading there…'); travelTo(cafe, () => enterBuilding(cafe)); renderTogether();
+}
+function tgGoMeet(){
+  const m = TG.meet; if (!m) return;
+  const place = m.place || PLACES.find(q => q.key === m.key);
+  if (place) travelTo(place, () => enterBuilding(place)); else teleport(m.x, m.z, P.yaw);
+}
+function tgGoTo(id){
+  const p = TG.peers.get(id); if (!p || !p.seen) return;
+  if (p.inside){ const place = PLACES.find(q => q.key === p.inside); if (place){ travelTo(place, () => enterBuilding(place)); return; } }
+  if (inside) exitBuilding(true);
+  teleport(p.x + 1.5, p.z + 1.5, P.yaw, () => toast('You’re next to ' + p.name + '. Tap 👋 to wave.'));
+}
+
+const TAXI_DEST = [
+  {id:'ferry', label:'Hulhumalé ferry terminal', find:() => PLACES.find(q => q.sit === 'ferry' && q.isl === 'male')},
+  {id:'majeedhee', label:'Majeedhee Magu', find:() => { const l = LABELS.find(q => /majeedh/i.test(q.name)); return l && {ex:l.x, ez:l.z, yaw:0}; }},
+  {id:'igmh', label:'IGMH hospital', find:() => PLACES.find(q => q.hosp && /IGMH/.test(q.name || ''))},
+  {id:'beach', label:'Artificial Beach', find:() => { const a = AREAS_N.find(q => /artificial beach/i.test(q.name)); return a && {ex:a.cx, ez:a.cz, yaw:0}; }},
+  {id:'hulhumale', label:'Hulhumalé', find:() => { const h = ISL.find(i => i.id === 'hulhumale'); return h && PLACES.filter(q => q.isl === 'hulhumale' && q.sit === 'cafe')[0]; }}
+];
+let taxiMesh = null;
+function taxiModel(){
+  const g = new THREE.Group(), body = std(0xf4f4f2, {roughness:.35}), glass = std(0x22303a), dark = std(0x121212);
+  box(g, 4, .72, 1.76, 0, .64, 0, body); box(g, 2.1, .64, 1.62, -.25, 1.3, 0, body); box(g, 2.14, .48, 1.64, -.25, 1.32, 0, glass);
+  box(g, .8, .3, .5, -.25, 1.78, 0, std(0xe2b52f)); box(g, 4.02, .16, 1.78, 0, .82, 0, std(0x1d5fd1));
+  for (const [wx, wz] of [[1.25, .84], [-1.25, .84], [1.25, -.84], [-1.25, -.84]]){ const w = cyl(g, .33, .33, .24, wx, .33, wz, dark, 12); w.rotation.x = Math.PI / 2; }
+  g.userData.hit = {type:'word', w:'taxi'}; return g;
+}
+function tgTaxiCome(o){
+  tgTaxiGone();
+  if (!taxiMesh){ taxiMesh = taxiModel(); }
+  // it pulls up along the street from behind whoever booked it
+  const ax = Math.sin(o.yaw), az = Math.cos(o.yaw), from = [o.x + ax * 45, o.z + az * 45], to = [o.x - az * 2.2, o.z + ax * 2.2];
+  TG.taxi = {from, to, k:0, arrived:false, forMe:o.forMe, by:o.by};
+  taxiMesh.position.set(from[0], .14, from[1]); taxiMesh.rotation.y = Math.atan2(-(to[1] - from[1]), to[0] - from[0]);
+  city.add(taxiMesh); interactCity.push(taxiMesh);
+}
+function tgTaxiStep(dt){
+  const t = TG.taxi; if (t.arrived) return;
+  t.k = Math.min(1, t.k + dt * .12); const e = 1 - Math.pow(1 - t.k, 3);
+  taxiMesh.position.set(t.from[0] + (t.to[0] - t.from[0]) * e, .14, t.from[1] + (t.to[1] - t.from[1]) * e);
+  if (t.k >= 1){ t.arrived = true; if (t.forMe){ toast('🚕 Your taxi is here. Tell the driver where to go.'); const taxiPlace = {key:'taxi-ride', sit:'taxi', sitObj:sitById('taxi'), em:'🚕', name:'Your taxi', ex:P.x, ez:P.z, taxiRide:true}; openTalk(taxiPlace); } }
+}
+function tgTaxiGone(){ if (taxiMesh && taxiMesh.parent){ taxiMesh.parent.remove(taxiMesh); const i = interactCity.indexOf(taxiMesh); if (i >= 0) interactCity.splice(i, 1); } TG.taxi = null; }
+function tgBookTaxi(){
+  if (inside){ toast('Step outside first — taxis stop on the street.'); return; }
+  tgTaxiCome({x:P.x, z:P.z, yaw:P.yaw, by:'you', forMe:true});
+  tgSend({t:'act', kind:'taxi', x:P.x, z:P.z, yaw:P.yaw});
+  toast('🚕 Taxi booked — it’s on its way.' + (TG.peers.size ? ' Anyone standing with you can share it.' : ''));
+}
+function tgRideTo(d, shared){
+  const target = d.find(); if (!target){ toast('Couldn’t find ' + d.label + ' on the map.'); return; }
+  if (!shared) tgSend({t:'act', kind:'ride', dest:d.id});
+  tgTaxiGone(); closeTalk();
+  teleport(target.ex + (shared ? 1.6 : 0), target.ez + (shared ? 1.2 : 0), target.yaw || P.yaw, () => toast('🚕 Here you are — ' + d.label + '.'));
+}
+
+/* ---------- the panel ---------- */
+function renderTogether(){
+  const box2 = $('#together'); if (!box2) return;
+  if (!ROOM_BASE){
+    box2.innerHTML = '<div class="tg"><h4>Play together</h4><p class="small">Meet a friend in the same Malé — same session code, and you’ll see each other, meet at a café, order together and share a taxi.</p><p class="small">It needs the Pocket Malé server, which isn’t switched on in this build yet (see server/README.md).</p></div>';
+    return;
+  }
+  let h = '<div class="tg">';
+  if (!TG.ws){
+    h += '<h4>Play together</h4>'
+      + '<p class="small">You and a friend type the same session code and meet in the same Malé. You’ll see each other walk around, can meet at a café, order together, and share a taxi.</p>'
+      + '<label for="tgName">Your name</label><input id="tgName" maxlength="24" autocomplete="nickname" value="' + esc(tgPrefs.name || '') + '" placeholder="e.g. Aishath">'
+      + '<label for="tgCode">Session code</label><input id="tgCode" class="code" maxlength="12" autocomplete="off" spellcheck="false" value="' + esc(TG.code || tgPrefs.code || '') + '" placeholder="e.g. MALE42">'
+      + '<div class="krow"><button class="kbtn primary" data-tg="join">Join</button><button class="kbtn" data-tg="new">New session</button></div>'
+      + '<p class="small">Only your name and position are shared, with the people in your session — nothing is saved.</p>';
+  } else {
+    const n = TG.peers.size;
+    h += '<h4>Session</h4><div class="bigcode">' + esc(TG.code) + '</div>'
+      + '<div class="krow"><button class="kbtn" data-tg="invite">Copy invite link</button><button class="kbtn" data-tg="leave">Leave</button></div>'
+      + '<label>' + (n ? 'With you (' + n + ')' : 'Waiting for your friend…') + '</label>'
+      + [...TG.peers.values()].map(p => '<div class="who"><span class="dot" style="background:' + esc(p.color) + '"></span><span>' + esc(p.name) + '<span class="at">' + esc(p.seen ? (p.inside ? 'inside ' + p.place : 'in ' + (p.isl === 'hulhumale' ? 'Hulhumalé' : p.isl === 'villimale' ? 'Villimalé' : 'Malé') + ' · ' + distTxt(Math.hypot(p.x - P.x, p.z - P.z))) : 'joining…') + '</span></span><button class="kbtn" data-tg-go="' + p.id + '">Go to</button></div>').join('')
+      + (TG.meet ? '<label>Meet-up</label><div class="who"><span>☕</span><span>' + esc(TG.meet.name) + '<span class="at">' + (TG.meet.from === 'you' ? 'you suggested it' : 'suggested by ' + esc(TG.meet.from)) + '</span></span><button class="kbtn primary" data-tg="gomeet">Go</button></div>' : '')
+      + '<label>Do something together</label>'
+      + '<div class="krow"><button class="kbtn" data-tg="meet">☕ Meet at a café</button><button class="kbtn" data-tg="taxi">🚕 Book a taxi</button><button class="kbtn" data-tg="wave">👋 Wave</button></div>'
+      + '<label>Say to your friend</label><div class="phr">'
+      + [['ކިހިނެއް؟', 'How are you?'], ['އައްސަލާމު ޢަލައިކުމް، ކިހިނެއް؟', 'Hello, how are you?'], ['އައިސް ކޮފީއެއް ދީބަލަ', 'An iced coffee, please.'], ['މަޑުކޮށްލަދީބަލަ', 'Wait for me a moment.'], ['ވަރަށް ޝުކުރިއްޔާ', 'Thank you very much.'], ['ދެން ބައްދަލުވާނީ', 'See you around.']]
+          .map(([dv, en]) => '<button data-tg-say="' + esc(dv) + '" data-en="' + esc(en) + '"><span class="dv">' + dv + '</span>' + esc(en) + '</button>').join('')
+      + '</div>';
+  }
+  box2.innerHTML = h + '</div>';
+}
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (t.closest('#togetherBtn')){ const b = $('#together'); if (b.hidden){ closePanels(); renderTogether(); b.hidden = false; } else b.hidden = true; return; }
+  const a = t.closest('[data-tg]');
+  if (a){
+    const k = a.dataset.tg;
+    if (k === 'new'){ const c = newCode(); $('#tgCode').value = c; tgJoin(c, $('#tgName').value); }
+    else if (k === 'join') tgJoin($('#tgCode').value, $('#tgName').value);
+    else if (k === 'leave') tgLeave(false);
+    else if (k === 'invite'){ const link = location.origin + location.pathname + '#room=' + TG.code; (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(() => toast('Invite link copied — send it to your friend.'), () => toast('Invite link: ' + link, 8000)); }
+    else if (k === 'meet') tgMeet();
+    else if (k === 'gomeet') tgGoMeet();
+    else if (k === 'taxi'){ $('#together').hidden = true; tgBookTaxi(); }
+    else if (k === 'wave'){ tgSend({t:'act', kind:'wave'}); toast('👋 You waved.'); }
+    return;
+  }
+  const go = t.closest('[data-tg-go]'); if (go){ $('#together').hidden = true; tgGoTo(+go.dataset.tgGo); return; }
+  const sy = t.closest('[data-tg-say]'); if (sy){ tgSend({t:'say', dv:sy.dataset.tgSay, en:sy.dataset.en}); DhivehiAudio.play(sy.dataset.tgSay); toast('You said: ' + sy.dataset.en); return; }
+  const rd = t.closest('[data-ride]'); if (rd){ const d = TAXI_DEST.find(q => q.id === rd.dataset.ride); if (d) tgRideTo(d, false); return; }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target && (e.target.id === 'tgCode' || e.target.id === 'tgName')){ e.preventDefault(); tgJoin($('#tgCode').value, $('#tgName').value); } });
 
 /* ============================================================
    INPUT
@@ -1835,7 +2216,8 @@ function renderTalk(){
     h += '<p class="prompt">' + (onGoal ? '<b>Goal:</b> ' + esc(task.charAt(0).toUpperCase() + task.slice(1)) + '.' : (guided ? 'Pick what you’d say next.' : 'What do you say?')) + '</p>';
     h += '<div class="opts">' + t.options.map((o, k) => '<div class="optrow"><button class="opt" data-opt="' + k + '"><span class="dv">' + o.dv + '</span><span class="rom">' + esc(o.rom) + '</span>' + (guided ? '<span class="en">' + esc(o.en) + '</span>' : '') + '</button><button class="say optsay" data-say="' + esc(o.dv) + '" aria-label="Listen first">🔊</button></div>').join('') + '</div>';
     h += '<p class="hint" id="hint">' + esc(t.wrong) + '</p>';
-  } else h += '<div class="done-box">That’s the whole exchange. ⭐ Every line you picked is one you can say at a real counter in Malé.</div>';
+  } else if (t.p.taxiRide) h += '<div class="done-box">Where to? <div class="krow" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' + TAXI_DEST.map(d => '<button class="btn" data-ride="' + d.id + '">' + esc(d.label) + '</button>').join('') + '</div></div>';
+  else h += '<div class="done-box">That’s the whole exchange. ⭐ Every line you picked is one you can say at a real counter in Malé.</div>';
   h += '<div class="ft">' + (t.options ? '' : '<button class="btn primary" data-again>Again</button>') + '<a class="btn" href="./index.html#sit=' + t.p.sit + '">Phrasebook &amp; ChatGPT ↗</a><button class="btn" data-close-talk>Done</button></div>';
   s.innerHTML = h; s.hidden = false; s.scrollTop = s.scrollHeight;
 }
@@ -1850,6 +2232,7 @@ function chooseOpt(k, btn){
     } else if (C.done.indexOf(t.p.sit) === -1 && t.i >= t.sit.turns.length - 1) C.done.push(t.p.sit);
     const replies = []; for (let j = t.i + 1; j < t.sit.turns.length && t.sit.turns[j].s === 'them'; j++) replies.push(t.sit.turns[j].dv);
     DhivehiAudio.playSequence([o.dv].concat(replies), 250);
+    if (typeof tgSend === 'function' && TG.ws){ tgSend({t:'say', dv:o.dv, en:o.en}); if (t.p.sit === 'cafe' || t.p.sit === 'teashop') tgSend({t:'act', kind:'order', place:o.en}); }
     saveC(); hud(); t.log.push(o); t.i++; t.wrong = ''; setTimeout(advanceTalk, 280);
   } else { btn.classList.remove('wrong'); void btn.offsetWidth; btn.classList.add('wrong'); t.wrong = 'Not quite — that one means “' + o.en + '”.'; const hint = $('#hint'); if (hint) hint.textContent = t.wrong; }
 }
@@ -1857,15 +2240,17 @@ function closeTalk(){ if (talk && talk.p.npc){ const ped = talk.p.npc; setTimeou
 /* ---------- people on the street you can stop and talk to ---------- */
 function talkToPerson(ped){
   if (!ped || !ped.alive || talk) return;
-  const goal = currentGoal(), sit = NPC_SITS.includes(goal) ? goal : NPC_SITS[(Math.random() * NPC_SITS.length) | 0];
+  const goal = currentGoal(), sit = ped.rider ? 'delivery' : (goal === 'street' || goal === 'chat') ? goal : ['street', 'chat'][(Math.random() * 2) | 0];
+  if (ped.mode === 'chat' && ped.partner){ ped.partner.mode = 'walk'; ped.partner.partner = null; }
+  if (ped.mode !== 'walk'){ ped.mode = 'walk'; }
   ped.talking = true; auto = null;
   const [x, z] = pedPos(ped); P.yaw = Math.atan2(P.x - x, P.z - z);
-  openTalk({key:'npc', npc:ped, sit, sitObj:sitById(sit), em:ped.who && ped.who.woman ? '🧕' : '🙂', name:ped.name, job:ped.job, ex:x, ez:z});
+  openTalk({key:'npc', npc:ped, sit, sitObj:sitById(sit), em:ped.rider ? '🛵' : ped.who && ped.who.woman ? '🧕' : '🙂', name:ped.name, job:ped.job, ex:x, ez:z});
   if (!talk.log.length) DhivehiAudio.play(WORDS.hello.dv);
 }
-function nearestPerson(r){
+function nearestPerson(r, only){
   let best = null, bd = r;
-  for (const p of PEDS){ if (!p.alive) continue; const [x, z] = pedPos(p), d = Math.hypot(x - P.x, z - P.z); if (d < bd){ bd = d; best = p; } }
+  for (const p of PEDS){ if (!p.alive || p.mode === 'inShop' || (only && !only(p))) continue; const [x, z] = pedPos(p), d = Math.hypot(x - P.x, z - P.z); if (d < bd){ bd = d; best = p; } }
   return best;
 }
 
@@ -1948,7 +2333,7 @@ function renderPlaces(){
     return '<button class="it" data-go="' + r.id + '"><span class="em">' + EMOJI[r.id] + '</span><span>' + esc(s.en) + '<span class="real">' + r.n + ' in town' + (r.near && r.near.name ? ' · nearest: ' + esc(r.near.name) : '') + '</span></span><span class="meta">' + (done ? '<span class="done">✓</span>' : '') + '<span class="dist">' + distTxt(r.d) + '</span></span></button>';
   }).join('') + '<h4>Map</h4><button class="it" data-bigmap><span class="em">🗺️</span>Open the full map</button>';
 }
-function closePanels(){ $('#places').hidden = true; }
+function closePanels(){ $('#places').hidden = true; const tg = $('#together'); if (tg) tg.hidden = true; }
 let FIND = null;
 function findIndex(){
   if (FIND) return FIND;
@@ -1987,7 +2372,8 @@ document.addEventListener('click', e => {
     const sit = currentGoal();
     if (!sit){ C.goal = 0; C.done = []; saveC(); hud(); toast('Starting the tour again.'); return; }
     if (inside && inside.place.sit === sit){ openTalk(inside.place); return; }
-    if (NPC_SITS.includes(sit)){ if (inside){ exitBuilding(); return; } const person = nearestPerson(40); if (person){ const [x, z] = pedPos(person); travelTo({ex:x, ez:z, yaw:P.yaw}, () => talkToPerson(person)); } else toast('Walk along a busy street and tap anyone passing by.'); return; }
+    if (NPC_SITS.includes(sit)){ if (inside){ exitBuilding(); return; } const person = nearestPerson(sit === 'delivery' ? 120 : 40, sit === 'delivery' ? q => q.rider : null);
+      if (!person && sit === 'delivery'){ toast('Look for a delivery rider — red shirt and red helmet — and tap them.'); return; } if (person){ const [x, z] = pedPos(person); travelTo({ex:x, ez:z, yaw:P.yaw}, () => talkToPerson(person)); } else toast('Walk along a busy street and tap anyone passing by.'); return; }
     const p = nearestOfType(sit, P.x, P.z); if (p) travelTo(p, () => enterBuilding(p)); return;
   }
   const act = t.closest('#act');
@@ -2034,7 +2420,7 @@ function frame(now){
     sunSprite.position.set(camera.position.x + SUN_DIR.x * 3000, camera.position.y + SUN_DIR.y * 3000, camera.position.z + SUN_DIR.z * 3000);
     sun.position.set(P.x + SUN_DIR.x * 320, SUN_DIR.y * 320, P.z + SUN_DIR.z * 320); sun.target.position.set(P.x, 0, P.z); sun.target.updateMatrixWorld();
     updateBoats(dt); updateAirport(dt);
-    updateBuses(dt); updateTraffic(dt); updatePeople(dt); updateParked(false);
+    updateBuses(dt); updateTraffic(dt); updatePeople(dt); updateBubbles(dt); updateParked(false);
     for (let i = 0; i < markers.length; i++){ if (!markers[i].visible) continue; markers[i].position.y += Math.sin(clock * 2 + i) * .002; rings[i].material.opacity = .5 + Math.sin(clock * 3) * .3; }
   }
   for (const t of spinners) t.offset.x = (clock * .35) % 1;
@@ -2048,6 +2434,7 @@ function frame(now){
   if (want){ const key = want.mode + (want.place || ''); if (a.dataset.key !== key){ a.dataset.key = key; a.dataset.mode = want.mode; a.dataset.place = want.place || ''; a.innerHTML = want.html; a.classList.toggle('exit', want.mode === 'exit'); } a.hidden = false; }
   else { a.hidden = true; a.dataset.key = ''; }
 
+  updateTogether(dt);
   markT += dt; if (markT > .35){ markT = 0; updateMarkers(); updateNamed(); if (!inside) cullTiles(); }
   hudT += dt;
   if (hudT > .45){
@@ -2090,10 +2477,13 @@ $('#ctrlChips').innerHTML = TOUCH ? '<span>left thumb — walk</span><span>drag 
   camera.position.set(P.x, EYE, P.z); camera.rotation.y = P.yaw; renderer.render(city, camera);
   booted = true; requestAnimationFrame(frame);
   const hash = location.hash.match(/place=([\w-]+)/);
+  const roomHash = location.hash.match(/room=([A-Za-z0-9]{4,12})/);
+  if (roomHash){ TG.code = roomHash[1].toUpperCase(); }
   const btn = $('#enter'); btn.disabled = false;
   btn.textContent = C.goal > 0 && C.goal < TOUR_ORDER.length ? 'Continue the tour — stop ' + (C.goal + 1) + ' of ' + TOUR_ORDER.length + ' →' : 'Step out into the morning →';
   btn.addEventListener('click', () => {
     $('#intro').hidden = true; el.focus();
+    if (roomHash){ renderTogether(); $('#together').hidden = false; if (tgPrefs.name) tgJoin(TG.code, tgPrefs.name); else toast('Type your name to join session ' + TG.code + '.'); return; }
     if (hash && sitById(hash[1])){ const p = nearestOfType(hash[1], P.x, P.z); if (p){ travelTo(p); return; } }
     toast(TOUCH ? 'Left thumb to walk · drag right to look · 🏃 Run · ✈️ Fly' : 'WASD walk · Shift run · F fly · M map', 4200);
   });
