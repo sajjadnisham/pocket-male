@@ -946,6 +946,96 @@
    "file": "724bdd45ae8abb.mp3",
    "voice": "learner",
    "seconds": 0.86
+  },
+  "ރިޕޯޓެއް ލިޔަންވާނެ": {
+   "file": "2480b0ccb71f8b.mp3",
+   "voice": "seller",
+   "seconds": 1.8
+  },
+  "އައިޑީ ކާޑު މިއޮތީ": {
+   "file": "f3fbb8df9757b2.mp3",
+   "voice": "learner",
+   "seconds": 1.51
+  },
+  "ލިބިއްޖެނަމަ ގުޅާނަން": {
+   "file": "cce14d2b3c5fb6.mp3",
+   "voice": "seller",
+   "seconds": 1.84
+  },
+  "ޕާސަލެއް ނަގަން އައީ": {
+   "file": "273eef29241cf7.mp3",
+   "voice": "learner",
+   "seconds": 1.41
+  },
+  "ސްލިޕް ދެއްވަބަލަ": {
+   "file": "88dfef8dc65ffb.mp3",
+   "voice": "seller",
+   "seconds": 1.72
+  },
+  "މިތާ ސޮއިކޮށްލައްވާ": {
+   "file": "806fae0fba8c00.mp3",
+   "voice": "seller",
+   "seconds": 1.8
+  },
+  "ޑިއުޓީ ދައްކަންޖެހޭތަ؟": {
+   "file": "3dc743aa58fd0f.mp3",
+   "voice": "learner",
+   "seconds": 1.83
+  },
+  "ނޫން، ދައްކަން ނުޖެހޭ": {
+   "file": "a39478f7ae0697.mp3",
+   "voice": "seller",
+   "seconds": 1.8
+  },
+  "ބޮކި ހުރިތަ؟": {
+   "file": "454cb24cee95a6.mp3",
+   "voice": "learner",
+   "seconds": 1.15
+  },
+  "ކިހާ ބޮޑުތަ؟": {
+   "file": "0d59e5f73ad506.mp3",
+   "voice": "seller",
+   "seconds": 1.4
+  },
+  "މިއީ ބޭނުންވާ ބާވަތް": {
+   "file": "92734776200f50.mp3",
+   "voice": "learner",
+   "seconds": 1.62
+  },
+  "ހުރި، ކިތައް ބޭނުން؟": {
+   "file": "b16c8cb2e8c838.mp3",
+   "voice": "seller",
+   "seconds": 1.76
+  },
+  "ދެ ބޮކި ދީބަލަ": {
+   "file": "9e8bf7dfb462ac.mp3",
+   "voice": "learner",
+   "seconds": 1.51
+  },
+  "ޑެލިވަރީ، ތިރިއަށް އަރައިގަންނަވާ": {
+   "file": "3a87ac34f2bf7c.mp3",
+   "voice": "seller",
+   "seconds": 1.86
+  },
+  "ކޮބާ ތިހުރީ؟": {
+   "file": "e025ef5b4a4a99.mp3",
+   "voice": "learner",
+   "seconds": 1.11
+  },
+  "ދޮރުމަތީގައި": {
+   "file": "30f3077fd618a1.mp3",
+   "voice": "seller",
+   "seconds": 1.56
+  },
+  "ސަތޭކަ ރުފިޔާ": {
+   "file": "4baed12b085274.mp3",
+   "voice": "seller",
+   "seconds": 1.53
+  },
+  "ފައިސާ މިއޮތީ، ޝުކުރިއްޔާ": {
+   "file": "1d094fd7aa1e24.mp3",
+   "voice": "learner",
+   "seconds": 1.84
   }
  }
 }
