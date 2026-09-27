@@ -343,21 +343,21 @@ const SIGN_CAT = t => /cafe|restaurant|fast_food|ice_cream|bar/.test(t.amenity |
     for (let i = 0; i < n; i++){
       const [ax, az] = s.pts[i], [bx, bz] = s.pts[(i + 1) % n];
       const dx = bx - ax, dz = bz - az, len = Math.hypot(dx, dz);
-      if (len < 4) continue;
+      if (len < 3.4) continue;
       let nx = -dz / len, nz = dx / len;
       const mx = (ax + bx) / 2, mz = (az + bz) / 2;
       if (nx * (mx - s.cx) + nz * (mz - s.cz) < 0){ nx = -nx; nz = -nz; }
       const px = mx + nx * 3, pz = mz + nz * 3;
       if (inSolid(px, pz) || inWater(px, pz)) continue;
       const r = nearRoad(px, pz, 1, 4);
-      if (!isFinite(r.d) || r.clear > 7) continue;
+      if (!isFinite(r.d) || r.clear > 9) continue;
       const sl = Math.hypot(r.sdx, r.sdz) || 1;
       if (Math.abs((dx * r.sdx + dz * r.sdz) / (len * sl)) < .75) continue;
-      const count = Math.max(1, Math.floor(len / 5.2)), uw = len / count;
+      const count = Math.max(1, Math.round(len / 4.4)), uw = len / count;
       for (let k = 0; k < count; k++){
         const t = (k + .5) / count, ux = ax + dx * t, uz = az + dz * t;
         units.push({x:ux, z:uz, nx, nz, w:uw, sign:ri(SIGN_COUNT), awn:ri(AWNING_COUNT), road:r, isl:s.isl});
-        if (r.w >= 5 && rand() < .28){
+        if (r.w >= 5 && rand() < .15){
           const vx = px - r.cx, vz = pz - r.cz, vl = Math.hypot(vx, vz) || 1;
           const kerbX = r.cx + vx / vl * (r.w / 2 - .75), kerbZ = r.cz + vz / vl * (r.w / 2 - .75);
           const ang = Math.atan2(vz, vx), along = [r.sdx / sl, r.sdz / sl], rows = 2 + ri(3);

@@ -199,8 +199,9 @@ a{color:inherit}
     <p class="lab">Malé &amp; Hulhumalé in 3D · morning · experimental</p>
     <p class="body">A bright morning on real streets. The coastline, every road and the mapped buildings come from OpenStreetMap; the businesses, hospitals, masjids and offices sit where OpenStreetMap puts them, with their real names, scooters crowd the kerbs, people are out walking and the blue buses run Boduthakurufaanu Magu, Majeedhee Magu and Hulhumalé’s main roads.</p>
     <ul>
-      <li>Over a thousand real places are situations you can walk into — tea shops, restaurants, fihaara, bakeries, offices, tailors, garages and 29 masjids. Twenty-one kinds in all, each with its own conversation and Dhivehi audio.</li>
-      <li>Bikes and a few cars weave through the traffic and stop for you. Interlocking-paver lanes inside, tarred ring roads outside, and the <b>Sinamalé Bridge</b> to <b>Hulhumalé</b> — walk it, or <b>Fly</b>.</li>
+      <li><b>31,000 shopfronts you can walk into</b> — tea shops, cafés, restaurants, fihaara, bakeries, tailors, garages, masjids, 24 kinds in all. 2,122 are real businesses with their real names, from OpenStreetMap and Overture; the rest are invented shops on real buildings, and the app says so.</li>
+      <li><b>A city of 200,000</b>: everyone on the pavement is a resident with a name and a job, and the same street brings back the same people. Walk up and tap anyone to ask the way or make small talk.</li>
+      <li>Bikes and cars weave through the traffic and stop for you. Interlocking-paver lanes inside, tarred ring roads outside, and the <b>Sinamalé Bridge</b> to <b>Hulhumalé</b> — walk it, or <b>Fly</b>.</li>
     </ul>
     <div class="chips" id="ctrlChips"></div>
     <button class="enter" id="enter" disabled>Loading Malé and Hulhumalé…</button>
@@ -271,6 +272,50 @@ const WORDS = {
   clothes:{dv:'ހެދުން', rom:'hedhun', en:'clothes'}, bread:{dv:'ޕާން', rom:'paan', en:'bread'},
   key:{dv:'ތަޅުދަނޑި', rom:'thalhudhandi', en:'key'}, tyre:{dv:'ޓަޔަރު', rom:'tayaru', en:'tyre'}
 };
+
+/* ============================================================
+   A CITY THE SIZE OF THE REAL ONE
+   Every ground-floor shopfront is a shop you can walk into, and the island holds a
+   population of 200,000 residents. Neither is stored: both are derived from a hash of
+   where they belong, so the same shopfront is always the same shop with the same name,
+   and the person on a given stretch of pavement is always the same person — while only
+   what is around you is ever built or drawn.
+   ============================================================ */
+const POPULATION = 200000;
+const hash32 = (a, b, c) => { let h = (a | 0) * 374761393 + (b | 0) * 668265263 + (c | 0) * 2246822519 | 0; h = (h ^ h >>> 13) * 1274126177 | 0; return (h ^ h >>> 16) >>> 0; };
+const hrand = (h, n) => h % n;                       // stable pick from a hash
+const hfloat = h => (h >>> 8) / 16777216;
+
+// the trades of a Malé street, roughly in the proportions the mapped businesses show
+const TRADE_MIX = [['shop', 16], ['cafe', 9], ['restaurant', 9], ['tailor', 7], ['office', 7], ['barber', 6], ['phone', 5], ['teashop', 5],
+                   ['guesthouse', 5], ['laundry', 4], ['bakery', 4], ['garage', 4], ['pharmacy', 3], ['clinic', 3], ['bank', 2], ['landlord', 2], ['kurumba', 2]];
+const TRADE_PICK = TRADE_MIX.flatMap(([id, n]) => Array(n).fill(id));
+// shop names are built the way Malé's are: a Dhivehi or English word plus a shop word
+const NAME_A = ['Fini', 'Raalhu', 'Dhivehi', 'Kanbaa', 'Muraka', 'Fehi', 'Dhoni', 'Vaali', 'Hiya', 'Sosun', 'Rihi', 'Boashi', 'Kurangi', 'Maalan', 'Hudhu', 'Reethi', 'Ever', 'Blue', 'Ocean', 'Island', 'Coral', 'Palm', 'Lagoon', 'Sunny', 'Royal', 'Silver', 'Golden', 'Happy', 'Smart', 'City', 'Star', 'New', 'Grand', 'Nasandhura', 'Athama', 'Endheri', 'Vaadhoo', 'Kaani', 'Miyaru', 'Handhu'];
+const NAME_B = {shop:['Store', 'Mart', 'Trade', 'Shop', 'Supermarket', 'Corner'], cafe:['Cafe', 'Coffee', 'Lounge', 'Bites', 'Brew'], restaurant:['Restaurant', 'Kitchen', 'Grill', 'Diner', 'Food'],
+  teashop:['Hotaa', 'Tea Shop', 'Sai Hotaa'], tailor:['Tailors', 'Stitch', 'Fashion', 'Textiles'], office:['Holdings', 'Investment', 'Services', 'Agency', 'Group'], barber:['Salon', 'Barbers', 'Cuts', 'Beauty'],
+  phone:['Mobile', 'Electronics', 'Telecom', 'Gadgets'], guesthouse:['Inn', 'Guest House', 'Residence', 'Lodge'], laundry:['Laundry', 'Dry Clean', 'Wash'], bakery:['Bakery', 'Bakes', 'Oven'],
+  garage:['Garage', 'Motors', 'Service Centre'], pharmacy:['Pharmacy', 'Chemist', 'Medicals'], clinic:['Clinic', 'Medical Centre', 'Health'], bank:['Exchange', 'Finance'], landlord:['Property', 'Rentals'], kurumba:['Kurumba', 'Coconut Stall']};
+function shopFor(i, u){
+  const h = hash32(i, 7717, 31), trade = TRADE_PICK[hrand(h, TRADE_PICK.length)];
+  const words = NAME_B[trade] || NAME_B.shop;
+  return {sit:trade, name:NAME_A[hrand(h >>> 5, NAME_A.length)] + ' ' + words[hrand(h >>> 11, words.length)]};
+}
+
+// residents: name, trade and a home street, all derived from the resident's number
+const FIRST_F = ['Aishath', 'Mariyam', 'Fathimath', 'Aminath', 'Hawwa', 'Khadeeja', 'Shifa', 'Nazaahath', 'Sheena', 'Raushan', 'Zaha', 'Nashwa', 'Shiuna', 'Leena', 'Rishtha', 'Sana'];
+const FIRST_M = ['Ibrahim', 'Mohamed', 'Ahmed', 'Hassan', 'Hussain', 'Ali', 'Moosa', 'Ismail', 'Yoosuf', 'Adam', 'Shifan', 'Naail', 'Sameer', 'Rilwan', 'Mauroof', 'Shameem'];
+const LAST = ['Ibrahim', 'Mohamed', 'Ahmed', 'Hassan', 'Ali', 'Waheed', 'Saeed', 'Latheef', 'Rasheed', 'Naseem', 'Zahir', 'Shareef', 'Manik', 'Didi', 'Fulhu'];
+const JOBS = ['shopkeeper', 'student', 'teacher', 'nurse', 'taxi driver', 'civil servant', 'fisherman', 'chef', 'tailor', 'engineer', 'shop assistant', 'guesthouse owner', 'barber', 'boat captain', 'doctor', 'delivery rider', 'accountant', 'imam'];
+function resident(id){
+  const h = hash32(id, 991, 5), woman = (h & 1) === 0;
+  return {id, woman,
+    name:(woman ? FIRST_F[hrand(h >>> 3, FIRST_F.length)] : FIRST_M[hrand(h >>> 3, FIRST_M.length)]) + ' ' + LAST[hrand(h >>> 9, LAST.length)],
+    job:JOBS[hrand(h >>> 14, JOBS.length)],
+    shirt:SHIRTS[hrand(h >>> 19, SHIRTS.length)],
+    head:woman && hfloat(h >>> 4) < .75 ? SCARVES[hrand(h >>> 22, SCARVES.length)] : HEADS[hrand(h >>> 22, HEADS.length)],
+    speed:.85 + hfloat(h >>> 6) * .8};
+}
 
 /* ---------- progress ---------- */
 const CKEY = 'pocketmale.city.v3';
@@ -393,6 +438,14 @@ function instanced(geo, n, mat){
 
 /* props (trees, rocks, boats, lamp posts) merged into one mesh per tile per layer */
 const MERGE = new Map();
+const TILE_MESHES = [];
+function cullTiles(){
+  const far = (TOUCH ? 520 : 900) ** 2, near = (TOUCH ? 150 : 240) ** 2;
+  for (const t of TILE_MESHES){
+    const dx = t.x - P.x, dz = t.z - P.z, d2 = dx * dx + dz * dz;
+    t.m.visible = d2 < (t.near ? near : far);
+  }
+}
 function template(parts){ const g = mergeParts(parts); return {pos:g.attributes.position.array, nor:g.attributes.normal.array, col:g.attributes.color.array}; }
 function mergeAdd(layer, T, x, y, z, rotY, sx, sy, sz, tint){
   const k = layer + '|' + Math.floor(x / TILE) + ',' + Math.floor(z / TILE); let b = MERGE.get(k);
@@ -874,9 +927,10 @@ function buildCity(){
       tb('sign', x, z).quad(Q(-hw * .82, .09, 3.05), Q(hw * .82, .09, 3.05), Q(hw * .82, .09, 3.7), Q(-hw * .82, .09, 3.7), genSigns.uv(u[5]), white);
     }
     g.quad(Q(-hw * .95, .06, 2.55), Q(hw * .95, .06, 2.55), Q(hw * .95, .06, 2.72), Q(-hw * .95, .06, 2.72), null, frameC);
-    const ac = awnC[u[6] % awnC.length];
-    gA.quad(Q(-hw * .96, .05, 2.95), Q(hw * .96, .05, 2.95), Q(hw * .96, .95, 2.6), Q(-hw * .96, .95, 2.6), null, ac, true);
-    gA.quad(Q(-hw * .96, .95, 2.6), Q(hw * .96, .95, 2.6), Q(hw * .96, .95, 2.36), Q(-hw * .96, .95, 2.36), null, ac, true);
+    if (pl || (i * 2654435761 >>> 0) % 100 < 45){          // about half the shopfronts have an awning
+      const ac = awnC[u[6] % awnC.length];
+      gA.quad(Q(-hw * .96, .05, 2.95), Q(hw * .96, .05, 2.95), Q(hw * .96, .95, 2.52), Q(-hw * .96, .95, 2.52), null, ac, true);
+    }
   });
 
   const winMap = windowTexture(), paverMap = paverTexture();
@@ -897,6 +951,8 @@ function buildCity(){
     if (!b.pos.length) continue;
     const m = b.mesh(MAT[b.layer]);
     if (SHADOWS){ m.receiveShadow = true; m.castShadow = b.layer === 'bld' || b.layer === 'awn' || b.layer === 'conc'; }
+    // street tiles far away are hidden outright: with 31,000 shopfronts, drawing them all costs more than it shows
+    const c = m.geometry.boundingSphere.center; TILE_MESHES.push({m, x:c.x, z:c.z, near:b.layer === 'lit' || b.layer === 'psign' || b.layer === 'sign'});
     city.add(m);
   }
   tiles.clear();
@@ -1033,6 +1089,15 @@ const markerTex = new Map();
 let markers = [], rings = [];
 function buildPlaces(){
   PLACES = D.places.filter(p => sitById(p.sit)).map((p, i) => Object.assign({key:'p' + i, sitObj:sitById(p.sit), em:EMOJI[p.sit] || '•'}, p));
+  // and every other ground-floor unit is a shop too — trade and name derived from the unit
+  const taken = new Set(D.places.filter(p => p.unit != null).map(p => p.unit));
+  D.units.forEach((u, i) => {
+    if (taken.has(i)) return;
+    const x = u[0] / 10, z = u[1] / 10, nx = u[2] / 1000, nz = u[3] / 1000, made = shopFor(i, u);
+    PLACES.push({key:'u' + i, sit:made.sit, sitObj:sitById(made.sit), em:EMOJI[made.sit] || '•', name:made.name, made:1, kind:'shop', isl:null, unit:i,
+                 ux:x, uz:z, nx, nz, uw:u[4] / 10, ex:+(x + nx * 2.6).toFixed(2), ez:+(z + nz * 2.6).toFixed(2), yaw:Math.atan2(nx, nz)});
+  });
+  for (const p of PLACES) if (!p.isl){ const I = islandAt(p.ux, p.uz); p.isl = I ? I.id : 'male'; }
   // bus stops are often named after the landmark beside them ("Tree Top Hospital") — say what they are
   for (const p of PLACES) if (p.sit === 'bus' && p.name && !/bus|stop|terminal/i.test(p.name)) p.name += ' bus stop';
   PLACES.forEach((p, i) => { const k = Math.floor(p.ex / PGCELL) + ',' + Math.floor(p.ez / PGCELL); (PLACE_GRID.get(k) || PLACE_GRID.set(k, []).get(k)).push(i); });
@@ -1156,7 +1221,7 @@ function updateParked(force){
 
 let bodyMesh = null, headMesh = null;
 const PED_DRAWN = [];
-const PEDS = [], PED_N = TOUCH ? 90 : 170;
+const PEDS = [], PED_N = TOUCH ? 130 : 260;
 const SHIRTS = ['#f4f4f2', '#1d5fd1', '#c0392b', '#2f7a58', '#e2b52f', '#6a4a8a', '#a8d0e6', '#f0a6a0', '#3a3f48', '#d9c7a3'].map(lin);
 const HEADS = ['#8a5a3c', '#6b4430', '#a06a48', '#7a4e34'].map(lin), SCARVES = ['#1d1d1f', '#2b3a67', '#7e2f23', '#d9c7a3', '#e7a8b8', '#3a5a4a'].map(lin);
 function buildPeople(){
@@ -1172,9 +1237,12 @@ function spawnPed(p){
   const list = segsNear(P.x, P.z, 3); if (!list.length){ p.alive = false; return; }
   for (let tries = 0; tries < 6; tries++){
     const s = SEGS[list[(rand() * list.length) | 0]], L = Math.hypot(s.bx - s.ax, s.bz - s.az); if (L < 6) continue;
-    p.s = s; p.L = L; p.t = rand(); p.dir = rand() < .5 ? 1 : -1; p.side = rand() < .5 ? 1 : -1; p.speed = .9 + rand() * .7; p.ph = rand() * 6;
-    p.name = NAMES[(rand() * NAMES.length) | 0]; p.talking = false;
-    p.shirt = SHIRTS[(rand() * SHIRTS.length) | 0]; p.head = rand() < .45 ? SCARVES[(rand() * SCARVES.length) | 0] : HEADS[(rand() * HEADS.length) | 0];
+    p.s = s; p.L = L; p.t = rand(); p.dir = rand() < .5 ? 1 : -1; p.side = rand() < .5 ? 1 : -1; p.ph = rand() * 6;
+    // which of the 200,000 residents walks this stretch of pavement is fixed by the street itself
+    const slot = (rand() * 64) | 0, who = resident(hash32(Math.round(s.ax), Math.round(s.az), slot) % POPULATION);
+    p.who = who; p.name = who.name; p.job = who.job; p.talking = false;
+    p.shirt = who.shirt; p.head = who.head;
+    p.speed = p.who.speed;
     p.off = s.tar ? s.w / 2 + .9 + rand() * .7 : s.w / 2 - .5 - rand() * .5;     // pavements beside tar, the edge of paver lanes
     const pos = pedPos(p); if (solidAt(pos[0], pos[1]) || Math.hypot(pos[0] - P.x, pos[1] - P.z) < 6) continue;
     p.alive = true; return;
@@ -1185,7 +1253,7 @@ function updatePeople(dt){
   if (inside){ bodyMesh.count = headMesh.count = 0; return; }
   let n = 0;
   for (const p of PEDS){
-    if (!p.alive){ if (rand() < .15) spawnPed(p); if (!p.alive) continue; }
+    if (!p.alive){ if (rand() < .3) spawnPed(p); if (!p.alive) continue; }
     if (!p.talking){
       p.t += p.dir * p.speed * dt / p.L;
       if (p.t > 1 || p.t < 0){ p.dir = -p.dir; p.t = Math.max(0, Math.min(1, p.t)); }
@@ -1758,8 +1826,9 @@ function advanceTalk(){
 function renderTalk(){
   const t = talk, s = $('#talk'); if (!t){ s.hidden = true; return; }
   const guided = C.mode === 'guided', onGoal = currentGoal() === t.p.sit && t.i === TASK[t.p.sit].turn;
-  let h = '<div class="hd"><span>' + t.p.em + '</span><h3>' + esc(t.p.npc ? t.p.name + ' · ' + t.sit.en : (t.p.name || t.sit.en)) + '</h3><span class="dv">' + t.sit.dv + '</span><button class="x" data-close-talk aria-label="Close">✕</button></div>';
-  if (!t.log.length && t.i === 0) h += '<p class="note">' + esc(t.sit.note) + '</p>' + (t.p.name && !t.p.npc && !['mosque', 'bus', 'ferry', 'market'].includes(t.p.sit) ? '<p class="note small">A practice conversation set at ' + esc(t.p.name) + ' — the business isn’t involved, and prices and details are examples.</p>' : '');
+  let h = '<div class="hd"><span>' + t.p.em + '</span><h3>' + esc(t.p.npc ? t.p.name + (t.p.job ? ' · ' + t.p.job : '') : (t.p.name || t.sit.en)) + '</h3><span class="dv">' + t.sit.dv + '</span><button class="x" data-close-talk aria-label="Close">✕</button></div>';
+  if (t.p.made) h += '<p class="note small">This shopfront isn’t in the map data, so its name and trade are invented — the streets, the buildings and the conversation are not.</p>';
+  if (!t.log.length && t.i === 0) h += '<p class="note">' + esc(t.sit.note) + '</p>' + (t.p.name && !t.p.npc && !t.p.made && !['mosque', 'bus', 'ferry', 'market'].includes(t.p.sit) ? '<p class="note small">A practice conversation set at ' + esc(t.p.name) + ' — the business isn’t involved, and prices and details are examples.</p>' : '');
   h += '<div class="log">' + t.log.map(x => '<div class="b ' + x.s + '"><span class="who">' + (x.s === 'you' ? 'You' : 'They say') + '</span><span class="dv">' + x.dv + '</span><span class="rom">' + esc(x.rom) + '</span>' + ((guided || x.s === 'them') ? '<span class="en">' + esc(x.en) + '</span>' : '') + '<button class="say" data-say="' + esc(x.dv) + '" aria-label="Play">🔊</button></div>').join('') + '</div>';
   if (t.options){
     const task = TASK[t.p.sit].text;
@@ -1786,13 +1855,12 @@ function chooseOpt(k, btn){
 }
 function closeTalk(){ if (talk && talk.p.npc){ const ped = talk.p.npc; setTimeout(() => { ped.talking = false; }, 600); } talk = null; $('#talk').hidden = true; DhivehiAudio.stop(); }
 /* ---------- people on the street you can stop and talk to ---------- */
-const NAMES = ['Aishath', 'Mariyam', 'Fathimath', 'Aminath', 'Hawwa', 'Shiuna', 'Zaha', 'Nashwa', 'Ibrahim', 'Mohamed', 'Ahmed', 'Hassan', 'Ali', 'Hussain', 'Moosa', 'Ismail', 'Yoosuf', 'Shifan'];
 function talkToPerson(ped){
   if (!ped || !ped.alive || talk) return;
   const goal = currentGoal(), sit = NPC_SITS.includes(goal) ? goal : NPC_SITS[(Math.random() * NPC_SITS.length) | 0];
   ped.talking = true; auto = null;
   const [x, z] = pedPos(ped); P.yaw = Math.atan2(P.x - x, P.z - z);
-  openTalk({key:'npc', npc:ped, sit, sitObj:sitById(sit), em:'🙂', name:ped.name, ex:x, ez:z});
+  openTalk({key:'npc', npc:ped, sit, sitObj:sitById(sit), em:ped.who && ped.who.woman ? '🧕' : '🙂', name:ped.name, job:ped.job, ex:x, ez:z});
   if (!talk.log.length) DhivehiAudio.play(WORDS.hello.dv);
 }
 function nearestPerson(r){
@@ -1937,10 +2005,10 @@ document.addEventListener('click', e => {
 /* ============================================================
    LOOP
    ============================================================ */
-let last = performance.now(), clock = 0, running = true, hudT = 0, markT = 0, lastWhere = '';
-document.addEventListener('visibilitychange', () => { running = !document.hidden; last = performance.now(); if (running) requestAnimationFrame(frame); });
+let last = performance.now(), clock = 0, running = true, booted = false, hudT = 0, markT = 0, lastWhere = '';
+document.addEventListener('visibilitychange', () => { running = !document.hidden; last = performance.now(); if (running && booted) requestAnimationFrame(frame); });
 function frame(now){
-  if (!running) return;
+  if (!running || !booted) return;
   const dt = Math.min(.05, Math.max(0, (now - last) / 1000)); last = now; clock += dt;
   let f = 0, r = 0, turn = 0, up = 0;
   if (keys.w || keys.arrowup) f += 1; if (keys.s || keys.arrowdown) f -= 1; if (keys.d) r += 1; if (keys.a) r -= 1;
@@ -1980,7 +2048,7 @@ function frame(now){
   if (want){ const key = want.mode + (want.place || ''); if (a.dataset.key !== key){ a.dataset.key = key; a.dataset.mode = want.mode; a.dataset.place = want.place || ''; a.innerHTML = want.html; a.classList.toggle('exit', want.mode === 'exit'); } a.hidden = false; }
   else { a.hidden = true; a.dataset.key = ''; }
 
-  markT += dt; if (markT > .35){ markT = 0; updateMarkers(); updateNamed(); }
+  markT += dt; if (markT > .35){ markT = 0; updateMarkers(); updateNamed(); if (!inside) cullTiles(); }
   hudT += dt;
   if (hudT > .45){
     hudT = 0; hud(); drawMini();
@@ -2018,9 +2086,9 @@ $('#ctrlChips').innerHTML = TOUCH ? '<span>left thumb — walk</span><span>drag 
   const start = nearestOfType('teashop', 0, 0) || PLACES[0];
   const [sx, sz] = freeSpotNear(start.ex + start.nx * 2, start.ez + start.nz * 2); P.x = sx; P.z = sz; P.yaw = start.yaw + Math.PI * .5;
   updateParked(true); for (let i = 0; i < 40; i++) updatePeople(.1); for (let i = 0; i < 30; i++) updateTraffic(.05); updateBuses(0); updateMarkers();
-  hud(); drawMini();
+  hud(); drawMini(); cullTiles();
   camera.position.set(P.x, EYE, P.z); camera.rotation.y = P.yaw; renderer.render(city, camera);
-  requestAnimationFrame(frame);
+  booted = true; requestAnimationFrame(frame);
   const hash = location.hash.match(/place=([\w-]+)/);
   const btn = $('#enter'); btn.disabled = false;
   btn.textContent = C.goal > 0 && C.goal < TOUR_ORDER.length ? 'Continue the tour — stop ' + (C.goal + 1) + ' of ' + TOUR_ORDER.length + ' →' : 'Step out into the morning →';

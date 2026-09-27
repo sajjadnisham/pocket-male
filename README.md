@@ -98,8 +98,11 @@ from ChatGPT are not voiced.
   and block your path. **Four blue buses** run Boduthakurufaanu Magu, Majeedhee
   Magu, Airport Main Road and Midhili Magu. About 9,900 scooters are parked
   nose-in along the kerbs, and people walk the pavements.
-- **Every apartment has shops on its street-facing ground floor** (≈15,000
-  units): glass fronts, awnings and signboards.
+- **31,462 shopfronts you can walk into.** Every ground-floor unit on a
+  street-facing wall is a shop: 2,122 are real businesses with their real names
+  and trades, and the other 29,340 have a trade and a name derived from the
+  unit itself (always the same shop in the same doorway). The conversation
+  inside says plainly when a name is invented.
 - **Real businesses with their real names**: 2,121 situation places sit at real
   businesses of that kind (Senahiya Café, The Coffee Club, Costa, Seagull Cafe
   House…), and 1,360 more named shops, offices and services carry their name on
@@ -124,10 +127,12 @@ from ChatGPT are not voiced.
 - **Masjids** get white halls with domes and minarets — the Grand Friday
   Mosque's gold dome stands in an open courtyard — and a carpeted prayer hall
   inside with a shoe rack.
-- **People you can talk to**: everyone walking the pavements has a name. Walk up
-  and tap someone to stop them — they turn to face you, greet you, and you
-  practise **asking the way** or **small talk**. Shopkeepers greet you in
-  Dhivehi when you walk into a shop.
+- **A simulated population of 200,000.** Every resident has a name, a job and a
+  home street, all derived from a hash rather than stored, so the same stretch
+  of pavement always brings the same people back. Up to 260 are drawn around you
+  at once. Walk up and tap anyone to stop them — they turn to face you, greet
+  you, and you practise **asking the way** or **small talk**. Shopkeepers greet
+  you in Dhivehi when you walk into a shop.
 - **Search** (Places → search box) finds any named place, building, park or
   street and takes you there.
 - **Guided tour** of all 21 situations (nearest one first), or **Free** mode.
@@ -138,7 +143,8 @@ from ChatGPT are not voiced.
   minimap, a full map of both islands, and a button to cross to Hulhumalé.
 
 Performance: buildings, roads and shopfronts are merged into one mesh per
-280 m tile per material so off-screen tiles are culled. Scooters, riders, cars
+280 m tile per material, and tiles past 900 m (520 m on a phone) are hidden
+outright — about 130 draw calls and 185,000 triangles on a phone. Scooters, riders, cars
 and people are instanced and only simulated within ~200 m of you.
 
 ### Where the data comes from
